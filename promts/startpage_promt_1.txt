@@ -1,0 +1,53 @@
+Du bist ein erfahrener Web-Entwickler und Pädagoge.
+Erstelle eine didaktisch aufgebaute Web-App, die Schüler beim Lernen unterstützt und leicht verständlich ist.
+**Technische Anforderungen**
+* Verwende ausschließlich:
+  * HTML
+  * CSS
+  * JavaScript
+* Alles muss sich in genau **einer einzigen Datei** befinden.
+* Keine externen Libraries, Frameworks oder Build-Tools.
+* Die Anwendung muss direkt im Browser startbar sein.
+**Code-Struktur**
+* Klare Trennung:
+  * HTML = Struktur
+  * CSS = Design
+  * JavaScript = Logik
+* Der Code muss übersichtlich gegliedert sein.
+* Verwende verständliche Variablen- und Funktionsnamen.
+* Vermeide unnötig komplexe oder „clevere“ Lösungen.
+* Schreibe lieber expliziten als kompakten Code.
+**Didaktische Anforderungen**
+* Der Code dient als Unterrichtsmaterial.
+* Schreibe ausführliche Kommentare, die erklären:
+  * was passiert
+  * warum es passiert
+  * wo Schüler experimentieren können
+* Baue den Code so auf, dass Erweiterungen leicht möglich sind.
+* Markiere wichtige Lernstellen im Code deutlich.
+* Ergänze am Ende Ideen für mögliche Schüler-Erweiterungen.
+**Design-Anforderungen**
+* Modernes Darkmode-Design.
+* Stil ähnlich moderner Cloud-Code-Webseiten.
+* Farbpalette:
+  * dunkler Hintergrund
+  * lila/violette Akzente
+  * schwebende moderne Web-Blöcke
+* Nutze:
+  * weiche Schatten
+  * leichte Glow-Effekte
+  * abgerundete Container
+  * klare, ruhige und moderne UI
+**Ergebnis**
+* Liefere eine vollständig lauffähige Datei.
+* Fokus auf Verständlichkeit, Lernbarkeit und sauber dokumentierten Code.
+* Der Code soll Schülern helfen, Struktur, Logik und Webentwicklung nachvollziehen zu können.
+
+
+
+
+
+
+Erstelle ein erklär startpage die eine überschrift kurze erklärungen für generele idee für entscheidungsbäume und die idee hinter gini impurity füge jeweils zwei knöpfe hinzu die momentan noch nichts machen die aber später die funktion haben werden auf eigene seiten zu leiten wo man selber die gini impurity ausprobieren kann oder einen eigenen entscheidungsbaum.
+Integriere ebenfals folgendne youtube link als integriertes erklärviedeo.
+
