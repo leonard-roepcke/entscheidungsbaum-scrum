@@ -48,6 +48,8 @@ Erstelle eine didaktisch aufgebaute Web-App, die Schüler beim Lernen unterstüt
 
 
 
-Erstelle ein erklär startpage die eine überschrift kurze erklärungen für generele idee für entscheidungsbäume und die idee hinter gini impurity füge jeweils zwei knöpfe hinzu die momentan noch nichts machen die aber später die funktion haben werden auf eigene seiten zu leiten wo man selber die gini impurity ausprobieren kann oder einen eigenen entscheidungsbaum.
-Integriere ebenfals folgendne youtube link als integriertes erklärviedeo.
+Erstelle ein erklär startpage die eine überschrift kurze erklärungen für generele idee für entscheidungsbäume und 
+die idee hinter gini impurity füge jeweils zwei knöpfe hinzu die momentan noch nichts machen die aber später die 
+funktion haben werden auf eigene seiten zu leiten wo man selber die gini impurity ausprobieren kann oder einen eigenen entscheidungsbaum.
+Integriere ebenfals folgendne youtube link als integriertes erklärviedeo(https://youtu.be/I6169uhA_6c?is=59lNOfhtzUeUd_ui)
 
