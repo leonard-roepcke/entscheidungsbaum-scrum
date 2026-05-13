@@ -1,0 +1,5 @@
+
+Baue eine neue seite Mit dem gleichen desighn. Die Überschrift soll Entscheidungsbaum selbsttest oder so sein. Sie Auf dieser Seite soll es eine tabelle
+mit entschtungen abgebildet werden. 3 verschiedene entscheidungen zb. farbe(hell dunkel), Form(kreis viereck), buchstabe (a oder b) dann dann ein
+ergebniss ob es eine happy form ist. Dafür dann 8 einträge doer so die zufällig bestimmt werden. Dann soll man in einen leheren
+entscheidungsbaum die lösungen eintragen bzw. auswählen und dann soll man auf prüffen klicken können um zu checken ob man den richtigen entscheidungsbaum gewählt hat.

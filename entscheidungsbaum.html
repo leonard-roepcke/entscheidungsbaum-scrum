@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════════╗
+  ║   ENTSCHEIDUNGSBAUM · SELBSTTEST                                    ║
+  ║   Interaktive Lernseite – einzelne HTML-Datei                       ║
+  ║                                                                      ║
+  ║   ABLAUF:                                                            ║
+  ║   1. Beim Laden: JS generiert 8 zufällige Datenpunkte               ║
+  ║   2. JS berechnet den optimalen Entscheidungsbaum (Gini)            ║
+  ║   3. Schüler füllen den leeren Baum per Dropdown aus                ║
+  ║   4. Klick auf "Prüfen" vergleicht und gibt Feedback                ║
+  ╚══════════════════════════════════════════════════════════════════════╝
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entscheidungsbaum · Selbsttest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
+</head>
+
+<style>
+  /* ────────────────────────────────────────────────────────────────
+    CSS-VARIABLEN — identische Farbpalette wie die Hauptseite
+    🔬 Hier zentral Farben ändern, wirkt sich auf alles aus.
+  ──────────────────────────────────────────────────────────────── */
+  :root {
+    --hg-tief:       #09090f;
+    --hg-mittel:     #101018;
+    --hg-karte:      #16161f;
+    --hg-karte-2:    #1c1c28;
+    --hg-hover:      #20202e;
+
+    --akzent:        #8b5cf6;
+    --akzent-hell:   #a78bfa;
+    --akzent-dunkel: #6d28d9;
+    --glow:          rgba(139, 92, 246, 0.30);
+    --glow-s:        rgba(139, 92, 246, 0.12);
+
+    --text-1: #eef0f6;
+    --text-2: #8b9ab5;
+    --text-3: #3d4a60;
+
+    --rahmen:      rgba(139, 92, 246, 0.18);
+    --rahmen-hell: rgba(139, 92, 246, 0.40);
+
+    --gruen:       #4ade80;
+    --gruen-bg:    rgba(74, 222, 128, 0.08);
+    --gruen-b:     rgba(74, 222, 128, 0.25);
+    --rot:         #f87171;
+    --rot-bg:      rgba(248, 113, 113, 0.08);
+    --rot-b:       rgba(248, 113, 113, 0.25);
+    --gelb:        #facc15;
+    --gelb-bg:     rgba(250, 204, 21, 0.08);
+    --gelb-b:      rgba(250, 204, 21, 0.25);
+
+    --r-gross:  16px;
+    --r-mittel: 10px;
+    --r-klein:  6px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background-color: var(--hg-tief);
+    color: var(--text-1);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse 70% 45% at 50% -5%, rgba(139,92,246,0.1), transparent),
+      linear-gradient(rgba(139,92,246,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139,92,246,0.025) 1px, transparent 1px);
+    background-size: auto, 44px 44px, 44px 44px;
+  }
+
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  /* ──── NAV ──── */
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px;
+    background: rgba(22,22,31,0.85);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--r-gross);
+    backdrop-filter: blur(14px);
+    margin-bottom: 52px;
+    animation: fade-up 0.5s ease both;
+  }
+
+  .nav-logo { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--akzent-hell); }
+  .nav-badge { font-size: 10px; color: var(--text-2); background: rgba(139,92,246,0.08); border: 1px solid var(--rahmen); padding: 4px 10px; border-radius: 20px; letter-spacing: 0.07em; text-transform: uppercase; }
+
+  /* ──── HERO ──── */
+  .hero {
+    text-align: center; margin-bottom: 56px;
+    animation: fade-up 0.6s ease 0.08s both;
+  }
+
+  .hero-chip {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--akzent); background: var(--glow-s);
+    border: 1px solid var(--rahmen);
+    padding: 5px 13px; border-radius: 20px; margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.9rem, 4.5vw, 3.2rem);
+    line-height: 1.15; color: var(--text-1); margin-bottom: 16px;
+  }
+
+  .hero h1 em {
+    font-style: italic; color: var(--akzent-hell);
+    text-shadow: 0 0 48px rgba(167,139,250,0.45), 0 0 96px rgba(139,92,246,0.25);
+  }
+
+  .hero p {
+    font-size: 13px; line-height: 1.8; color: var(--text-2);
+    max-width: 560px; margin: 0 auto; font-weight: 300;
+  }
+
+  /* ──── TRENNER ──── */
+  .trenner {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+  }
+  .trenner::before, .trenner::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--rahmen), transparent);
+  }
+  .trenner span {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--akzent); white-space: nowrap;
+  }
+
+  /* ──── SEKTION-WRAPPER ──── */
+  .sektion {
+    margin-bottom: 52px;
+    animation: fade-up 0.5s ease both;
+  }
+
+  /* ──── KARTE (generisch) ──── */
+  .karte {
+    background: var(--hg-karte);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--r-gross);
+    padding: 24px 26px;
+  }
+
+  /* ──── DATENTABELLE ──── */
+  .tabellen-wrapper {
+    overflow-x: auto; /* Horizontal scrollbar auf kleinen Screens */
+    border-radius: var(--r-gross);
+    border: 1px solid var(--rahmen);
+  }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 12.5px;
+  }
+
+  thead tr {
+    background: rgba(139,92,246,0.08);
+    border-bottom: 1px solid var(--rahmen-hell);
+  }
+
+  th {
+    padding: 11px 16px; text-align: left;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--akzent-hell); white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--rahmen);
+    transition: background 0.2s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--hg-hover); }
+
+  td {
+    padding: 10px 16px; color: var(--text-2);
+    font-weight: 300; vertical-align: middle;
+  }
+
+  /* Zeilen-Index-Zelle */
+  td.idx {
+    color: var(--text-3); font-size: 11px;
+    font-weight: 500; text-align: center; width: 40px;
+  }
+
+  /* Ergebnis-Badge in der Tabelle */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+  }
+
+  .badge--ja  { color: var(--gruen); background: var(--gruen-bg); border: 1px solid var(--gruen-b); }
+  .badge--nein{ color: var(--rot);   background: var(--rot-bg);   border: 1px solid var(--rot-b);   }
+
+  /* Merkmal-Chips */
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: var(--r-klein);
+    font-size: 11.5px; font-weight: 500;
+  }
+
+  .chip--farbe-hell  { background: rgba(250,204,21,0.1); color: #fde68a; border: 1px solid rgba(250,204,21,0.2); }
+  .chip--farbe-dunkel{ background: rgba(99,102,241,0.1); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.2); }
+  .chip--form-kreis  { background: rgba(52,211,153,0.1); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.2); }
+  .chip--form-viereck{ background: rgba(251,146,60,0.1); color: #fdba74; border: 1px solid rgba(251,146,60,0.2); }
+  .chip--buch-a      { background: rgba(167,139,250,0.1); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.2); }
+  .chip--buch-b      { background: rgba(244,114,182,0.1); color: #f9a8d4; border: 1px solid rgba(244,114,182,0.2); }
+
+  /* ──── REGENERIEREN-BUTTON ──── */
+  .toolbar {
+    display: flex; justify-content: flex-end; margin-bottom: 12px;
+  }
+
+  /* ──── BUTTONS ──── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 17px; border-radius: var(--r-mittel);
+    font-family: inherit; font-size: 12px; font-weight: 500;
+    letter-spacing: 0.05em; cursor: pointer; border: none;
+    transition: all 0.22s ease; white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--akzent-dunkel), var(--akzent));
+    color: #fff; box-shadow: 0 4px 16px var(--glow-s);
+  }
+  .btn-primary:hover { box-shadow: 0 6px 26px var(--glow); transform: translateY(-1px); filter: brightness(1.1); }
+
+  .btn-ghost {
+    background: rgba(139,92,246,0.07); color: var(--akzent-hell);
+    border: 1px solid var(--rahmen);
+  }
+  .btn-ghost:hover { background: rgba(139,92,246,0.14); border-color: var(--rahmen-hell); transform: translateY(-1px); }
+
+  .btn-danger {
+    background: rgba(248,113,113,0.1); color: var(--rot);
+    border: 1px solid var(--rot-b);
+  }
+  .btn-danger:hover { background: rgba(248,113,113,0.18); }
+
+  .btn:disabled {
+    opacity: 0.45; cursor: not-allowed; transform: none !important; filter: none !important;
+  }
+
+  /* ──── ENTSCHEIDUNGSBAUM ──── */
+  /*
+    Der Baum ist als zentriertes Flex-Layout aufgebaut.
+    Jede Ebene ist eine .baum-ebene.
+    Knoten und Verbindungslinien sind separate Elemente.
+  */
+  .baum-wrapper {
+    overflow-x: auto;
+    padding: 8px 0 16px;
+  }
+
+  .baum {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    min-width: 600px; /* Verhindert Zusammendrücken auf kleinen Screens */
+  }
+
+  /* Eine horizontale Ebene mit Knoten */
+  .baum-ebene {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+    position: relative;
+  }
+
+  /* Container für einen Knoten PLUS seine Kinder-Verbindungen */
+  .knoten-gruppe {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+  }
+
+  /* Ein einzelner Knoten */
+  .knoten {
+    background: var(--hg-karte-2, #1c1c28);
+    border: 1px solid var(--rahmen-hell);
+    border-radius: var(--r-mittel);
+    padding: 10px 14px;
+    text-align: center;
+    min-width: 120px; max-width: 170px;
+    font-size: 11.5px; color: var(--text-1);
+    line-height: 1.45;
+    position: relative;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+
+  .knoten--wurzel {
+    background: rgba(139,92,246,0.1);
+    border-color: var(--akzent);
+    min-width: 150px;
+  }
+
+  /* Korrekt bewertete Knoten */
+  .knoten--korrekt {
+    border-color: var(--gruen) !important;
+    box-shadow: 0 0 16px rgba(74,222,128,0.2);
+  }
+
+  /* Falsch bewertete Knoten */
+  .knoten--falsch {
+    border-color: var(--rot) !important;
+    box-shadow: 0 0 16px rgba(248,113,113,0.2);
+  }
+
+  .knoten-label {
+    font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--akzent); margin-bottom: 5px; display: block;
+  }
+
+  /* Ergebnis-Blätter (Happy / Not Happy) */
+  .knoten--blatt-ja {
+    background: var(--gruen-bg);
+    border-color: var(--gruen-b);
+    color: var(--gruen);
+    font-weight: 700; font-size: 12px;
+  }
+
+  .knoten--blatt-nein {
+    background: var(--rot-bg);
+    border-color: var(--rot-b);
+    color: var(--rot);
+    font-weight: 700; font-size: 12px;
+  }
+
+  /* Verbindungslinien */
+  .verbindungen {
+    display: flex;
+    width: 100%;
+  }
+
+  .verbindung-seite {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    height: 44px;
+  }
+
+  /* Vertikale Linie nach unten */
+  .verbindung-seite::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    width: 1px; height: 100%;
+    background: var(--rahmen-hell);
+  }
+
+  /* Horizontale Linie zur Mitte (für die Äste) */
+  .verbindung-seite.links::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; right: 0;
+    height: 1px;
+    background: var(--rahmen-hell);
+  }
+
+  .verbindung-seite.rechts::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 50%;
+    height: 1px;
+    background: var(--rahmen-hell);
+  }
+
+  .ast-label {
+    position: absolute;
+    top: 8px;
+    font-size: 10px; font-weight: 700;
+    color: var(--akzent);
+    background: var(--hg-tief);
+    padding: 0 4px;
+    z-index: 1;
+  }
+
+  /* ──── DROPDOWN für Baum-Eingaben ──── */
+  /*
+    <select>-Elemente sind der Browser-Standard für Auswahllisten.
+    Wir stylen sie mit CSS, damit sie zum dunklen Design passen.
+    🔬 Ändere --hg-karte-2 für einen anderen Dropdown-Hintergrund.
+  */
+  .baum-select {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 5px 8px;
+    background: var(--hg-mittel, #101018);
+    border: 1px solid var(--rahmen-hell);
+    border-radius: var(--r-klein);
+    color: var(--text-1);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    outline: none;
+    appearance: none; /* Entfernt browser-eigenes Pfeil-Symbol */
+    /* Eigener Pfeil per SVG als Hintergrundgrafik */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b5cf6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 26px;
+    transition: border-color 0.2s;
+  }
+
+  .baum-select:focus { border-color: var(--akzent); }
+  .baum-select:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* ──── ERGEBNIS-PANEL ──── */
+  .ergebnis-panel {
+    display: none; /* Wird per JS eingeblendet */
+    margin-top: 24px;
+    border-radius: var(--r-gross);
+    padding: 20px 24px;
+    border: 1px solid var(--rahmen);
+    animation: fade-up 0.4s ease both;
+  }
+
+  .ergebnis-panel.korrekt {
+    background: var(--gruen-bg);
+    border-color: var(--gruen-b);
+  }
+
+  .ergebnis-panel.teilweise {
+    background: var(--gelb-bg);
+    border-color: var(--gelb-b);
+  }
+
+  .ergebnis-panel.falsch {
+    background: var(--rot-bg);
+    border-color: var(--rot-b);
+  }
+
+  .ergebnis-titel {
+    font-size: 15px; font-weight: 700;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+  }
+
+  .ergebnis-panel.korrekt  .ergebnis-titel { color: var(--gruen); }
+  .ergebnis-panel.teilweise .ergebnis-titel { color: var(--gelb); }
+  .ergebnis-panel.falsch   .ergebnis-titel { color: var(--rot); }
+
+  .ergebnis-text {
+    font-size: 12.5px; line-height: 1.75;
+    color: var(--text-2); font-weight: 300;
+  }
+
+  .ergebnis-text strong { color: var(--text-1); font-weight: 600; }
+
+  /* ──── LÖSUNG-ANZEIGE ──── */
+  .loesung-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  @media (max-width: 600px) { .loesung-grid { grid-template-columns: 1fr 1fr; } }
+
+  .loesung-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--r-mittel);
+    padding: 9px 12px;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+  .loesung-item .l-label { color: var(--text-3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .loesung-item .l-wert  { color: var(--akzent-hell); font-weight: 600; }
+  .loesung-item.l-ok     { border-color: var(--gruen-b); }
+  .loesung-item.l-fail   { border-color: var(--rot-b); }
+
+  /* ──── HINWEIS-BOX ──── */
+  .hinweis {
+    background: rgba(139,92,246,0.05);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--r-mittel);
+    padding: 14px 18px;
+    display: flex; gap: 10px;
+    font-size: 12px; color: var(--text-2); line-height: 1.7;
+    margin-top: 16px;
+  }
+
+  .hinweis strong { color: var(--akzent-hell); }
+
+  /* ──── ANIMATIONEN ──── */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes puls {
+    0%, 100% { box-shadow: 0 0 0 0 transparent; }
+    50%       { box-shadow: 0 0 18px 3px var(--glow-s); }
+  }
+
+</style>
+
+<body>
+<div class="container">
+
+  <!-- NAV -->
+  <nav class="nav" role="navigation">
+    <span class="nav-logo">🌳 ML Grundlagen</span>
+    <span class="nav-badge">Interaktiver Selbsttest</span>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" role="banner">
+    <div class="hero-chip">Maschinelles Lernen · Selbsttest</div>
+    <h1>Baue deinen eigenen<br><em>Entscheidungsbaum</em></h1>
+    <p>
+      Analysiere die Datentabelle, erkenne welche Merkmale das Ergebnis bestimmen —
+      und trage deine Lösung in den leeren Baum ein. Dann prüfen wir gemeinsam, ob du Recht hast.
+    </p>
+  </header>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+    SEKTION 1: DATENTABELLE
+    
+    Die Tabelle zeigt 8 zufällig generierte Datenpunkte.
+    Jeder Punkt hat 3 Merkmale und ein Ergebnis (Happy / Not Happy).
+    
+    Die Daten werden komplett per JavaScript erzeugt —
+    beim Neuladen oder Klick auf "Neu generieren" entstehen neue Daten.
+  ══════════════════════════════════════════════════════════════════ -->
+  <section class="sektion" id="sektion-tabelle">
+    <div class="trenner"><span>Schritt 1 · Die Datentabelle</span></div>
+
+    <div class="karte" style="padding: 0; overflow:hidden;">
+
+      <!-- Toolbar mit Regenerieren-Button -->
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--rahmen);">
+        <div>
+          <div style="font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--akzent-hell); margin-bottom:3px;">Trainingsdaten</div>
+          <div style="font-size:12px; color:var(--text-2); font-weight:300;">Welche Muster erkennst du? Was beeinflusst das Ergebnis?</div>
+        </div>
+        <button class="btn btn-ghost" onclick="neuGenerieren()" id="btn-neu">
+          ↻ Neu generieren
+        </button>
+      </div>
+
+      <div class="tabellen-wrapper">
+        <table id="datentabelle" aria-label="Trainingsdaten für den Entscheidungsbaum">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>🎨 Farbe</th>
+              <th>⬡ Form</th>
+              <th>🔤 Buchstabe</th>
+              <th>Ergebnis</th>
+            </tr>
+          </thead>
+          <tbody id="tabellen-body">
+            <!-- Wird per JavaScript befüllt -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Hinweis für den Schüler -->
+    <div class="hinweis">
+      <span style="font-size:16px; flex-shrink:0;">💡</span>
+      <div>
+        <strong>Tipp:</strong> Schau dir die Tabelle systematisch an.
+        Welches Merkmal trennt <em>Happy</em> und <em>Not Happy</em> am besten?
+        Gibt es Zeilen, die gleiche Merkmale aber unterschiedliche Ergebnisse haben?
+        Das ist dein erster Hinweis auf die wichtigste Frage im Baum.
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+    SEKTION 2: BAUM AUSFÜLLEN
+    
+    Jeder Knoten hat genau EIN Dropdown: das Merkmal.
+    Der linke Ast zeigt automatisch den ersten Wert des Merkmals,
+    der rechte Ast den zweiten — z.B. links "Hell", rechts "Dunkel".
+    Die Ast-Labels werden per JavaScript live aktualisiert.
+  ══════════════════════════════════════════════════════════════════ -->
+  <section class="sektion" id="sektion-baum">
+    <div class="trenner"><span>Schritt 2 · Deinen Baum aufbauen</span></div>
+
+    <div class="karte">
+      <div style="margin-bottom:20px;">
+        <div style="font-size:13px; color:var(--text-2); font-weight:300; line-height:1.75;">
+          Wähle an jedem der <strong style="color:var(--text-1)">drei Entscheidungsknoten</strong>
+          das passende Merkmal. Die Äste links und rechts zeigen dann automatisch
+          die zugehörigen Werte. Bestimme danach das Ergebnis jedes Blattes.
+        </div>
+      </div>
+
+      <div class="baum-wrapper">
+        <div class="baum" id="baum" role="img" aria-label="Interaktiver Entscheidungsbaum">
+
+          <!-- ── WURZEL-KNOTEN ── -->
+          <div class="baum-ebene">
+            <div class="knoten-gruppe">
+              <div class="knoten knoten--wurzel" id="knoten-wurzel">
+                <span class="knoten-label">Wurzel-Knoten</span>
+                <select class="baum-select" id="sel-w-merkmal"
+                  onchange="aktualisiereBaumLabels()"
+                  aria-label="Merkmal Wurzelknoten">
+                  <option value="">— Merkmal wählen —</option>
+                  <option value="farbe">🎨 Farbe</option>
+                  <option value="form">⬡ Form</option>
+                  <option value="buchstabe">🔤 Buchstabe</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── VERBINDUNG WURZEL → EBENE 1 ──
+               Die span-Texte werden per JS befüllt wenn ein Merkmal gewählt wird.
+          ── -->
+          <div class="verbindungen" style="width:62%; margin:0 auto;">
+            <div class="verbindung-seite links">
+              <span class="ast-label" id="lbl-w-links" style="right:4px; left:auto;">—</span>
+            </div>
+            <div class="verbindung-seite rechts">
+              <span class="ast-label" id="lbl-w-rechts" style="left:4px;">—</span>
+            </div>
+          </div>
+
+          <!-- ── EBENE 1 ── -->
+          <div class="baum-ebene" style="gap:32px; align-items:flex-start;">
+
+            <!-- LINKER KNOTEN -->
+            <div class="knoten-gruppe">
+              <div class="knoten" id="knoten-l">
+                <span class="knoten-label" id="lbl-knoten-l">Linker Zweig</span>
+                <select class="baum-select" id="sel-l-merkmal"
+                  onchange="aktualisiereBaumLabels()"
+                  aria-label="Merkmal linker Knoten">
+                  <option value="">— Merkmal wählen —</option>
+                  <option value="farbe">🎨 Farbe</option>
+                  <option value="form">⬡ Form</option>
+                  <option value="buchstabe">🔤 Buchstabe</option>
+                </select>
+              </div>
+
+              <div class="verbindungen" style="width:82%;">
+                <div class="verbindung-seite links">
+                  <span class="ast-label" id="lbl-l-links" style="right:2px; left:auto; font-size:9px;">—</span>
+                </div>
+                <div class="verbindung-seite rechts">
+                  <span class="ast-label" id="lbl-l-rechts" style="left:2px; font-size:9px;">—</span>
+                </div>
+              </div>
+
+              <div class="baum-ebene" style="gap:10px;">
+                <div class="knoten-gruppe">
+                  <div class="knoten" id="knoten-ll" style="min-width:100px; max-width:120px;">
+                    <span class="knoten-label" id="lbl-knoten-ll" style="font-size:8.5px;">Blatt</span>
+                    <select class="baum-select" id="sel-ll-ergebnis" aria-label="Ergebnis Blatt links-links">
+                      <option value="">— Ergebnis —</option>
+                      <option value="ja">😊 Happy</option>
+                      <option value="nein">😞 Not Happy</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="knoten-gruppe">
+                  <div class="knoten" id="knoten-lr" style="min-width:100px; max-width:120px;">
+                    <span class="knoten-label" id="lbl-knoten-lr" style="font-size:8.5px;">Blatt</span>
+                    <select class="baum-select" id="sel-lr-ergebnis" aria-label="Ergebnis Blatt links-rechts">
+                      <option value="">— Ergebnis —</option>
+                      <option value="ja">😊 Happy</option>
+                      <option value="nein">😞 Not Happy</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RECHTER KNOTEN -->
+            <div class="knoten-gruppe">
+              <div class="knoten" id="knoten-r">
+                <span class="knoten-label" id="lbl-knoten-r">Rechter Zweig</span>
+                <select class="baum-select" id="sel-r-merkmal"
+                  onchange="aktualisiereBaumLabels()"
+                  aria-label="Merkmal rechter Knoten">
+                  <option value="">— Merkmal wählen —</option>
+                  <option value="farbe">🎨 Farbe</option>
+                  <option value="form">⬡ Form</option>
+                  <option value="buchstabe">🔤 Buchstabe</option>
+                </select>
+              </div>
+
+              <div class="verbindungen" style="width:82%;">
+                <div class="verbindung-seite links">
+                  <span class="ast-label" id="lbl-r-links" style="right:2px; left:auto; font-size:9px;">—</span>
+                </div>
+                <div class="verbindung-seite rechts">
+                  <span class="ast-label" id="lbl-r-rechts" style="left:2px; font-size:9px;">—</span>
+                </div>
+              </div>
+
+              <div class="baum-ebene" style="gap:10px;">
+                <div class="knoten-gruppe">
+                  <div class="knoten" id="knoten-rl" style="min-width:100px; max-width:120px;">
+                    <span class="knoten-label" id="lbl-knoten-rl" style="font-size:8.5px;">Blatt</span>
+                    <select class="baum-select" id="sel-rl-ergebnis" aria-label="Ergebnis Blatt rechts-links">
+                      <option value="">— Ergebnis —</option>
+                      <option value="ja">😊 Happy</option>
+                      <option value="nein">😞 Not Happy</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="knoten-gruppe">
+                  <div class="knoten" id="knoten-rr" style="min-width:100px; max-width:120px;">
+                    <span class="knoten-label" id="lbl-knoten-rr" style="font-size:8.5px;">Blatt</span>
+                    <select class="baum-select" id="sel-rr-ergebnis" aria-label="Ergebnis Blatt rechts-rechts">
+                      <option value="">— Ergebnis —</option>
+                      <option value="ja">😊 Happy</option>
+                      <option value="nein">😞 Not Happy</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- Ende Ebene 1 -->
+        </div><!-- Ende .baum -->
+      </div><!-- Ende .baum-wrapper -->
+
+      <!-- PRÜFEN-BUTTON -->
+      <div style="display:flex; gap:12px; justify-content:center; margin-top:28px; flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="pruefe()" id="btn-pruefe">✓ Baum prüfen</button>
+        <button class="btn btn-danger"  onclick="zuruecksetzen()" id="btn-reset">↺ Zurücksetzen</button>
+      </div>
+
+      <!-- ERGEBNIS-PANEL -->
+      <div id="ergebnis-panel" class="ergebnis-panel" role="alert" aria-live="polite">
+        <div class="ergebnis-titel" id="ergebnis-titel"></div>
+        <div class="ergebnis-text"  id="ergebnis-text"></div>
+        <div id="loesung-grid" class="loesung-grid" style="margin-top:14px;"></div>
+      </div>
+
+    </div><!-- Ende .karte -->
+  </section>
+
+</div><!-- Ende .container -->
+</body>
+
+
+<!-- ══════════════════════════════════════════════════════════════════
+  JAVASCRIPT
+  
+  WICHTIGE ÄNDERUNG gegenüber Version 1:
+  - Pro Knoten nur noch EIN Dropdown (Merkmal-Auswahl)
+  - Der erste Wert des Merkmals → linker Ast
+  - Der zweite Wert             → rechter Ast
+  - Die Ast-Labels werden dynamisch gesetzt (z.B. "Hell" / "Dunkel")
+  - Prüfung: nur noch Merkmal vergleichen (kein Wert mehr nötig)
+  
+  DATENSTRUKTUREN:
+  datenpunkte  – [{ farbe, form, buchstabe, ergebnis }, ...]
+  loesung      – { wurzel, links, rechts: { merkmal, wert },
+                   ll, lr, rl, rr: 'ja'/'nein' }
+══════════════════════════════════════════════════════════════════ -->
+<script>
+
+// ================================================================
+// KONSTANTEN
+// ================================================================
+
+// Werte pro Merkmal — Index 0 = linker Ast, Index 1 = rechter Ast
+const WERTE = {
+  farbe:     ['hell',   'dunkel'],
+  form:      ['kreis',  'viereck'],
+  buchstabe: ['A',      'B']
+};
+
+// Anzeige-Labels für alle Werte und Merkmale
+const LABEL = {
+  farbe:     '🎨 Farbe',
+  form:      '⬡ Form',
+  buchstabe: '🔤 Buchstabe',
+  hell:      '☀️ Hell',
+  dunkel:    '🌑 Dunkel',
+  kreis:     '⭕ Kreis',
+  viereck:   '🟦 Viereck',
+  A:         '🔤 A',
+  B:         '🔤 B'
+};
+
+// CSS-Klassen für Tabellen-Chips
+const CHIP = {
+  hell:    'chip chip--farbe-hell',
+  dunkel:  'chip chip--farbe-dunkel',
+  kreis:   'chip chip--form-kreis',
+  viereck: 'chip chip--form-viereck',
+  A:       'chip chip--buch-a',
+  B:       'chip chip--buch-b'
+};
+
+// ================================================================
+// GLOBALER ZUSTAND
+// ================================================================
+let datenpunkte = [];
+let loesung     = null;
+
+// ================================================================
+// DATENGENERIERUNG
+// ================================================================
+
+function zufallsAuswahl(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generiereBeispiel(hauptMerkmal, hauptWert) {
+  const p = {
+    farbe:     zufallsAuswahl(WERTE.farbe),
+    form:      zufallsAuswahl(WERTE.form),
+    buchstabe: zufallsAuswahl(WERTE.buchstabe)
+  };
+  const regelErfuellt = p[hauptMerkmal] === hauptWert;
+  const rauschen      = Math.random() < 0.15;
+  p.ergebnis = (regelErfuellt !== rauschen) ? 'ja' : 'nein';
+  return p;
+}
+
+function generiereDataset() {
+  const merkmale    = Object.keys(WERTE);
+  const hauptMerkmal = zufallsAuswahl(merkmale);
+  const hauptWert    = zufallsAuswahl(WERTE[hauptMerkmal]);
+
+  for (let versuch = 0; versuch < 50; versuch++) {
+    const dataset = Array.from({ length: 8 }, () =>
+      generiereBeispiel(hauptMerkmal, hauptWert));
+    if (dataset.some(d => d.ergebnis === 'ja') &&
+        dataset.some(d => d.ergebnis === 'nein')) {
+      return { dataset, hauptMerkmal, hauptWert };
+    }
+  }
+  return {
+    dataset: Array.from({ length: 8 }, () => generiereBeispiel(hauptMerkmal, hauptWert)),
+    hauptMerkmal,
+    hauptWert
+  };
+}
+
+// ================================================================
+// GINI-ALGORITHMUS
+// ================================================================
+
+function gini(gruppe) {
+  if (!gruppe.length) return 0;
+  const pJa = gruppe.filter(d => d.ergebnis === 'ja').length / gruppe.length;
+  return 1 - pJa * pJa - (1 - pJa) * (1 - pJa);
+}
+
+function weightedGini(links, rechts) {
+  const n = links.length + rechts.length;
+  if (!n) return 1;
+  return (links.length / n) * gini(links) + (rechts.length / n) * gini(rechts);
+}
+
+/**
+ * bestesSplit(gruppe)
+ * Findet das Merkmal (+ seinen ersten Wert als linke Seite),
+ * das die Gruppe per Gini am besten trennt.
+ *
+ * Wir prüfen pro Merkmal nur den ersten Wert (Index 0) als Split-Seite,
+ * da links/rechts durch die Reihenfolge in WERTE festgelegt ist.
+ * Für ein binäres Merkmal ist das identisch mit beiden Richtungen.
+ */
+function bestesSplit(gruppe) {
+  let besterGini = Infinity;
+  let besterSplit = null;
+
+  for (const merkmal of Object.keys(WERTE)) {
+    const wertLinks  = WERTE[merkmal][0]; // Erster Wert → linker Ast
+    const wertRechts = WERTE[merkmal][1]; // Zweiter Wert → rechter Ast
+
+    const links  = gruppe.filter(d => d[merkmal] === wertLinks);
+    const rechts = gruppe.filter(d => d[merkmal] === wertRechts);
+
+    if (!links.length || !rechts.length) continue;
+
+    const wg = weightedGini(links, rechts);
+    if (wg < besterGini) {
+      besterGini  = wg;
+      besterSplit = { merkmal, wert: wertLinks, wGini: wg, links, rechts };
+    }
+  }
+
+  return besterSplit;
+}
+
+function mehrheitslabel(gruppe) {
+  const ja = gruppe.filter(d => d.ergebnis === 'ja').length;
+  return ja >= gruppe.length / 2 ? 'ja' : 'nein';
+}
+
+/**
+ * berechneOptimalenBaum(daten)
+ * Tiefe-2-Baum per Gini.
+ * 
+ * WICHTIG für die Labels:
+ * "links" bedeutet hier immer: Merkmalwert === WERTE[merkmal][0]
+ * "rechts" bedeutet:           Merkmalwert === WERTE[merkmal][1]
+ */
+function berechneOptimalenBaum(daten) {
+  const wSplit = bestesSplit(daten);
+
+  if (!wSplit) {
+    const lb = mehrheitslabel(daten);
+    return {
+      wurzel: { merkmal: 'farbe',  wert: 'hell'  },
+      links:  { merkmal: 'form',   wert: 'kreis' },
+      rechts: { merkmal: 'buchstabe', wert: 'A'  },
+      ll: lb, lr: lb, rl: lb, rr: lb
+    };
+  }
+
+  const lSplit = bestesSplit(wSplit.links);
+  const rSplit = bestesSplit(wSplit.rechts);
+
+  return {
+    wurzel: { merkmal: wSplit.merkmal, wert: wSplit.wert },
+    links:  lSplit
+      ? { merkmal: lSplit.merkmal, wert: lSplit.wert }
+      : { merkmal: 'form', wert: 'kreis' },
+    rechts: rSplit
+      ? { merkmal: rSplit.merkmal, wert: rSplit.wert }
+      : { merkmal: 'buchstabe', wert: 'A' },
+    ll: lSplit ? mehrheitslabel(lSplit.links)  : mehrheitslabel(wSplit.links),
+    lr: lSplit ? mehrheitslabel(lSplit.rechts) : mehrheitslabel(wSplit.links),
+    rl: rSplit ? mehrheitslabel(rSplit.links)  : mehrheitslabel(wSplit.rechts),
+    rr: rSplit ? mehrheitslabel(rSplit.rechts) : mehrheitslabel(wSplit.rechts)
+  };
+}
+
+// ================================================================
+// TABELLE RENDERN
+// ================================================================
+
+function renderTabelle() {
+  const tbody = document.getElementById('tabellen-body');
+  tbody.innerHTML = '';
+  datenpunkte.forEach(function(p, i) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="idx">${i + 1}</td>
+      <td><span class="${CHIP[p.farbe]}">${LABEL[p.farbe]}</span></td>
+      <td><span class="${CHIP[p.form]}">${LABEL[p.form]}</span></td>
+      <td><span class="${CHIP[p.buchstabe]}">${LABEL[p.buchstabe]}</span></td>
+      <td><span class="badge ${p.ergebnis === 'ja' ? 'badge--ja' : 'badge--nein'}">
+        ${p.ergebnis === 'ja' ? '😊 Happy' : '😞 Not Happy'}
+      </span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ================================================================
+// BAUM-LABELS LIVE AKTUALISIEREN
+//
+// Wird aufgerufen wenn ein Merkmal-Dropdown sich ändert.
+// Setzt an den Ästen die echten Wert-Namen (z.B. "Hell" / "Dunkel").
+// Setzt auch den Knoten-Label (z.B. "Linker Zweig → Farbe?")
+// und die Blatt-Labels (z.B. "Blatt: Hell + Kreis").
+// ================================================================
+
+/**
+ * werteLabelsVonMerkmal(merkmal)
+ * Gibt { links, rechts } mit den Anzeige-Labels zurück.
+ * Wenn kein Merkmal gewählt → Platzhalter "—".
+ */
+function werteLabelsVonMerkmal(merkmal) {
+  if (!merkmal) return { links: '—', rechts: '—' };
+  return {
+    links:  LABEL[WERTE[merkmal][0]],
+    rechts: LABEL[WERTE[merkmal][1]]
+  };
+}
+
+/**
+ * aktualisiereBaumLabels()
+ * Liest die aktuell gewählten Merkmale aus allen drei Dropdowns
+ * und aktualisiert ALLE Labels im Baum gleichzeitig.
+ * Wird bei jeder Änderung eines Dropdowns aufgerufen (onchange).
+ */
+function aktualisiereBaumLabels() {
+  const wMerkmal = document.getElementById('sel-w-merkmal').value;
+  const lMerkmal = document.getElementById('sel-l-merkmal').value;
+  const rMerkmal = document.getElementById('sel-r-merkmal').value;
+
+  // ── Wurzel-Äste ──
+  const wLabels = werteLabelsVonMerkmal(wMerkmal);
+  document.getElementById('lbl-w-links').textContent  = wLabels.links;
+  document.getElementById('lbl-w-rechts').textContent = wLabels.rechts;
+
+  // ── Linker Knoten-Header ──
+  document.getElementById('lbl-knoten-l').textContent =
+    wMerkmal ? LABEL[wMerkmal] + ' → ' + wLabels.links : 'Linker Zweig';
+
+  // ── Äste unter linkem Knoten ──
+  const lLabels = werteLabelsVonMerkmal(lMerkmal);
+  document.getElementById('lbl-l-links').textContent  = lLabels.links;
+  document.getElementById('lbl-l-rechts').textContent = lLabels.rechts;
+
+  // ── Blatt-Labels unter linkem Knoten ──
+  document.getElementById('lbl-knoten-ll').textContent =
+    lMerkmal ? lLabels.links  : 'Blatt';
+  document.getElementById('lbl-knoten-lr').textContent =
+    lMerkmal ? lLabels.rechts : 'Blatt';
+
+  // ── Rechter Knoten-Header ──
+  document.getElementById('lbl-knoten-r').textContent =
+    wMerkmal ? LABEL[wMerkmal] + ' → ' + wLabels.rechts : 'Rechter Zweig';
+
+  // ── Äste unter rechtem Knoten ──
+  const rLabels = werteLabelsVonMerkmal(rMerkmal);
+  document.getElementById('lbl-r-links').textContent  = rLabels.links;
+  document.getElementById('lbl-r-rechts').textContent = rLabels.rechts;
+
+  // ── Blatt-Labels unter rechtem Knoten ──
+  document.getElementById('lbl-knoten-rl').textContent =
+    rMerkmal ? rLabels.links  : 'Blatt';
+  document.getElementById('lbl-knoten-rr').textContent =
+    rMerkmal ? rLabels.rechts : 'Blatt';
+}
+
+// ================================================================
+// PRÜFUNG
+// ================================================================
+
+function leseEingaben() {
+  return {
+    wurzelMerkmal: document.getElementById('sel-w-merkmal').value,
+    linksMerkmal:  document.getElementById('sel-l-merkmal').value,
+    rechtsMerkmal: document.getElementById('sel-r-merkmal').value,
+    ll: document.getElementById('sel-ll-ergebnis').value,
+    lr: document.getElementById('sel-lr-ergebnis').value,
+    rl: document.getElementById('sel-rl-ergebnis').value,
+    rr: document.getElementById('sel-rr-ergebnis').value
+  };
+}
+
+function istVollstaendig(e) {
+  return e.wurzelMerkmal && e.linksMerkmal && e.rechtsMerkmal
+      && e.ll && e.lr && e.rl && e.rr;
+}
+
+function markiereKnoten(id, korrekt) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('knoten--korrekt', 'knoten--falsch');
+  el.classList.add(korrekt ? 'knoten--korrekt' : 'knoten--falsch');
+}
+
+/**
+ * pruefe()
+ * Vergleicht nur die Merkmal-Auswahl (kein Wert mehr).
+ * Bei den Blättern: die Zuordnung hängt davon ab, ob der Schüler
+ * dasselbe Merkmal wie die Lösung gewählt hat (gleiche Reihenfolge links/rechts).
+ * Wenn er das gleiche Merkmal wählt, prüfen wir ll/lr/rl/rr direkt.
+ * Wenn er ein anderes Merkmal wählt, sind auch die Blätter falsch.
+ */
+function pruefe() {
+  const e = leseEingaben();
+
+  if (!istVollstaendig(e)) {
+    zeigeToast('⚠️ Bitte alle Felder ausfüllen!');
+    return;
+  }
+
+  // Knoten: Nur Merkmal vergleichen
+  const wKorrekt = e.wurzelMerkmal === loesung.wurzel.merkmal;
+  const lKorrekt = e.linksMerkmal  === loesung.links.merkmal;
+  const rKorrekt = e.rechtsMerkmal === loesung.rechts.merkmal;
+
+  // Blätter nur korrekt bewertbar wenn das übergeordnete Merkmal stimmt
+  // (sonst ist links/rechts eine andere Aufteilung)
+  const llKorrekt = lKorrekt && (e.ll === loesung.ll);
+  const lrKorrekt = lKorrekt && (e.lr === loesung.lr);
+  const rlKorrekt = rKorrekt && (e.rl === loesung.rl);
+  const rrKorrekt = rKorrekt && (e.rr === loesung.rr);
+
+  markiereKnoten('knoten-wurzel', wKorrekt);
+  markiereKnoten('knoten-l',      lKorrekt);
+  markiereKnoten('knoten-r',      rKorrekt);
+  markiereKnoten('knoten-ll',     llKorrekt);
+  markiereKnoten('knoten-lr',     lrKorrekt);
+  markiereKnoten('knoten-rl',     rlKorrekt);
+  markiereKnoten('knoten-rr',     rrKorrekt);
+
+  const liste  = [wKorrekt, lKorrekt, rKorrekt, llKorrekt, lrKorrekt, rlKorrekt, rrKorrekt];
+  const punkte = liste.filter(Boolean).length;
+
+  zeigeFeedback(punkte, liste.length, e);
+}
+
+function zeigeFeedback(punkte, max, e) {
+  const panel = document.getElementById('ergebnis-panel');
+  const titel = document.getElementById('ergebnis-titel');
+  const text  = document.getElementById('ergebnis-text');
+  const grid  = document.getElementById('loesung-grid');
+
+  panel.classList.remove('korrekt', 'teilweise', 'falsch');
+
+  // Ast-Labels der Lösung für lesbare Feedback-Texte
+  const wLinksLabel  = LABEL[WERTE[loesung.wurzel.merkmal][0]];
+  const wRechtsLabel = LABEL[WERTE[loesung.wurzel.merkmal][1]];
+
+  let klasse, titelText, erklText;
+
+  if (punkte === max) {
+    klasse    = 'korrekt';
+    titelText = '🎉 Perfekt! Dein Baum ist vollständig korrekt!';
+    erklText  = `Alle <strong>${max} von ${max}</strong> Knoten stimmen. 
+                 Das wichtigste Merkmal an der Wurzel war 
+                 <strong>${LABEL[loesung.wurzel.merkmal]}</strong> —
+                 links für <strong>${wLinksLabel}</strong>, 
+                 rechts für <strong>${wRechtsLabel}</strong>.`;
+  } else if (punkte >= Math.ceil(max * 0.57)) {
+    klasse    = 'teilweise';
+    titelText = `🔍 Fast! ${punkte} von ${max} Knoten stimmen.`;
+    erklText  = `Gut angefangen! Die <span style="color:var(--rot)">rot markierten</span> 
+                 Knoten weichen noch ab. Die Wurzel sollte 
+                 <strong>${LABEL[loesung.wurzel.merkmal]}</strong> fragen 
+                 (${wLinksLabel} → links, ${wRechtsLabel} → rechts).`;
+  } else {
+    klasse    = 'falsch';
+    titelText = `💡 Noch nicht ganz. ${punkte} von ${max} Knoten stimmen.`;
+    erklText  = `Kein Problem — zähle für jedes Merkmal, wie viele 
+                 <em>Happy</em>-Einträge auf einer Seite landen würden, 
+                 und wähle das Merkmal mit der klarsten Trennung. 
+                 Die Lösung findest du unten.`;
+  }
+
+  panel.classList.add(klasse);
+  titel.textContent = titelText;
+  text.innerHTML    = erklText;
+
+  // Lösungs-Grid — zeigt für jeden Knoten Merkmal und zugehörige Ast-Labels
+  grid.innerHTML = '';
+
+  const eintraege = [
+    {
+      label:   'Wurzel',
+      korrekt: e.wurzelMerkmal === loesung.wurzel.merkmal,
+      wert:    LABEL[loesung.wurzel.merkmal],
+      detail:  LABEL[WERTE[loesung.wurzel.merkmal][0]] + ' / ' + LABEL[WERTE[loesung.wurzel.merkmal][1]]
+    },
+    {
+      label:   'Linker Knoten',
+      korrekt: e.linksMerkmal === loesung.links.merkmal,
+      wert:    LABEL[loesung.links.merkmal],
+      detail:  LABEL[WERTE[loesung.links.merkmal][0]] + ' / ' + LABEL[WERTE[loesung.links.merkmal][1]]
+    },
+    {
+      label:   'Rechter Knoten',
+      korrekt: e.rechtsMerkmal === loesung.rechts.merkmal,
+      wert:    LABEL[loesung.rechts.merkmal],
+      detail:  LABEL[WERTE[loesung.rechts.merkmal][0]] + ' / ' + LABEL[WERTE[loesung.rechts.merkmal][1]]
+    },
+    {
+      label:   'Blatt L–Links',
+      korrekt: e.linksMerkmal === loesung.links.merkmal && e.ll === loesung.ll,
+      wert:    loesung.ll === 'ja' ? '😊 Happy' : '😞 Not Happy',
+      detail:  '(wenn ' + LABEL[WERTE[loesung.links.merkmal][0]] + ')'
+    },
+    {
+      label:   'Blatt L–Rechts',
+      korrekt: e.linksMerkmal === loesung.links.merkmal && e.lr === loesung.lr,
+      wert:    loesung.lr === 'ja' ? '😊 Happy' : '😞 Not Happy',
+      detail:  '(wenn ' + LABEL[WERTE[loesung.links.merkmal][1]] + ')'
+    },
+    {
+      label:   'Blatt R–Links',
+      korrekt: e.rechtsMerkmal === loesung.rechts.merkmal && e.rl === loesung.rl,
+      wert:    loesung.rl === 'ja' ? '😊 Happy' : '😞 Not Happy',
+      detail:  '(wenn ' + LABEL[WERTE[loesung.rechts.merkmal][0]] + ')'
+    },
+    {
+      label:   'Blatt R–Rechts',
+      korrekt: e.rechtsMerkmal === loesung.rechts.merkmal && e.rr === loesung.rr,
+      wert:    loesung.rr === 'ja' ? '😊 Happy' : '😞 Not Happy',
+      detail:  '(wenn ' + LABEL[WERTE[loesung.rechts.merkmal][1]] + ')'
+    }
+  ];
+
+  eintraege.forEach(function(eintrag) {
+    const div = document.createElement('div');
+    div.className = 'loesung-item ' + (eintrag.korrekt ? 'l-ok' : 'l-fail');
+    div.innerHTML = `
+      <div class="l-label">${eintrag.korrekt ? '✓' : '✗'} ${eintrag.label}</div>
+      <div class="l-wert">${eintrag.wert}</div>
+      <div style="font-size:10px; color:var(--text-3); margin-top:2px;">${eintrag.detail}</div>
+    `;
+    grid.appendChild(div);
+  });
+
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ================================================================
+// ZURÜCKSETZEN
+// ================================================================
+
+function zuruecksetzen() {
+  document.querySelectorAll('.baum-select').forEach(function(sel) {
+    sel.selectedIndex = 0;
+  });
+
+  // Alle Ast-Labels auf Platzhalter zurücksetzen
+  ['lbl-w-links','lbl-w-rechts',
+   'lbl-l-links','lbl-l-rechts',
+   'lbl-r-links','lbl-r-rechts'].forEach(function(id) {
+    document.getElementById(id).textContent = '—';
+  });
+
+  // Knoten-Header zurücksetzen
+  document.getElementById('lbl-knoten-l').textContent  = 'Linker Zweig';
+  document.getElementById('lbl-knoten-r').textContent  = 'Rechter Zweig';
+  document.getElementById('lbl-knoten-ll').textContent = 'Blatt';
+  document.getElementById('lbl-knoten-lr').textContent = 'Blatt';
+  document.getElementById('lbl-knoten-rl').textContent = 'Blatt';
+  document.getElementById('lbl-knoten-rr').textContent = 'Blatt';
+
+  // Feedback-Farben von Knoten entfernen
+  ['knoten-wurzel','knoten-l','knoten-r',
+   'knoten-ll','knoten-lr','knoten-rl','knoten-rr'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('knoten--korrekt','knoten--falsch');
+  });
+
+  document.getElementById('ergebnis-panel').style.display = 'none';
+}
+
+// ================================================================
+// NEU GENERIEREN
+// ================================================================
+
+function neuGenerieren() {
+  const result = generiereDataset();
+  datenpunkte  = result.dataset;
+  loesung      = berechneOptimalenBaum(datenpunkte);
+  renderTabelle();
+  zuruecksetzen();
+  zeigeToast('🔄 Neue Daten generiert!');
+}
+
+// ================================================================
+// TOAST
+// ================================================================
+
+let toastTimer = null;
+
+function zeigeToast(text) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = [
+      'position:fixed','bottom:26px','left:50%',
+      'transform:translateX(-50%) translateY(14px)',
+      'background:#1c1c28','border:1px solid rgba(139,92,246,0.4)',
+      'border-radius:10px','padding:11px 18px',
+      'font-family:JetBrains Mono,monospace','font-size:12px','color:#eef0f6',
+      'box-shadow:0 8px 32px rgba(0,0,0,0.5)',
+      'opacity:0','transition:opacity 0.28s,transform 0.28s',
+      'pointer-events:none','white-space:nowrap','z-index:9999'
+    ].join(';');
+    document.body.appendChild(toast);
+  }
+  toast.textContent = text;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(14px)';
+  }, 2500);
+}
+
+// ================================================================
+// INITIALISIERUNG
+// ================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+  const result = generiereDataset();
+  datenpunkte  = result.dataset;
+  loesung      = berechneOptimalenBaum(datenpunkte);
+  renderTabelle();
+
+  console.log('%c🌳 Entscheidungsbaum Selbsttest',
+    'color:#a78bfa; font-size:14px; font-weight:bold');
+  console.log('%cLösung in Variable "loesung" — aber schau nicht! 😄',
+    'color:#475569; font-size:11px');
+});
+
+</script>
+</html>
