@@ -1,0 +1,4 @@
+Passe den entscheidungsbaum an die größe der Tabelle an, heißt wenn ich 3 entscheidungen habe soll der entscheidungsbaum auch 3 tief sein.
+Wenn ich auf Baum prüfen gehe soll nicht nur die Blöcke angezeigt beckommen sondern ein follständig ausgefüllten entscheidungsbaum mit gini impurity anzahl an ereignissen
+Baum prüfen darf auch gedrückt werden wenn nicht alle felder ausgefüllt sind.
+Wenn möglich mache die Tabele editirbar ebenfals das entfernen hinzufügen von atributen
