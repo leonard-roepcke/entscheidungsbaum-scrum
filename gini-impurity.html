@@ -1,0 +1,2422 @@
+<!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════════╗
+  ║   GINI IMPURITY – Interaktive Lernseite                            ║
+  ║   Erstellt als didaktisches Unterrichtsmaterial                     ║
+  ║                                                                      ║
+  ║   STRUKTUR DIESER DATEI:                                             ║
+  ║   1. <head>     – Metadaten und Schriftarten                        ║
+  ║   2. <style>    – Das gesamte CSS (Design & Layout)                 ║
+  ║   3. <body>     – Das gesamte HTML (Inhalt & Struktur)              ║
+  ║   4. <script>   – Das gesamte JavaScript (Logik & Interaktion)     ║
+  ║                                                                      ║
+  ║   LERNZIEL: Verstehe, wie Gini Impurity funktioniert und warum      ║
+  ║   Entscheidungsbäume dieses Maß nutzen, um optimale Splits zu       ║
+  ║   finden. Berechne Gini interaktiv und sieh sofort das Ergebnis.    ║
+  ╚══════════════════════════════════════════════════════════════════════╝
+-->
+<html lang="de">
+
+<head>
+  <!-- ================================================================
+    META-DATEN
+    Diese Tags geben dem Browser wichtige Informationen über die Seite.
+    - charset: Zeichenkodierung (UTF-8 unterstützt Umlaute wie ä, ö, ü)
+    - viewport: Macht die Seite auf Mobilgeräten korrekt darstellbar
+    - title: Der Text im Browser-Tab
+  ================================================================ -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gini Impurity – Interaktive Lernseite</title>
+
+  <!-- ================================================================
+    SCHRIFTARTEN
+    Wir laden zwei Google Fonts:
+    - "DM Serif Display": Elegante Überschriften-Schrift
+    - "JetBrains Mono": Monospace-Schrift, ideal für technische Inhalte
+    
+    🔬 EXPERIMENTIERZONE: Tausche die Schriftarten gegen andere aus:
+       https://fonts.google.com
+  ================================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
+</head>
+
+<!-- ================================================================
+  CSS-BEREICH
+  Hier definieren wir das gesamte Design der Seite.
+  
+  WICHTIGE KONZEPTE:
+  - CSS Custom Properties (--variablen): Farben zentral definieren
+  - Flexbox & Grid: Moderne Layout-Techniken
+  - @keyframes: Animationen
+  - ::before / ::after: Pseudo-Elemente für Dekorations-Effekte
+================================================================ -->
+<style>
+
+  /* ──────────────────────────────────────────────────────────────────
+    CSS CUSTOM PROPERTIES (CSS-Variablen)
+    
+    Was: Farbwerte und Maße, die im gesamten CSS wiederverwendet werden.
+    Warum: Ändert man hier eine Farbe, ändert sie sich überall.
+    
+    🔬 EXPERIMENTIERZONE: Ändere die Farben und schau, was passiert!
+       --akzent-lila bestimmt die Hauptfarbe der Akzente.
+  ────────────────────────────────────────────────────────────────── */
+  :root {
+    /* Hintergrundfarben – von sehr dunkel bis mittel-dunkel */
+    --hg-tief:        #0a0a0f;
+    --hg-mittel:      #111118;
+    --hg-hell:        #18181f;
+    --hg-karte:       #1c1c26;
+    --hg-karte-hover: #22222e;
+
+    /* Akzentfarben – Lila-/Violett-Töne */
+    --akzent-lila:    #8b5cf6;
+    --akzent-hell:    #a78bfa;
+    --akzent-dunkel:  #6d28d9;
+    --akzent-glow:    rgba(139, 92, 246, 0.35);
+    --akzent-glow-s:  rgba(139, 92, 246, 0.15);
+
+    /* Textfarben */
+    --text-haupt:     #e2e8f0;
+    --text-zweig:     #94a3b8;
+    --text-schwach:   #475569;
+
+    /* Rahmen */
+    --rahmen:         rgba(139, 92, 246, 0.2);
+    --rahmen-hell:    rgba(139, 92, 246, 0.4);
+
+    /* Abstände und Radien */
+    --radius-gross:   16px;
+    --radius-mittel:  10px;
+    --radius-klein:   6px;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    RESET & GRUNDSTILE
+    
+    Was: Browser-Standardstile werden zurückgesetzt.
+    Warum: Jeder Browser rendert HTML leicht anders. Mit einem Reset
+           beginnen wir von einer einheitlichen Ausgangsbasis.
+  ────────────────────────────────────────────────────────────────── */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    BODY – GRUNDLAYOUT
+    
+    Wir verwenden Flexbox, um den Inhalt vertikal zu zentrieren.
+    min-height: 100vh = Mindesthöhe ist die gesamte Bildschirmhöhe.
+  ────────────────────────────────────────────────────────────────── */
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background-color: var(--hg-tief);
+    color: var(--text-haupt);
+    min-height: 100vh;
+    overflow-x: hidden;
+
+    /* Dezentes Raster-Muster als Hintergrundtextur */
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%,
+        rgba(139, 92, 246, 0.12), transparent),
+      linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+    background-size: auto, 40px 40px, 40px 40px;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    HAUPT-CONTAINER
+  ────────────────────────────────────────────────────────────────── */
+  .seite-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    NAVIGATIONSLEISTE
+    
+    Die Nav enthält jetzt auch Links zurück zur Startseite und zur
+    Entscheidungsbaum-Seite.
+  ────────────────────────────────────────────────────────────────── */
+  .nav-leiste {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(28, 28, 38, 0.8);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-gross);
+    backdrop-filter: blur(12px);
+    margin-bottom: 56px;
+    animation: einblenden 0.6s ease both;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .nav-logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--akzent-hell);
+    text-decoration: none;
+    /* transition: sanfter Farbwechsel beim Hover */
+    transition: color 0.2s ease;
+  }
+
+  .nav-logo:hover {
+    color: #fff;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    NAVIGATIONSLINKS
+    
+    Was: Klickbare Links zu anderen Seiten des Lernmaterials.
+    Warum: So können Schüler zwischen den Seiten navigieren,
+           ohne die URL manuell eintippen zu müssen.
+    
+    🔬 EXPERIMENTIERZONE: Füge weitere Links hier hinzu, wenn
+       neue Seiten entstehen (z.B. random-forests.html).
+  ────────────────────────────────────────────────────────────────── */
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Basis-Stil für alle Nav-Links */
+  .nav-link {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-zweig);
+    background: rgba(139, 92, 246, 0.07);
+    border: 1px solid var(--rahmen);
+    padding: 5px 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .nav-link:hover {
+    color: var(--akzent-hell);
+    background: rgba(139, 92, 246, 0.15);
+    border-color: var(--rahmen-hell);
+  }
+
+  /* Aktiver Link: Markiert die aktuelle Seite */
+  .nav-link--aktiv {
+    color: var(--akzent-hell);
+    background: rgba(139, 92, 246, 0.15);
+    border-color: var(--akzent-lila);
+  }
+
+  .nav-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-zweig);
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid var(--rahmen);
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    HERO-BEREICH
+  ────────────────────────────────────────────────────────────────── */
+  .hero-bereich {
+    text-align: center;
+    margin-bottom: 64px;
+    animation: einblenden 0.7s ease 0.1s both;
+  }
+
+  .hero-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--akzent-lila);
+    background: var(--akzent-glow-s);
+    border: 1px solid var(--rahmen);
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+
+  .hero-titel {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    line-height: 1.15;
+    color: var(--text-haupt);
+    margin-bottom: 20px;
+  }
+
+  .hero-titel .akzent-text {
+    color: var(--akzent-hell);
+    text-shadow:
+      0 0 40px rgba(167, 139, 250, 0.5),
+      0 0 80px rgba(139, 92, 246, 0.3);
+  }
+
+  .hero-beschreibung {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text-zweig);
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 300;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    TRENNLINIE MIT LABEL
+  ────────────────────────────────────────────────────────────────── */
+  .abschnitt-trenner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .abschnitt-trenner::before,
+  .abschnitt-trenner::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--rahmen), transparent);
+  }
+
+  .abschnitt-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--akzent-lila);
+    white-space: nowrap;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    KAPITEL-BEREICH
+  ────────────────────────────────────────────────────────────────── */
+  .kapitel-bereich {
+    margin-bottom: 64px;
+    scroll-margin-top: 32px;
+  }
+
+  .kapitel-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 32px;
+    padding: 24px 28px;
+    background: var(--hg-karte);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-gross);
+    animation: aufsteigen 0.5s ease both;
+  }
+
+  .kapitel-icon-gross {
+    font-size: 36px;
+    line-height: 1;
+    padding: 10px;
+    background: var(--akzent-glow-s);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-mittel);
+    flex-shrink: 0;
+  }
+
+  .kapitel-nummer {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--akzent-lila);
+    margin-bottom: 4px;
+  }
+
+  .kapitel-titel {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    color: var(--text-haupt);
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .kapitel-untertitel {
+    font-size: 12px;
+    color: var(--text-zweig);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    KAPITEL-GRID: Text links, Visual rechts
+  ────────────────────────────────────────────────────────────────── */
+  .kapitel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 720px) {
+    .kapitel-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    LERN-BLÖCKE
+  ────────────────────────────────────────────────────────────────── */
+  .kapitel-texte {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .lern-block {
+    background: var(--hg-karte);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-gross);
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color 0.3s ease;
+  }
+
+  .lern-block:hover {
+    border-color: var(--rahmen-hell);
+  }
+
+  .lern-block-titel {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-haupt);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  .lern-block-nr {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--akzent-glow-s);
+    border: 1px solid var(--rahmen);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--akzent-lila);
+    flex-shrink: 0;
+  }
+
+  .lern-block-text {
+    font-size: 12.5px;
+    line-height: 1.75;
+    color: var(--text-zweig);
+    font-weight: 300;
+  }
+
+  /* Hervorgehobener Text innerhalb von Fließtext */
+  .herv {
+    color: var(--text-haupt);
+    font-weight: 600;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    FORMEL-SCHRITTE
+  ────────────────────────────────────────────────────────────────── */
+  .formel-schritte {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .formel-schritt {
+    background: var(--hg-hell);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-mittel);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .schritt-kopf {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .schritt-nr {
+    font-size: 14px;
+    color: var(--akzent-lila);
+  }
+
+  .schritt-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-haupt);
+    letter-spacing: 0.04em;
+  }
+
+  .schritt-code {
+    font-size: 13px;
+    color: var(--akzent-hell);
+    font-weight: 500;
+    padding: 4px 10px;
+    background: rgba(139, 92, 246, 0.08);
+    border-radius: var(--radius-klein);
+    letter-spacing: 0.05em;
+  }
+
+  .schritt-erkl {
+    font-size: 11.5px;
+    color: var(--text-zweig);
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    RECHNUNG-BLOCK
+  ────────────────────────────────────────────────────────────────── */
+  .rechnung-block {
+    background: var(--hg-hell);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-mittel);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .rechnung-zeile {
+    display: grid;
+    grid-template-columns: 80px 16px 1fr;
+    gap: 6px;
+    align-items: baseline;
+    font-size: 12px;
+  }
+
+  .rechnung-zeile--ergebnis {
+    border-top: 1px solid var(--rahmen);
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+
+  .r-label { color: var(--akzent-hell); font-weight: 600; }
+  .r-gleich { color: var(--text-schwach); text-align: center; }
+  .r-wert { color: var(--text-zweig); font-weight: 300; line-height: 1.6; }
+  .rechnung-zeile--ergebnis .r-wert { color: var(--text-haupt); }
+
+  /* ──────────────────────────────────────────────────────────────────
+    KAPITEL-VISUAL (rechte Spalte, sticky)
+  ────────────────────────────────────────────────────────────────── */
+  .kapitel-visual {
+    background: var(--hg-karte);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-gross);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 24px;
+  }
+
+  .visual-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-schwach);
+    text-align: center;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    GINI-BALKENDIAGRAMM (statisch, für Referenz-Visualisierung)
+  ────────────────────────────────────────────────────────────────── */
+  .gini-visualisierung {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .gini-zeile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .gini-zeile-label {
+    font-size: 11px;
+    color: var(--text-zweig);
+    font-weight: 300;
+    min-width: 130px;
+    flex-shrink: 0;
+  }
+
+  .gini-balken-spur {
+    flex: 1;
+    height: 8px;
+    background: rgba(139, 92, 246, 0.08);
+    border-radius: 4px;
+    border: 1px solid var(--rahmen);
+    overflow: hidden;
+  }
+
+  /* --breite wird im style-Attribut gesetzt */
+  .gini-balken {
+    height: 100%;
+    border-radius: 4px;
+    width: var(--breite);
+    animation: balken-wachsen 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .gini-balken--rein   { background: #4ade80; animation-delay: 0.2s; }
+  .gini-balken--mittel { background: #facc15; animation-delay: 0.4s; }
+  .gini-balken--hoch   { background: #fb923c; animation-delay: 0.6s; }
+  .gini-balken--max    { background: #f87171; animation-delay: 0.8s; }
+
+  .gini-wert {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-haupt);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  .gini-legende {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 10.5px;
+    color: var(--text-schwach);
+    padding-top: 8px;
+    border-top: 1px solid var(--rahmen);
+  }
+
+  .legende-punkt {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legende-punkt--rein { background: #4ade80; }
+  .legende-punkt--max  { background: #f87171; }
+
+  @keyframes balken-wachsen {
+    from { width: 0; }
+    to   { width: var(--breite); }
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    ═══════════════════════════════════════════════════════════════
+    INTERAKTIVER GINI-RECHNER
+    ═══════════════════════════════════════════════════════════════
+    
+    Das ist das Herzstück dieser Seite: Ein Rechner, bei dem
+    Schüler eigene Werte eingeben und die Gini Impurity live
+    berechnet wird.
+    
+    AUFBAU:
+    - .rechner-container: Äußere Hülle
+    - .rechner-eingabe: Die Slider und Zahlenfelder
+    - .rechner-ergebnis: Die live berechnete Anzeige
+    - .rechner-balken: Visueller Balken für das Ergebnis
+    
+    🔬 EXPERIMENTIERZONE:
+       Ändere max="20" auf max="100" um mehr Klassen zu erlauben.
+  ────────────────────────────────────────────────────────────────── */
+  .rechner-container {
+    background: var(--hg-karte);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-gross);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: aufsteigen 0.6s ease 0.3s both;
+  }
+
+  .rechner-titel {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-haupt);
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rechner-titel-icon {
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--akzent-glow-s);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-klein);
+    animation: puls 3s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    KLASSEN-ZEILEN (Eingabezeile pro Klasse)
+    
+    Jede Klasse hat:
+    - Ein Farb-Indikator-Quadrat
+    - Einen Klassen-Namen
+    - Einen Schieberegler (range input)
+    - Eine Zahl-Anzeige
+    
+    🔬 EXPERIMENTIERZONE:
+       Neue Klassen hinzufügen: Dupliziere eine .klasse-zeile
+       im HTML und weise eine neue Farbe zu!
+  ────────────────────────────────────────────────────────────────── */
+  .klassen-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .klasse-zeile {
+    display: grid;
+    /* Farb-Dot | Name | Slider | Zahl */
+    grid-template-columns: 24px 90px 1fr 40px;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Kleines farbiges Quadrat als Klassen-Indikator */
+  .klasse-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px var(--dot-farbe, transparent);
+  }
+
+  .klasse-name {
+    font-size: 11.5px;
+    color: var(--text-zweig);
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    RANGE-INPUT (Schieberegler)
+    
+    Browser-Standard-Slider werden hier komplett neu gestylt.
+    -webkit- und -moz- sind "Vendor Prefixes": Präfixe, die für
+    ältere Browser-Engines nötig sind.
+  ────────────────────────────────────────────────────────────────── */
+  .klasse-slider {
+    -webkit-appearance: none;  /* Standard-Styling entfernen */
+    appearance: none;
+    width: 100%;
+    height: 5px;
+    background: rgba(139, 92, 246, 0.15);
+    border-radius: 3px;
+    border: 1px solid var(--rahmen);
+    outline: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .klasse-slider:hover {
+    background: rgba(139, 92, 246, 0.25);
+  }
+
+  /* Der "Daumen" – das kleine Griffelement am Slider */
+  .klasse-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--akzent-lila);
+    border: 2px solid var(--akzent-hell);
+    cursor: pointer;
+    box-shadow: 0 0 8px var(--akzent-glow-s);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .klasse-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 14px var(--akzent-glow);
+    transform: scale(1.15);
+  }
+
+  /* Firefox-Variante */
+  .klasse-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--akzent-lila);
+    border: 2px solid var(--akzent-hell);
+    cursor: pointer;
+  }
+
+  /* Zahl rechts neben dem Slider */
+  .klasse-zahl {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-haupt);
+    text-align: right;
+    min-width: 24px;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    ERGEBNIS-ANZEIGE DES RECHNERS
+    
+    Zeigt:
+    - Den berechneten Gini-Wert als große Zahl
+    - Einen farbigen Balken der Stärke entsprechend
+    - Eine Textbeschreibung (rein / gemischt / sehr gemischt)
+  ────────────────────────────────────────────────────────────────── */
+  .rechner-ergebnis {
+    background: var(--hg-hell);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-mittel);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .ergebnis-kopf {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .ergebnis-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-schwach);
+  }
+
+  /* Die große Gini-Zahl – wird per JS aktualisiert */
+  .ergebnis-zahl {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.4rem;
+    color: var(--text-haupt);
+    /* transition: sanfter Farbwechsel beim Wert-Update */
+    transition: color 0.4s ease;
+    line-height: 1;
+  }
+
+  .ergebnis-beschreibung {
+    font-size: 12px;
+    color: var(--text-zweig);
+    font-weight: 300;
+    transition: color 0.4s ease;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    ERGEBNIS-BALKEN
+    
+    Ein breiter Balken, dessen Breite den Gini-Wert visualisiert.
+    --balken-breite wird per JavaScript gesetzt.
+    
+    🔬 EXPERIMENTIERZONE:
+       Ändere die Höhe (height: 10px) für einen dickeren Balken.
+  ────────────────────────────────────────────────────────────────── */
+  .ergebnis-balken-spur {
+    width: 100%;
+    height: 10px;
+    background: rgba(139, 92, 246, 0.08);
+    border-radius: 5px;
+    border: 1px solid var(--rahmen);
+    overflow: hidden;
+  }
+
+  .ergebnis-balken {
+    height: 100%;
+    border-radius: 5px;
+    width: var(--balken-breite, 0%);
+    /* Hintergrundfarbe wird dynamisch per JS gesetzt */
+    background: var(--balken-farbe, #4ade80);
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                background 0.5s ease;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    KLASSEN-VERTEILUNG (Tortendiagramm-ähnliche Balken-Anzeige)
+    
+    Zeigt, wie sich die Klassen im Datensatz verteilen.
+    Jede Klasse bekommt einen farbigen Anteil.
+  ────────────────────────────────────────────────────────────────── */
+  .verteilung-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-schwach);
+  }
+
+  .verteilung-balken {
+    display: flex;
+    height: 24px;
+    border-radius: var(--radius-klein);
+    overflow: hidden;
+    gap: 1px;
+    border: 1px solid var(--rahmen);
+  }
+
+  /* Jedes Segment hat eine Breite, die via JS gesetzt wird */
+  .verteilung-segment {
+    height: 100%;
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    min-width: 0;
+  }
+
+  .verteilung-legende {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .verteilung-legende-eintrag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    color: var(--text-zweig);
+  }
+
+  .legende-quadrat {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    SCHRITT-FÜR-SCHRITT RECHENWEG
+    
+    Zeigt den vollständigen Rechenweg zum aktuellen Gini-Wert.
+    Wird bei jeder Schieberegler-Änderung neu gerendert.
+  ────────────────────────────────────────────────────────────────── */
+  .rechenweg-container {
+    background: var(--hg-karte);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-gross);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: aufsteigen 0.6s ease 0.5s both;
+  }
+
+  .rechenweg-titel {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--akzent-lila);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rahmen);
+  }
+
+  /* Die einzelnen Zeilen des Rechenwegs */
+  .rechenweg-zeilen {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    /* id="rechenweg-ausgabe" – wird per JS befüllt */
+  }
+
+  .rw-zeile {
+    display: grid;
+    grid-template-columns: 110px 14px 1fr;
+    gap: 6px;
+    align-items: baseline;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: var(--radius-klein);
+    background: var(--hg-hell);
+    border: 1px solid var(--rahmen);
+  }
+
+  .rw-zeile--ergebnis {
+    background: rgba(139, 92, 246, 0.08);
+    border-color: var(--rahmen-hell);
+  }
+
+  .rw-key   { color: var(--akzent-hell); font-weight: 600; }
+  .rw-eq    { color: var(--text-schwach); text-align: center; }
+  .rw-val   { color: var(--text-zweig); font-weight: 300; }
+  .rw-zeile--ergebnis .rw-val { color: var(--text-haupt); font-weight: 600; }
+
+  /* ──────────────────────────────────────────────────────────────────
+    PRO/CONTRA-GRID
+  ────────────────────────────────────────────────────────────────── */
+  .pro-contra-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .liste-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding: 3px 8px;
+    border-radius: var(--radius-klein);
+    display: inline-block;
+  }
+
+  .liste-label--pro {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+  }
+
+  .liste-label--contra {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+  }
+
+  .punkte-liste {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .punkte-liste li {
+    font-size: 11.5px;
+    color: var(--text-zweig);
+    font-weight: 300;
+    line-height: 1.5;
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .punkte-liste li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--akzent-lila);
+    font-weight: 700;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    HINWEIS-BANNER
+  ────────────────────────────────────────────────────────────────── */
+  .hinweis-banner {
+    background: rgba(139, 92, 246, 0.07);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-mittel);
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 48px;
+    animation: aufsteigen 0.6s ease 0.6s both;
+  }
+
+  .hinweis-icon {
+    font-size: 16px;
+    line-height: 1.5;
+    flex-shrink: 0;
+  }
+
+  .hinweis-text {
+    font-size: 12px;
+    color: var(--text-zweig);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .hinweis-text strong {
+    color: var(--akzent-hell);
+    font-weight: 600;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    NAVIGATIONS-KARTEN (Links zu anderen Seiten)
+    
+    Was: Zwei Karten mit Links zu Index und Entscheidungsbaum-Seite.
+    Warum: So können Schüler einfach zwischen Lernseiten navigieren.
+  ────────────────────────────────────────────────────────────────── */
+  .nav-karten-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  @media (max-width: 540px) {
+    .nav-karten-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .nav-karte {
+    background: var(--hg-karte);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-gross);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    /* transition: weicher Hover-Übergang */
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    animation: aufsteigen 0.6s ease both;
+  }
+
+  .nav-karte:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+
+  .nav-karte:hover {
+    border-color: var(--rahmen-hell);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px var(--akzent-glow-s);
+  }
+
+  .nav-karte-icon {
+    font-size: 22px;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--akzent-glow-s);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-mittel);
+    flex-shrink: 0;
+  }
+
+  .nav-karte-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-karte-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--akzent-lila);
+  }
+
+  .nav-karte-titel {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-haupt);
+  }
+
+  .nav-karte-pfeil {
+    margin-left: auto;
+    font-size: 16px;
+    color: var(--text-schwach);
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .nav-karte:hover .nav-karte-pfeil {
+    color: var(--akzent-hell);
+    transform: translateX(3px);
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    FOOTER
+  ────────────────────────────────────────────────────────────────── */
+  .seite-footer {
+    text-align: center;
+    padding-top: 32px;
+    border-top: 1px solid rgba(139, 92, 246, 0.1);
+    animation: einblenden 0.6s ease 0.7s both;
+  }
+
+  .footer-text {
+    font-size: 11px;
+    color: var(--text-schwach);
+    letter-spacing: 0.08em;
+    line-height: 1.8;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    TOAST-BENACHRICHTIGUNG
+  ────────────────────────────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--hg-karte);
+    border: 1px solid var(--rahmen-hell);
+    border-radius: var(--radius-mittel);
+    padding: 12px 20px;
+    font-size: 12px;
+    color: var(--text-haupt);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px var(--akzent-glow-s);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 1000;
+  }
+
+  .toast.sichtbar {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+    ANIMATIONEN
+  ────────────────────────────────────────────────────────────────── */
+  @keyframes einblenden {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes aufsteigen {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes puls {
+    0%, 100% { box-shadow: 0 0 0 0 transparent; }
+    50%       { box-shadow: 0 0 16px 2px var(--akzent-glow-s); }
+  }
+
+</style>
+
+<!-- ================================================================
+  HTML-BEREICH (BODY)
+================================================================ -->
+<body>
+
+  <div class="seite-container">
+
+    <!-- ────────────────────────────────────────────────────────────────
+      NAVIGATIONSLEISTE
+      
+      Enthält:
+      - Logo / Heimlink (klickbar → index.html)
+      - Navigationslinks zu allen Seiten
+      - Badge "Unterrichtsmaterial"
+    ──────────────────────────────────────────────────────────────── -->
+    <nav class="nav-leiste" role="navigation" aria-label="Seitennavigation">
+
+      <!--
+        href="index.html" = relativer Link zur Startseite.
+        Wenn alle HTML-Dateien im gleichen Ordner liegen,
+        reicht der Dateiname ohne Pfad.
+      -->
+      <a href="index.html" class="nav-logo" title="Zur Startseite">
+        🌳 ML Grundlagen
+      </a>
+
+      <!-- ────────────────────────────────────────────────────────────
+        NAVIGATIONSLINKS
+        
+        Was: Verweise auf die anderen Seiten des Lernmaterials.
+        Die aktive Seite erhält die Klasse nav-link--aktiv.
+        
+        🔬 EXPERIMENTIERZONE:
+           Füge weitere Links hinzu, wenn neue Seiten entstehen!
+      ──────────────────────────────────────────────────────────── -->
+      <div class="nav-links" role="list">
+
+        <!-- Link zur Startseite -->
+        <a href="index.html" class="nav-link" role="listitem">
+          Startseite
+        </a>
+
+        <!-- Link zur Entscheidungsbaum-Seite -->
+        <a href="entscheidungsbaum.html" class="nav-link" role="listitem">
+          🌳 Entscheidungsbäume
+        </a>
+
+        <!-- Aktuelle Seite – aria-current="page" für Screenreader -->
+        <a href="gini-impurity.html" class="nav-link nav-link--aktiv"
+           role="listitem" aria-current="page">
+          📐 Gini Impurity
+        </a>
+
+      </div>
+
+      <span class="nav-badge">Unterrichtsmaterial</span>
+    </nav>
+
+    <!-- ────────────────────────────────────────────────────────────────
+      HERO-BEREICH
+    ──────────────────────────────────────────────────────────────── -->
+    <header class="hero-bereich" role="banner">
+      <div class="hero-label">Maschinelles Lernen · Kapitel 2</div>
+
+      <h1 class="hero-titel">
+        Wie misst man<br />
+        <span class="akzent-text">Unordnung</span> in Daten?
+      </h1>
+
+      <p class="hero-beschreibung">
+        Gini Impurity ist das mathematische Herzstück jedes Entscheidungsbaums.
+        Hier lernst du, was der Wert bedeutet, wie er berechnet wird —
+        und experimentierst live mit eigenen Klassenverteilungen.
+      </p>
+    </header>
+
+    <!-- ════════════════════════════════════════════════════════════════
+      KAPITEL 1: WAS IST GINI IMPURITY?
+    ════════════════════════════════════════════════════════════════ -->
+    <section id="kapitel-was" class="kapitel-bereich" aria-labelledby="kapitel-was-titel">
+
+      <div class="abschnitt-trenner">
+        <span class="abschnitt-label">Kapitel 1 · Grundlagen</span>
+      </div>
+
+      <div class="kapitel-header">
+        <div class="kapitel-icon-gross" aria-hidden="true">📐</div>
+        <div>
+          <div class="kapitel-nummer">Kapitel 01</div>
+          <h2 class="kapitel-titel" id="kapitel-was-titel">Was ist Gini Impurity?</h2>
+          <p class="kapitel-untertitel">Das Maß für Unreinheit einer Gruppe</p>
+        </div>
+      </div>
+
+      <div class="kapitel-grid">
+
+        <!-- Linke Spalte: Erklärungen -->
+        <div class="kapitel-texte">
+
+          <div class="lern-block">
+            <div class="lern-block-titel">
+              <span class="lern-block-nr">01</span>
+              Die Grundidee
+            </div>
+            <p class="lern-block-text">
+              Stell dir vor, du greifst <strong class="herv">blind in eine Tüte</strong> und ziehst
+              eine Frucht heraus. Wie hoch ist die Wahrscheinlichkeit, dass du sie
+              einer <em>falschen</em> Klasse zuordnest, wenn du zufällig rätst?
+            </p>
+            <p class="lern-block-text">
+              Genau das misst <strong class="herv">Gini Impurity</strong>:
+              die Wahrscheinlichkeit eines Fehlers beim zufälligen Zuweisen.
+              Eine <strong class="herv">reine Gruppe</strong> (nur eine Klasse) ergibt Gini = 0.
+              Eine <strong class="herv">perfekt gemischte Gruppe</strong> (gleich viele Klassen)
+              ergibt Gini nahe 0,5 (bei 2 Klassen).
+            </p>
+          </div>
+
+          <div class="lern-block">
+            <div class="lern-block-titel">
+              <span class="lern-block-nr">02</span>
+              Wozu braucht man das?
+            </div>
+            <p class="lern-block-text">
+              Ein <strong class="herv">Entscheidungsbaum</strong> muss bei jedem Schritt die
+              beste Frage wählen: Welche Aufteilung der Daten erzeugt die
+              reinsten Gruppen?
+            </p>
+            <p class="lern-block-text">
+              Der Algorithmus berechnet die Gini Impurity für jede mögliche
+              Frage und wählt die Frage, die die
+              <strong class="herv">Unreinheit am stärksten reduziert</strong> —
+              das nennt man <em>Gini Gain</em>.
+            </p>
+          </div>
+
+          <div class="lern-block">
+            <div class="lern-block-titel">
+              <span class="lern-block-nr">03</span>
+              Stärken &amp; Grenzen
+            </div>
+            <div class="pro-contra-grid">
+              <div>
+                <div class="liste-label liste-label--pro">Vorteile</div>
+                <ul class="punkte-liste">
+                  <li>Sehr schnell zu berechnen</li>
+                  <li>Kein Logarithmus nötig</li>
+                  <li>Intuitiv verständlich</li>
+                  <li>Weit verbreitet (sklearn)</li>
+                </ul>
+              </div>
+              <div>
+                <div class="liste-label liste-label--contra">Grenzen</div>
+                <ul class="punkte-liste">
+                  <li>Bevorzugt größere Klassen</li>
+                  <li>Alternativ: Entropie</li>
+                  <li>Gilt nur pro Knoten</li>
+                  <li>Kein globales Maß</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- Ende .kapitel-texte -->
+
+        <!-- Rechte Spalte: Statische Visualisierung als Referenz -->
+        <div class="kapitel-visual">
+          <div class="visual-label" aria-hidden="true">Gini-Wert im Vergleich</div>
+
+          <!--
+            Statisches Balkendiagramm: Zeigt typische Gini-Werte
+            für verschiedene Mischungsverhältnisse.
+            
+            🔬 EXPERIMENTIERZONE:
+               Ändere die --breite-Werte und passe die Beschriftungen an,
+               um andere Beispiele darzustellen!
+          -->
+          <div class="gini-visualisierung" role="img" aria-label="Balkendiagramm: Gini-Werte">
+
+            <div class="gini-zeile">
+              <div class="gini-zeile-label">Nur 1 Klasse (rein)</div>
+              <div class="gini-balken-spur">
+                <div class="gini-balken gini-balken--rein" style="--breite: 0%"></div>
+              </div>
+              <div class="gini-wert">0,00</div>
+            </div>
+
+            <div class="gini-zeile">
+              <div class="gini-zeile-label">8 : 2 Aufteilung</div>
+              <div class="gini-balken-spur">
+                <div class="gini-balken gini-balken--mittel" style="--breite: 32%"></div>
+              </div>
+              <div class="gini-wert">0,32</div>
+            </div>
+
+            <div class="gini-zeile">
+              <div class="gini-zeile-label">7 : 3 Aufteilung</div>
+              <div class="gini-balken-spur">
+                <div class="gini-balken gini-balken--mittel" style="--breite: 42%"></div>
+              </div>
+              <div class="gini-wert">0,42</div>
+            </div>
+
+            <div class="gini-zeile">
+              <div class="gini-zeile-label">6 : 4 Aufteilung</div>
+              <div class="gini-balken-spur">
+                <div class="gini-balken gini-balken--hoch" style="--breite: 48%"></div>
+              </div>
+              <div class="gini-wert">0,48</div>
+            </div>
+
+            <div class="gini-zeile">
+              <div class="gini-zeile-label">5 : 5 (max. gemischt)</div>
+              <div class="gini-balken-spur">
+                <div class="gini-balken gini-balken--max" style="--breite: 50%"></div>
+              </div>
+              <div class="gini-wert">0,50</div>
+            </div>
+
+          </div>
+
+          <div class="gini-legende">
+            <div class="legende-punkt legende-punkt--rein"></div>
+            <span>0 = vollständig rein</span>
+            <div class="legende-punkt legende-punkt--max" style="margin-left: 10px;"></div>
+            <span>0,5 = maximal gemischt</span>
+          </div>
+        </div>
+
+      </div><!-- Ende .kapitel-grid -->
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+      KAPITEL 2: DIE FORMEL
+    ════════════════════════════════════════════════════════════════ -->
+    <section id="kapitel-formel" class="kapitel-bereich" aria-labelledby="kapitel-formel-titel">
+
+      <div class="abschnitt-trenner">
+        <span class="abschnitt-label">Kapitel 2 · Die Formel</span>
+      </div>
+
+      <div class="kapitel-header">
+        <div class="kapitel-icon-gross" aria-hidden="true">🔢</div>
+        <div>
+          <div class="kapitel-nummer">Kapitel 02</div>
+          <h2 class="kapitel-titel" id="kapitel-formel-titel">Die Formel erklärt</h2>
+          <p class="kapitel-untertitel">Schritt für Schritt zur Berechnung</p>
+        </div>
+      </div>
+
+      <div class="kapitel-grid">
+
+        <!-- Linke Spalte: Schritt-für-Schritt Erklärung -->
+        <div class="kapitel-texte">
+
+          <div class="lern-block">
+            <div class="lern-block-titel">
+              <span class="lern-block-nr">01</span>
+              Die vollständige Formel
+            </div>
+            <p class="lern-block-text">
+              Die Gini Impurity einer Gruppe mit <strong class="herv">k Klassen</strong>
+              wird so berechnet:
+            </p>
+
+            <!-- Formel-Schritte als strukturierte Karten -->
+            <div class="formel-schritte">
+
+              <div class="formel-schritt">
+                <div class="schritt-kopf">
+                  <span class="schritt-nr">①</span>
+                  <span class="schritt-name">Anteile ermitteln (pᵢ)</span>
+                </div>
+                <div class="schritt-code">pᵢ = Anzahl Klasse i / Gesamtzahl n</div>
+                <p class="schritt-erkl">
+                  Für jede Klasse i berechnen wir, welchen <em>Anteil</em> sie
+                  an der Gesamtgruppe hat. Alle pᵢ zusammen ergeben immer 1.
+                </p>
+              </div>
+
+              <div class="formel-schritt">
+                <div class="schritt-kopf">
+                  <span class="schritt-nr">②</span>
+                  <span class="schritt-name">Quadrieren</span>
+                </div>
+                <div class="schritt-code">(pᵢ)²</div>
+                <p class="schritt-erkl">
+                  Jeder Anteil wird quadriert. Das verstärkt große Anteile
+                  und schwächt kleine ab — reine Gruppen erhalten dadurch
+                  einen hohen Quadrat-Summenwert.
+                </p>
+              </div>
+
+              <div class="formel-schritt">
+                <div class="schritt-kopf">
+                  <span class="schritt-nr">③</span>
+                  <span class="schritt-name">Summieren</span>
+                </div>
+                <div class="schritt-code">Σ (pᵢ)² — alle Klassen addieren</div>
+                <p class="schritt-erkl">
+                  Die Summe aller quadrierten Anteile nennt man
+                  <em>Herfindahl-Index</em>. Je reiner die Gruppe,
+                  desto näher ist dieser Wert an 1.
+                </p>
+              </div>
+
+              <div class="formel-schritt">
+                <div class="schritt-kopf">
+                  <span class="schritt-nr">④</span>
+                  <span class="schritt-name">Von 1 subtrahieren</span>
+                </div>
+                <div class="schritt-code">Gini = 1 − Σ (pᵢ)²</div>
+                <p class="schritt-erkl">
+                  Das Ergebnis: 0 bei vollständiger Reinheit,
+                  nahe 0,5 bei maximaler Mischung (2 Klassen).
+                  Mit mehr Klassen kann der Maximalwert höher sein.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="lern-block">
+            <div class="lern-block-titel">
+              <span class="lern-block-nr">02</span>
+              Rechenbeispiel: Äpfel &amp; Birnen
+            </div>
+            <p class="lern-block-text">
+              Gegeben: Eine Gruppe mit <strong class="herv">6 Äpfeln</strong> und
+              <strong class="herv">4 Birnen</strong> (n = 10 gesamt).
+            </p>
+            <div class="rechnung-block">
+              <div class="rechnung-zeile">
+                <span class="r-label">p(Apfel)</span>
+                <span class="r-gleich">=</span>
+                <span class="r-wert">6 ÷ 10 = 0,6</span>
+              </div>
+              <div class="rechnung-zeile">
+                <span class="r-label">p(Birne)</span>
+                <span class="r-gleich">=</span>
+                <span class="r-wert">4 ÷ 10 = 0,4</span>
+              </div>
+              <div class="rechnung-zeile">
+                <span class="r-label">Σ (pᵢ)²</span>
+                <span class="r-gleich">=</span>
+                <span class="r-wert">0,6² + 0,4² = 0,36 + 0,16 = 0,52</span>
+              </div>
+              <div class="rechnung-zeile rechnung-zeile--ergebnis">
+                <span class="r-label">Gini</span>
+                <span class="r-gleich">=</span>
+                <span class="r-wert">1 − 0,52 = <strong>0,48</strong></span>
+              </div>
+            </div>
+            <p class="lern-block-text" style="margin-top: 8px;">
+              → 0,48 ist nahe am Maximum 0,5. Der Baum würde diese Gruppe
+              weiter aufteilen wollen.
+            </p>
+          </div>
+
+          <div class="lern-block">
+            <div class="lern-block-titel">
+              <span class="lern-block-nr">03</span>
+              Rechenbeispiel: Reine Gruppe
+            </div>
+            <p class="lern-block-text">
+              Gegeben: Eine Gruppe mit <strong class="herv">10 Äpfeln</strong>,
+              0 Birnen (n = 10 gesamt).
+            </p>
+            <div class="rechnung-block">
+              <div class="rechnung-zeile">
+                <span class="r-label">p(Apfel)</span>
+                <span class="r-gleich">=</span>
+                <span class="r-wert">10 ÷ 10 = 1,0</span>
+              </div>
+              <div class="rechnung-zeile">
+                <span class="r-label">p(Birne)</span>
+                <span class="r-gleich">=</span>
+                <span class="r-wert">0 ÷ 10 = 0,0</span>
+              </div>
+              <div class="rechnung-zeile">
+                <span class="r-label">Σ (pᵢ)²</span>
+                <span class="r-gleich">=</span>
+                <span class="r-wert">1,0² + 0,0² = 1,0 + 0,0 = 1,0</span>
+              </div>
+              <div class="rechnung-zeile rechnung-zeile--ergebnis">
+                <span class="r-label">Gini</span>
+                <span class="r-gleich">=</span>
+                <span class="r-wert">1 − 1,0 = <strong>0,00 ✅ rein!</strong></span>
+              </div>
+            </div>
+            <p class="lern-block-text" style="margin-top: 8px;">
+              → Gini = 0 bedeutet: perfekte Reinheit.
+              Der Baum stoppt hier — kein weiterer Split nötig.
+            </p>
+          </div>
+
+        </div><!-- Ende .kapitel-texte -->
+
+        <!-- Rechte Spalte: Statisches Visual (Formel-Übersicht) -->
+        <div class="kapitel-visual">
+          <div class="visual-label">Formel-Überblick</div>
+
+          <!-- Formel-Box: Die Formel auf einen Blick -->
+          <div style="
+            background: rgba(139,92,246,0.08);
+            border: 1px solid var(--rahmen-hell);
+            border-radius: var(--radius-mittel);
+            padding: 20px;
+            text-align: center;
+          ">
+            <div style="font-size:10px; letter-spacing:0.14em; text-transform:uppercase;
+                        color:var(--text-schwach); margin-bottom:10px;">
+              Gini Impurity
+            </div>
+            <div style="font-family:'DM Serif Display',serif; font-size:1.5rem;
+                        color:var(--akzent-hell); text-shadow: 0 0 20px var(--akzent-glow);">
+              Gini = 1 − Σ (pᵢ)²
+            </div>
+            <div style="font-size:11px; color:var(--text-schwach); margin-top:10px;">
+              für i = 1 … k Klassen
+            </div>
+          </div>
+
+          <!-- Wertebereich-Erklärung -->
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="font-size:10px; letter-spacing:0.12em; text-transform:uppercase;
+                        color:var(--text-schwach); margin-bottom:2px;">
+              Wertebereich
+            </div>
+
+            <div style="
+              background:var(--hg-hell); border:1px solid rgba(74,222,128,0.25);
+              border-radius:var(--radius-klein); padding:10px 14px;
+              display:flex; align-items:center; gap:10px;
+            ">
+              <div style="width:10px;height:10px;border-radius:50%;
+                          background:#4ade80;flex-shrink:0;"></div>
+              <div>
+                <div style="font-size:12px; font-weight:600; color:#4ade80;">Gini = 0,00</div>
+                <div style="font-size:11px; color:var(--text-zweig); font-weight:300;">
+                  Alle Elemente gleiche Klasse → vollständig rein
+                </div>
+              </div>
+            </div>
+
+            <div style="
+              background:var(--hg-hell); border:1px solid rgba(250,204,21,0.25);
+              border-radius:var(--radius-klein); padding:10px 14px;
+              display:flex; align-items:center; gap:10px;
+            ">
+              <div style="width:10px;height:10px;border-radius:50%;
+                          background:#facc15;flex-shrink:0;"></div>
+              <div>
+                <div style="font-size:12px; font-weight:600; color:#facc15;">Gini = 0,25</div>
+                <div style="font-size:11px; color:var(--text-zweig); font-weight:300;">
+                  Leichte Mischung → aufteilungswürdig
+                </div>
+              </div>
+            </div>
+
+            <div style="
+              background:var(--hg-hell); border:1px solid rgba(248,113,113,0.25);
+              border-radius:var(--radius-klein); padding:10px 14px;
+              display:flex; align-items:center; gap:10px;
+            ">
+              <div style="width:10px;height:10px;border-radius:50%;
+                          background:#f87171;flex-shrink:0;"></div>
+              <div>
+                <div style="font-size:12px; font-weight:600; color:#f87171;">Gini = 0,50</div>
+                <div style="font-size:11px; color:var(--text-zweig); font-weight:300;">
+                  2 gleich große Klassen → maximal gemischt
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hinweis: Mehr als 2 Klassen -->
+          <div style="
+            background: rgba(139,92,246,0.05);
+            border: 1px solid var(--rahmen);
+            border-left: 3px solid var(--akzent-lila);
+            border-radius: var(--radius-klein);
+            padding: 10px 14px;
+            font-size: 11.5px;
+            color: var(--text-zweig);
+            font-weight: 300;
+            line-height: 1.6;
+          ">
+            <strong style="color:var(--akzent-hell);">Merke:</strong>
+            Bei mehr als 2 Klassen kann der maximale Gini-Wert über 0,5 liegen.
+            Für k Klassen gilt: Gini_max = 1 − 1/k
+          </div>
+
+        </div><!-- Ende .kapitel-visual -->
+
+      </div><!-- Ende .kapitel-grid -->
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════
+      KAPITEL 3: INTERAKTIVER GINI-RECHNER
+      
+      Das ist das Kernstück dieser Seite.
+      Schüler können Klassenzahlen verschieben und sehen,
+      wie Gini Impurity sich verändert — live und mit Rechenweg.
+    ════════════════════════════════════════════════════════════════ -->
+    <section id="kapitel-rechner" class="kapitel-bereich" aria-labelledby="kapitel-rechner-titel">
+
+      <div class="abschnitt-trenner">
+        <span class="abschnitt-label">Kapitel 3 · Interaktiv ausprobieren</span>
+      </div>
+
+      <div class="kapitel-header">
+        <div class="kapitel-icon-gross" aria-hidden="true">🧮</div>
+        <div>
+          <div class="kapitel-nummer">Kapitel 03</div>
+          <h2 class="kapitel-titel" id="kapitel-rechner-titel">Gini-Rechner</h2>
+          <p class="kapitel-untertitel">Verschiebe die Regler und beobachte den Effekt</p>
+        </div>
+      </div>
+
+      <!-- Hinweis-Banner für den Rechner -->
+      <aside class="hinweis-banner" role="note" aria-label="Hinweis zum Rechner">
+        <div class="hinweis-icon" aria-hidden="true">💡</div>
+        <p class="hinweis-text">
+          <strong>So funktioniert der Rechner:</strong>
+          Bewege die Schieberegler, um die Anzahl der Elemente in jeder Klasse
+          zu ändern. Der Gini-Wert, der Balken und der vollständige Rechenweg
+          aktualisieren sich sofort.
+        </p>
+      </aside>
+
+      <!--
+        ════════════════════════════════════════════════════════════
+        DER RECHNER-CONTAINER
+        
+        Enthält:
+        1. Klassen-Regler (Eingabe)
+        2. Klassen-Verteilung (Balken-Visualisierung)
+        3. Ergebnis-Anzeige
+        
+        id="rechner" – wird von JavaScript referenziert.
+        ════════════════════════════════════════════════════════════
+      -->
+      <div class="rechner-container" id="rechner" aria-label="Interaktiver Gini-Rechner">
+
+        <div class="rechner-titel">
+          <div class="rechner-titel-icon" aria-hidden="true">📐</div>
+          Gini Impurity berechnen
+        </div>
+
+        <!--
+          KLASSEN-REGLER
+          
+          Jede Klasse hat:
+          - Eine Farbe (via inline style)
+          - Einen Namen
+          - Einen <input type="range"> Schieberegler
+          - Eine Zahl-Anzeige
+          
+          id="slider-A" und id="zahl-A":
+          → Das JavaScript sucht per ID auf diese Elemente zu.
+          
+          oninput="aktualisiereRechner()":
+          → Bei jeder Regler-Bewegung wird diese JS-Funktion aufgerufen.
+          
+          🔬 EXPERIMENTIERZONE:
+             Ändere die Klassen-Namen, Farben oder max-Werte!
+             Füge eine neue .klasse-zeile mit id="slider-D" hinzu
+             und erweitere das JavaScript entsprechend.
+        -->
+        <div class="klassen-grid" id="klassen-grid">
+
+          <!-- KLASSE A: Äpfel -->
+          <div class="klasse-zeile">
+            <div class="klasse-dot"
+                 style="background:#a78bfa; --dot-farbe:rgba(167,139,250,0.4);"></div>
+            <span class="klasse-name">🍎 Äpfel</span>
+            <input
+              type="range"
+              class="klasse-slider"
+              id="slider-A"
+              min="0" max="20" value="6"
+              aria-label="Anzahl Äpfel"
+              oninput="aktualisiereRechner()"
+            />
+            <span class="klasse-zahl" id="zahl-A">6</span>
+          </div>
+
+          <!-- KLASSE B: Birnen -->
+          <div class="klasse-zeile">
+            <div class="klasse-dot"
+                 style="background:#fb923c; --dot-farbe:rgba(251,146,60,0.4);"></div>
+            <span class="klasse-name">🍐 Birnen</span>
+            <input
+              type="range"
+              class="klasse-slider"
+              id="slider-B"
+              min="0" max="20" value="4"
+              aria-label="Anzahl Birnen"
+              oninput="aktualisiereRechner()"
+            />
+            <span class="klasse-zahl" id="zahl-B">4</span>
+          </div>
+
+          <!-- KLASSE C: Kirschen -->
+          <div class="klasse-zeile">
+            <div class="klasse-dot"
+                 style="background:#4ade80; --dot-farbe:rgba(74,222,128,0.4);"></div>
+            <span class="klasse-name">🍒 Kirschen</span>
+            <input
+              type="range"
+              class="klasse-slider"
+              id="slider-C"
+              min="0" max="20" value="0"
+              aria-label="Anzahl Kirschen"
+              oninput="aktualisiereRechner()"
+            />
+            <span class="klasse-zahl" id="zahl-C">0</span>
+          </div>
+
+        </div><!-- Ende .klassen-grid -->
+
+        <!-- ────────────────────────────────────────────────────────
+          KLASSEN-VERTEILUNG (Proportionalbalken)
+          
+          Dieser Balken zeigt, wie sich die Elemente auf
+          die Klassen verteilen. Jede Klasse bekommt einen
+          farbigen Anteil, dessen Breite proportional zur
+          Klassenanzahl ist.
+          
+          id="verteilung-balken":
+          → JavaScript setzt die width jedes Segments.
+        ──────────────────────────────────────────────────────────── -->
+        <div>
+          <div class="verteilung-label">Klassenverteilung</div>
+          <div class="verteilung-balken" id="verteilung-balken"
+               role="img" aria-label="Visuelle Darstellung der Klassenverteilung">
+            <div class="verteilung-segment" id="seg-A"
+                 style="background:#a78bfa;"></div>
+            <div class="verteilung-segment" id="seg-B"
+                 style="background:#fb923c;"></div>
+            <div class="verteilung-segment" id="seg-C"
+                 style="background:#4ade80;"></div>
+          </div>
+          <!-- Legende unter dem Balken -->
+          <div class="verteilung-legende" style="margin-top: 8px;">
+            <div class="verteilung-legende-eintrag">
+              <div class="legende-quadrat" style="background:#a78bfa;"></div>
+              <span id="legende-A">Äpfel: 6</span>
+            </div>
+            <div class="verteilung-legende-eintrag">
+              <div class="legende-quadrat" style="background:#fb923c;"></div>
+              <span id="legende-B">Birnen: 4</span>
+            </div>
+            <div class="verteilung-legende-eintrag">
+              <div class="legende-quadrat" style="background:#4ade80;"></div>
+              <span id="legende-C">Kirschen: 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ────────────────────────────────────────────────────────
+          ERGEBNIS-ANZEIGE
+          
+          id="ergebnis-zahl":    Die große Gini-Zahl
+          id="ergebnis-balken":  Der farbige Balken
+          id="ergebnis-text":    Die Textbeschreibung
+        ──────────────────────────────────────────────────────────── -->
+        <div class="rechner-ergebnis">
+          <div class="ergebnis-kopf">
+            <span class="ergebnis-label">Gini Impurity</span>
+            <span class="ergebnis-zahl" id="ergebnis-zahl">0,48</span>
+          </div>
+          <div class="ergebnis-balken-spur">
+            <div class="ergebnis-balken" id="ergebnis-balken"
+                 style="--balken-breite: 96%; --balken-farbe: #fb923c;"></div>
+          </div>
+          <div class="ergebnis-beschreibung" id="ergebnis-text">
+            Diese Gruppe ist stark gemischt — ein Split ist sinnvoll.
+          </div>
+        </div>
+
+      </div><!-- Ende .rechner-container -->
+
+      <!-- ──────────────────────────────────────────────────────────
+        RECHENWEG-ANZEIGE
+        
+        Zeigt den vollständigen Rechenweg unterhalb des Rechners.
+        Wird bei jeder Änderung neu gerendert.
+        
+        id="rechenweg-ausgabe":
+        → JavaScript schreibt hier die Zeilen rein.
+      ──────────────────────────────────────────────────────────── -->
+      <div class="rechenweg-container" style="margin-top: 20px;">
+        <div class="rechenweg-titel">📋 Vollständiger Rechenweg</div>
+        <div class="rechenweg-zeilen" id="rechenweg-ausgabe">
+          <!-- Wird per JavaScript befüllt -->
+        </div>
+      </div>
+
+    </section><!-- Ende Kapitel 3 -->
+
+    <!-- ════════════════════════════════════════════════════════════════
+      NAVIGATIONS-KARTEN (Links zu anderen Seiten)
+    ════════════════════════════════════════════════════════════════ -->
+    <section aria-label="Weitere Seiten">
+
+      <div class="abschnitt-trenner">
+        <span class="abschnitt-label">Weiterlesen</span>
+      </div>
+
+      <!--
+        Zwei Karten mit Links zu anderen Seiten.
+        href="..." = relativer Link (alle Dateien im selben Ordner).
+        
+        🔬 EXPERIMENTIERZONE:
+           Füge eine dritte Karte für eine neue Seite hinzu!
+      -->
+      <div class="nav-karten-grid">
+
+        <!-- Link zur Startseite -->
+        <a href="index.html" class="nav-karte" aria-label="Zur Startseite">
+          <div class="nav-karte-icon" aria-hidden="true">🏠</div>
+          <div class="nav-karte-info">
+            <div class="nav-karte-label">Zurück zur</div>
+            <div class="nav-karte-titel">Startseite</div>
+          </div>
+          <div class="nav-karte-pfeil" aria-hidden="true">→</div>
+        </a>
+
+        <!-- Link zur Entscheidungsbaum-Seite -->
+        <a href="entscheidungsbaum.html" class="nav-karte"
+           aria-label="Zur Seite über Entscheidungsbäume">
+          <div class="nav-karte-icon" aria-hidden="true">🌳</div>
+          <div class="nav-karte-info">
+            <div class="nav-karte-label">Kapitel 1</div>
+            <div class="nav-karte-titel">Entscheidungsbäume</div>
+          </div>
+          <div class="nav-karte-pfeil" aria-hidden="true">→</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ────────────────────────────────────────────────────────────────
+      FOOTER
+    ──────────────────────────────────────────────────────────────── -->
+    <footer class="seite-footer" role="contentinfo">
+      <p class="footer-text">
+        Maschinelles Lernen · Gini Impurity · Didaktisches Unterrichtsmaterial<br />
+        Code offen lesbar — schau ruhig in die Entwicklertools (F12)!
+      </p>
+    </footer>
+
+  </div><!-- Ende .seite-container -->
+
+  <!-- Toast-Benachrichtigung -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+</body>
+
+<!-- ================================================================
+  JAVASCRIPT-BEREICH
+  
+  WICHTIG: Das Script kommt NACH dem Body (ganz am Ende),
+  damit das HTML schon geladen ist, wenn JS es ansprechen möchte.
+  
+  STRUKTUR:
+  1. Konfiguration (Klassen-Daten)
+  2. Hilfsfunktionen (Berechnung, Farbwahl, Textbeschreibung)
+  3. Haupt-Update-Funktion (wird bei Regler-Bewegung aufgerufen)
+  4. Toast-Funktion
+  5. Initialisierung (einmaliger Aufruf beim Laden)
+  
+  ════════════════════════════════════════════════════════════════
+  📚 IDEEN FÜR SCHÜLER-ERWEITERUNGEN
+  ════════════════════════════════════════════════════════════════
+  
+  EINFACH (Einsteiger):
+  ─────────────────────
+  1. Weitere Klasse hinzufügen: Füge einen 4. Slider (id="slider-D")
+     im HTML ein und ergänze den Eintrag im KLASSEN-Array.
+  
+  2. Klassen umbenennen: Ändere die 'name'-Felder im KLASSEN-Array
+     und die Farben — z.B. für Tierklassifikation statt Früchte.
+  
+  3. Gini vs. Entropie: Zeige unter dem Rechenweg auch die
+     Entropie-Formel (H = -Σ pᵢ log₂ pᵢ) mit dem aktuellen Wert.
+  
+  MITTEL (Fortgeschrittene):
+  ──────────────────────────
+  4. Split-Vergleich: Implementiere zwei separate Rechner (linker
+     und rechter Teilbaum) und berechne den gewichteten Gini Gain.
+  
+  5. Animierter Übergang: Füge eine CSS-Transition für die
+     ergebnis-zahl hinzu, die beim Update kurz aufleuchtet.
+  
+  6. Verlaufsdiagramm: Zeichne mit einem <canvas>-Element,
+     wie sich der Gini-Wert verändert, wenn man den ersten
+     Slider von 0 auf 20 schiebt.
+  
+  SCHWIERIG (Experten):
+  ─────────────────────
+  7. Gini Gain: Implementiere die Berechnung des Gini Gains
+     für einen Split: GiniGain = Gini_Eltern − (n_L/n · Gini_L + n_R/n · Gini_R)
+  
+  8. CSV-Datenimport: Lass den Nutzer eine einfache CSV-Datei
+     hochladen und berechne die Gini Impurity aller Spalten.
+  
+  9. Klassen-Vergleich: Zeige eine Tabelle, die für alle
+     möglichen Splits eines Datensatzes die Gini-Werte vergleicht.
+================================================================ -->
+<script>
+
+  // ================================================================
+  // KONFIGURATION: KLASSEN-DATEN
+  //
+  // Was: Ein Array von Objekten, das jede Klasse beschreibt.
+  // Warum: Statt Klassen hart im Code zu verdrahten, definieren
+  //        wir sie hier zentral. So lässt sich leicht eine neue
+  //        Klasse hinzufügen.
+  //
+  // Jedes Objekt hat:
+  //   id     (String)  – entspricht dem id-Suffix im HTML (slider-A, zahl-A ...)
+  //   name   (String)  – Klassen-Name für Legende und Rechenweg
+  //   farbe  (String)  – CSS-Farbe für Segment und Legende
+  //
+  // 🔬 EXPERIMENTIERZONE:
+  //    Füge ein viertes Objekt { id: 'D', name: '🍋 Zitronen', farbe: '#fde68a' }
+  //    hinzu — und ergänze den passenden Slider im HTML!
+  // ================================================================
+  const KLASSEN = [
+    { id: 'A', name: 'Äpfel',    farbe: '#a78bfa' },
+    { id: 'B', name: 'Birnen',   farbe: '#fb923c' },
+    { id: 'C', name: 'Kirschen', farbe: '#4ade80' },
+  ];
+
+
+  // ================================================================
+  // HILFSFUNKTION: berechneGini(werte)
+  //
+  // Was: Berechnet den Gini Impurity-Wert für eine Liste von Zählungen.
+  // Warum: Diese Funktion ist das Kernstück der Seite.
+  //        Sie wird bei jeder Regler-Bewegung aufgerufen.
+  //
+  // Parameter:
+  //   werte (Array of Number) – Anzahl der Elemente pro Klasse,
+  //                             z.B. [6, 4, 0] für 6 Äpfel, 4 Birnen, 0 Kirschen
+  //
+  // Rückgabe:
+  //   (Number) – der Gini-Wert zwischen 0 und (1 - 1/k)
+  //
+  // Wie es funktioniert:
+  //   1. Gesamtzahl n berechnen (Summe aller Werte)
+  //   2. Wenn n = 0: Gini = 0 (leere Gruppe ist "rein")
+  //   3. Für jede Klasse: Anteil pᵢ = Wert / n berechnen
+  //   4. Quadrate der Anteile summieren: Σ (pᵢ)²
+  //   5. Gini = 1 − Σ (pᵢ)²
+  // ================================================================
+  function berechneGini(werte) {
+
+    // Schritt 1: Gesamtzahl berechnen
+    // Array.reduce() summiert alle Elemente eines Arrays.
+    // 0 ist der Startwert (Akkumulator beginnt bei 0).
+    var gesamt = werte.reduce(function(summe, wert) {
+      return summe + wert;
+    }, 0);
+
+    // Schritt 2: Leere Gruppe = rein
+    if (gesamt === 0) {
+      return 0;
+    }
+
+    // Schritt 3 & 4: Anteile quadrieren und summieren
+    // Wir starten mit summeDerQuadrate = 0 und addieren für
+    // jede Klasse den quadrierten Anteil.
+    var summeDerQuadrate = 0;
+
+    for (var i = 0; i < werte.length; i++) {
+      var anteil = werte[i] / gesamt;    // pᵢ
+      summeDerQuadrate += anteil * anteil; // pᵢ²
+    }
+
+    // Schritt 5: Gini = 1 − Σ (pᵢ)²
+    var gini = 1 - summeDerQuadrate;
+
+    // Auf 4 Dezimalstellen runden, um Gleitkomma-Artefakte zu vermeiden
+    // z.B. verhindert 0.48000000000000004
+    return Math.round(gini * 10000) / 10000;
+  }
+
+
+  // ================================================================
+  // HILFSFUNKTION: waehleBalkenFarbe(giniWert)
+  //
+  // Was: Gibt eine CSS-Farbe zurück, die zum Gini-Wert passt.
+  // Warum: Visuelle Rückmeldung — grün = rein, rot = gemischt.
+  //
+  // Parameter:
+  //   giniWert (Number) – der berechnete Gini-Wert (0 bis ~0.5)
+  //
+  // 🔬 EXPERIMENTIERZONE:
+  //    Füge eine weitere Farb-Stufe hinzu oder ändere die Schwellenwerte!
+  // ================================================================
+  function waehleBalkenFarbe(giniWert) {
+    if (giniWert === 0)        return '#4ade80'; // grün: rein
+    if (giniWert < 0.2)        return '#86efac'; // hellgrün: sehr rein
+    if (giniWert < 0.35)       return '#facc15'; // gelb: leicht gemischt
+    if (giniWert < 0.45)       return '#fb923c'; // orange: gemischt
+    return '#f87171';                            // rot: stark gemischt
+  }
+
+
+  // ================================================================
+  // HILFSFUNKTION: erstelleBeschreibung(giniWert, gesamt)
+  //
+  // Was: Erstellt eine menschenlesbare Erklärung des Gini-Werts.
+  // Warum: Zahlen allein sind für Lernende schwer interpretierbar.
+  //
+  // 🔬 EXPERIMENTIERZONE:
+  //    Formuliere eigene Beschreibungen oder füge einen Emoji hinzu!
+  // ================================================================
+  function erstelleBeschreibung(giniWert, gesamt) {
+    if (gesamt === 0) {
+      return '⚠️ Keine Elemente — bitte mindestens eine Klasse befüllen.';
+    }
+    if (giniWert === 0) {
+      return '✅ Gini = 0: Die Gruppe ist vollständig rein. Kein weiterer Split nötig!';
+    }
+    if (giniWert < 0.1) {
+      return '🟢 Sehr rein — die dominierende Klasse macht fast alles aus.';
+    }
+    if (giniWert < 0.3) {
+      return '🟡 Leichte Mischung — ein Split könnte die Reinheit verbessern.';
+    }
+    if (giniWert < 0.45) {
+      return '🟠 Deutliche Mischung — ein Split ist sinnvoll.';
+    }
+    return '🔴 Stark gemischt — ein Split ist dringend empfohlen!';
+  }
+
+
+  // ================================================================
+  // HAUPTFUNKTION: aktualisiereRechner()
+  //
+  // Was: Liest alle Schieberegler aus, berechnet Gini und aktualisiert
+  //      alle Anzeigen auf der Seite.
+  // Warum: Diese Funktion ist das "Gehirn" der Interaktivität.
+  //        Sie wird bei jeder Regler-Bewegung aufgerufen (oninput="...").
+  //
+  // ABLAUF:
+  //   1. Alle Slider-Werte lesen
+  //   2. Gini Impurity berechnen
+  //   3. Zahlen-Anzeige aktualisieren
+  //   4. Klassen-Verteilungsbalken aktualisieren
+  //   5. Ergebnis-Anzeige aktualisieren
+  //   6. Rechenweg neu rendern
+  // ================================================================
+  function aktualisiereRechner() {
+
+    // ── Schritt 1: Alle Slider-Werte lesen ──────────────────────────
+    //
+    // Wir lesen für jede Klasse den aktuellen Slider-Wert aus.
+    // parseInt() wandelt den String-Wert des Inputs in eine ganze Zahl um.
+    //
+    // Hinweis: HTML-Input-Werte sind immer Strings, daher die Umwandlung.
+    var werte = [];      // Array für die Zählungen
+    var gesamtAnzahl = 0;
+
+    for (var i = 0; i < KLASSEN.length; i++) {
+      var klasse = KLASSEN[i];
+
+      // Element per ID suchen und Wert lesen
+      var slider = document.getElementById('slider-' + klasse.id);
+      var zahl   = parseInt(slider.value, 10); // 10 = Dezimalsystem
+
+      // Zahl neben dem Slider aktualisieren
+      document.getElementById('zahl-' + klasse.id).textContent = zahl;
+
+      // Legende aktualisieren
+      document.getElementById('legende-' + klasse.id).textContent =
+        klasse.name + ': ' + zahl;
+
+      werte.push(zahl);
+      gesamtAnzahl += zahl;
+    }
+
+    // ── Schritt 2: Gini berechnen ────────────────────────────────────
+    var giniWert = berechneGini(werte);
+
+    // ── Schritt 3: Klassen-Verteilungsbalken aktualisieren ───────────
+    //
+    // Jedes Segment bekommt eine Breite in Prozent, die seinem
+    // Anteil an der Gesamtzahl entspricht.
+    // Wenn gesamt = 0, bekommt jede Klasse gleichmäßig 33,3%.
+    //
+    for (var j = 0; j < KLASSEN.length; j++) {
+      var seg = document.getElementById('seg-' + KLASSEN[j].id);
+      var breite;
+
+      if (gesamtAnzahl === 0) {
+        // Gleichmäßige Verteilung bei leerer Eingabe
+        breite = (100 / KLASSEN.length).toFixed(1) + '%';
+      } else {
+        breite = ((werte[j] / gesamtAnzahl) * 100).toFixed(1) + '%';
+      }
+
+      // CSS-Variable setzen steuert die Breite des Segments
+      seg.style.width = breite;
+    }
+
+    // ── Schritt 4: Ergebnis-Anzeige aktualisieren ────────────────────
+    //
+    // Wir formatieren den Gini-Wert mit 4 Nachkommastellen.
+    // toFixed(4) stellt sicher, dass immer 4 Stellen erscheinen.
+    var giniFormatiert = giniWert.toFixed(4).replace('.', ','); // DE-Komma
+
+    // Große Zahl aktualisieren
+    var ergebnisZahlEl = document.getElementById('ergebnis-zahl');
+    ergebnisZahlEl.textContent = giniFormatiert;
+
+    // Farbe des Textes anpassen
+    var balkenFarbe = waehleBalkenFarbe(giniWert);
+    ergebnisZahlEl.style.color = balkenFarbe;
+
+    // Balken-Breite und -Farbe aktualisieren
+    // Der Gini-Maximalwert bei 2 Klassen ist 0,5.
+    // Wir skalieren auf 0–100%, wobei 0.5 = 100% Breite.
+    var balkenBreiteProzent = Math.min(giniWert * 200, 100).toFixed(1) + '%';
+    var ergebnisBalken = document.getElementById('ergebnis-balken');
+    ergebnisBalken.style.setProperty('--balken-breite', balkenBreiteProzent);
+    ergebnisBalken.style.setProperty('--balken-farbe', balkenFarbe);
+
+    // Beschreibungstext aktualisieren
+    document.getElementById('ergebnis-text').textContent =
+      erstelleBeschreibung(giniWert, gesamtAnzahl);
+
+    // ── Schritt 5: Rechenweg rendern ─────────────────────────────────
+    rendereRechenweg(werte, gesamtAnzahl, giniWert);
+  }
+
+
+  // ================================================================
+  // FUNKTION: rendereRechenweg(werte, gesamt, gini)
+  //
+  // Was: Baut den vollständigen Rechenweg als HTML-Zeilen auf.
+  // Warum: Der Rechenweg hilft Schülern zu sehen, wie die Formel
+  //        mit den aktuellen Werten angewendet wird.
+  //
+  // Parameter:
+  //   werte  (Array)  – Anzahl je Klasse
+  //   gesamt (Number) – Gesamtzahl aller Elemente
+  //   gini   (Number) – berechneter Gini-Wert
+  //
+  // Die Funktion erstellt HTML-Strings und setzt sie mit innerHTML.
+  //
+  // 🔬 EXPERIMENTIERZONE:
+  //    Ergänze am Ende die Entropie-Berechnung als Extra-Zeile!
+  // ================================================================
+  function rendereRechenweg(werte, gesamt, gini) {
+
+    // Das Ziel-Element für den Rechenweg
+    var ausgabe = document.getElementById('rechenweg-ausgabe');
+
+    // Wenn keine Elemente vorhanden sind
+    if (gesamt === 0) {
+      ausgabe.innerHTML = '<div class="rw-zeile" style="grid-template-columns:1fr;">' +
+        '<span class="rw-key" style="color:var(--text-schwach);">' +
+        'Bitte mindestens eine Klasse befüllen.</span></div>';
+      return;
+    }
+
+    // HTML-String aufbauen
+    // Wir sammeln alle Zeilen in einem Array und verbinden sie am Ende.
+    var zeilen = [];
+
+    // Gesamtzahl-Zeile
+    zeilen.push(erstelleRechnungsZeile('n (Gesamt)', gesamt, false));
+
+    // Anteile pᵢ für jede Klasse
+    var anteile = [];
+    var quadrate = [];
+    var summeQuadrate = 0;
+
+    for (var i = 0; i < KLASSEN.length; i++) {
+      var anteil = gesamt > 0 ? werte[i] / gesamt : 0;
+      var quadrat = anteil * anteil;
+      anteile.push(anteil);
+      quadrate.push(quadrat);
+      summeQuadrate += quadrat;
+
+      // Zeile: p(Klasse) = Wert / n = Anteil
+      zeilen.push(erstelleRechnungsZeile(
+        'p(' + KLASSEN[i].name + ')',
+        werte[i] + ' ÷ ' + gesamt + ' = ' + anteil.toFixed(4).replace('.', ','),
+        false
+      ));
+    }
+
+    // Leerzeile (visueller Abstand) via leere Zeile
+    zeilen.push('<div style="height:4px;"></div>');
+
+    // Quadrate anzeigen
+    for (var j = 0; j < KLASSEN.length; j++) {
+      var anteilStr = anteile[j].toFixed(4).replace('.', ',');
+      var quadratStr = quadrate[j].toFixed(4).replace('.', ',');
+      zeilen.push(erstelleRechnungsZeile(
+        '(' + anteilStr + ')²',
+        '= ' + quadratStr,
+        false
+      ));
+    }
+
+    // Summe der Quadrate
+    zeilen.push(erstelleRechnungsZeile(
+      'Σ (pᵢ)²',
+      summeQuadrate.toFixed(4).replace('.', ','),
+      false
+    ));
+
+    // Finales Ergebnis (hervorgehoben)
+    zeilen.push(erstelleRechnungsZeile(
+      'Gini = 1 − Σ (pᵢ)²',
+      '1 − ' + summeQuadrate.toFixed(4).replace('.', ',') +
+      ' = ' + gini.toFixed(4).replace('.', ','),
+      true  // true = Ergebnis-Stil
+    ));
+
+    // HTML in das Ausgabe-Element schreiben
+    ausgabe.innerHTML = zeilen.join('');
+  }
+
+
+  // ================================================================
+  // HILFSFUNKTION: erstelleRechnungsZeile(schluessel, wert, istErgebnis)
+  //
+  // Was: Erstellt den HTML-String für eine einzelne Rechenweg-Zeile.
+  // Warum: Vermeidet Code-Wiederholung (DRY-Prinzip: Don't Repeat Yourself).
+  //
+  // Parameter:
+  //   schluessel  (String)  – linke Spalte (z.B. "p(Äpfel)")
+  //   wert        (String)  – rechte Spalte (z.B. "6 ÷ 10 = 0,6000")
+  //   istErgebnis (Boolean) – true = hervorgehobener Ergebnis-Stil
+  // ================================================================
+  function erstelleRechnungsZeile(schluessel, wert, istErgebnis) {
+    var zusatzKlasse = istErgebnis ? ' rw-zeile--ergebnis' : '';
+    return '<div class="rw-zeile' + zusatzKlasse + '">' +
+             '<span class="rw-key">'  + schluessel + '</span>' +
+             '<span class="rw-eq">=</span>' +
+             '<span class="rw-val">'  + wert       + '</span>' +
+           '</div>';
+  }
+
+
+  // ================================================================
+  // FUNKTION: zeigeToast(nachricht)
+  //
+  // Was: Zeigt eine temporäre Benachrichtigung unten auf der Seite.
+  // Warum: Buttons ohne Zielseite erklären, was "bald kommt".
+  // ================================================================
+  var toastElement = document.getElementById('toast');
+  var toastTimer   = null;
+
+  function zeigeToast(nachricht) {
+    toastElement.textContent = nachricht;
+    toastElement.classList.add('sichtbar');
+
+    if (toastTimer !== null) {
+      clearTimeout(toastTimer);
+    }
+
+    toastTimer = setTimeout(function() {
+      toastElement.classList.remove('sichtbar');
+      toastTimer = null;
+    }, 2800);
+  }
+
+
+  // ================================================================
+  // INITIALISIERUNG
+  //
+  // DOMContentLoaded = HTML vollständig geparst.
+  // Wir rufen aktualisiereRechner() einmal auf, um die
+  // Anzeige mit den Startwerten der Slider zu befüllen.
+  // ================================================================
+  document.addEventListener('DOMContentLoaded', function() {
+
+    // Rechner mit den HTML-Startwerten initialisieren
+    aktualisiereRechner();
+
+    // Konsolenausgabe für neugierige Schüler
+    console.log('%c📐 Gini Impurity – Interaktive Lernseite',
+      'color: #a78bfa; font-size: 16px; font-weight: bold;');
+    console.log('%cDidaktisches Unterrichtsmaterial — Viel Spaß beim Rechnen!',
+      'color: #475569; font-size: 12px;');
+    console.log('%c💡 Tipp: Die Funktion berechneGini([6,4,0]) kannst du',
+      'color: #6d28d9; font-size: 12px;');
+    console.log('%c   direkt hier in der Konsole aufrufen!',
+      'color: #6d28d9; font-size: 12px;');
+
+  });
+
+</script>
+
+</html>
