@@ -1,0 +1,23 @@
+  <div class="nav-links" role="list">
+    <!-- Link zur Startseite -->
+    <a href="index.html" class="nav-link" role="listitem">
+      Startseite
+    </a>
+    <!-- Link zur Entscheidungsbaum-Seite -->
+    <a href="entscheidungsbaum.html" class="nav-link" role="listitem">
+      🌳 Entscheidungsbäume
+    </a>
+    <!-- Aktuelle Seite – aria-current="page" für Screenreader -->
+    <a href="gini-impurity.html" class="nav-link nav-link--aktiv"
+       role="listitem" aria-current="page">
+      📐 Gini Impurity
+    </a>
+  </div>
+  <span class="nav-badge">Unterrichtsmaterial</span>
+</nav>
+
+bitte füge diesen code angepasst an den anfang. Ebenfals soll im
+entscheidungsbaum nurdas atribut auswählbar sein. die äste werden dann
+demensprechend nach den atributen benannt anstat mit ja oder nein.
+
+Veränder möglichst wenig das desighn
