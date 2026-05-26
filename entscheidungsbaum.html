@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-</head>
 <style>
 :root {
   --bg0:#09090f;--bg1:#101018;--bg2:#16161f;--bg3:#1c1c28;--bg4:#22222e;
@@ -32,14 +31,21 @@ body{
 }
 .page{max-width:1100px;margin:0 auto;padding:36px 18px 100px}
 
-/* NAV */
+/* NAV ANPASSUNG */
 .nav{
   display:flex;align-items:center;justify-content:space-between;
   padding:11px 18px;background:rgba(22,22,31,.88);
   border:1px solid var(--bdr);border-radius:var(--r1);
   backdrop-filter:blur(14px);margin-bottom:48px;animation:up .5s ease both;
 }
-.nav-logo{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ac2)}
+.nav-links { display: flex; gap: 20px; align-items: center; }
+.nav-link {
+  color: var(--t2); text-decoration: none; font-size: 11px; 
+  font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+.nav-link:hover { color: var(--ac2); }
+.nav-link--aktiv { color: var(--ac); font-weight: 700; border-bottom: 1px solid var(--ac); }
 .nav-badge{font-size:10px;color:var(--t2);background:rgba(139,92,246,.08);border:1px solid var(--bdr);padding:4px 10px;border-radius:20px;letter-spacing:.07em;text-transform:uppercase}
 
 /* HERO */
@@ -54,58 +60,29 @@ body{
 .sep::before,.sep::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent)}
 .sep span{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ac);white-space:nowrap}
 
-/* CARD */
+/* CARD, BUTTONS, TABLE... (Original Design) */
 .card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r1)}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bdr);gap:12px;flex-wrap:wrap}
 .card-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2);margin-bottom:2px}
 .card-sub{font-size:12px;color:var(--t2);font-weight:300}
-
-/* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--r2);font-family:inherit;font-size:11.5px;font-weight:500;letter-spacing:.05em;cursor:pointer;border:none;transition:all .22s ease;white-space:nowrap}
 .btn-primary{background:linear-gradient(135deg,var(--acd),var(--ac));color:#fff;box-shadow:0 4px 16px var(--glows)}
 .btn-primary:hover{box-shadow:0 6px 26px var(--glow);transform:translateY(-1px);filter:brightness(1.1)}
 .btn-ghost{background:rgba(139,92,246,.07);color:var(--ac2);border:1px solid var(--bdr)}
 .btn-ghost:hover{background:rgba(139,92,246,.14);border-color:var(--bdrh);transform:translateY(-1px)}
 .btn-danger{background:rgba(248,113,113,.1);color:var(--red);border:1px solid var(--redbr)}
-.btn-danger:hover{background:rgba(248,113,113,.18)}
 .btn-add{background:rgba(74,222,128,.08);color:var(--grn);border:1px solid var(--grnbr)}
-.btn-add:hover{background:rgba(74,222,128,.16)}
 .btn-sm{padding:5px 10px;font-size:10.5px}
 .btn-icon{padding:4px 7px;font-size:11px;min-width:26px;justify-content:center;border-radius:var(--r3)}
-
-/* TABELLE */
 .table-scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead tr{background:rgba(139,92,246,.07);border-bottom:1px solid var(--bdrh)}
-th{padding:9px 13px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ac2);white-space:nowrap}
+th{padding:9px 13px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ac2)}
 tbody tr{border-bottom:1px solid var(--bdr);transition:background .18s}
-tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--bg4)}
-td{padding:7px 13px;color:var(--t2);font-weight:300;vertical-align:middle}
-td.td-idx{color:var(--t3);font-size:11px;font-weight:500;text-align:center;width:32px}
-td.td-act{text-align:center;width:34px;padding:4px}
-td.editable{cursor:pointer}
-td.editable:hover{background:rgba(139,92,246,.1)}
-
-/* Inline-Dropdown in Zelle */
-.cell-sel{
-  width:100%;background:var(--bg1);border:1px solid var(--bdrh);border-radius:var(--r3);
-  color:var(--t1);font-family:inherit;font-size:11.5px;padding:3px 22px 3px 6px;outline:none;
-  appearance:none;cursor:pointer;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b5cf6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 5px center;
-}
-.cell-sel:focus{border-color:var(--ac)}
-
-/* Attribut-Namen-Input im Tabellenkopf */
-.attr-inp{
-  background:transparent;border:none;color:var(--ac2);font-family:inherit;
-  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
-  width:72px;outline:none;border-bottom:1px dashed rgba(139,92,246,.3);cursor:text;
-}
-.attr-inp:focus{border-bottom-color:var(--ac)}
-
-/* Chips */
+td{padding:7px 13px;color:var(--t2);font-weight:300}
+.cell-sel{width:100%;background:var(--bg1);border:1px solid var(--bdrh);border-radius:var(--r3);color:var(--t1);font-family:inherit;padding:3px 6px;appearance:none;outline:none}
+.attr-inp{background:transparent;border:none;color:var(--ac2);font-family:inherit;font-size:10px;font-weight:700;width:72px;outline:none;border-bottom:1px dashed rgba(139,92,246,.3)}
 .chip-v{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:var(--r3);font-size:11px;font-weight:500}
 .cv-hell   {background:rgba(250,204,21,.1);color:#fde68a;border:1px solid rgba(250,204,21,.22)}
 .cv-dunkel {background:rgba(99,102,241,.1);color:#a5b4fc;border:1px solid rgba(99,102,241,.22)}
@@ -115,19 +92,17 @@ td.editable:hover{background:rgba(139,92,246,.1)}
 .cv-B      {background:rgba(244,114,182,.1);color:#f9a8d4;border:1px solid rgba(244,114,182,.22)}
 .cv-wert1  {background:rgba(139,92,246,.1);color:#c4b5fd;border:1px solid rgba(139,92,246,.22)}
 .cv-wert2  {background:rgba(251,146,60,.1);color:#fdba74;border:1px solid rgba(251,146,60,.22)}
-.badge-ja  {display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;color:var(--grn);background:var(--grnb);border:1px solid var(--grnbr)}
-.badge-nein{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;color:var(--red);background:var(--redb);border:1px solid var(--redbr)}
+.badge-ja  {color:var(--grn);background:var(--grnb);border:1px solid var(--grnbr);padding:3px 9px;border-radius:20px;font-size:11px}
+.badge-nein{color:var(--red);background:var(--redb);border:1px solid var(--redbr);padding:3px 9px;border-radius:20px;font-size:11px}
 
 /* BAUM-CANVAS */
 .tree-scroll{overflow-x:auto;padding:12px 8px 24px}
 .tree-canvas{position:relative}
 .tree-canvas svg{position:absolute;top:0;left:0;pointer-events:none;overflow:visible}
-
-/* Schüler-Knoten */
 .tn{
   position:absolute;background:var(--bg3);border:1px solid var(--bdrh);
   border-radius:var(--r2);padding:9px 11px;text-align:center;
-  transition:border-color .25s,box-shadow .25s;
+  transition:border-color .25s,box-shadow .25s;z-index:10;
 }
 .tn-root{background:rgba(139,92,246,.1);border-color:var(--ac)}
 .tn-lbl{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ac);margin-bottom:4px;display:block}
@@ -138,831 +113,321 @@ td.editable:hover{background:rgba(139,92,246,.1)}
   appearance:none;outline:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b5cf6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 5px center;
-  transition:border-color .18s;
 }
-.tn select:focus{border-color:var(--ac)}
 .tn-ok  {border-color:var(--grn)!important;box-shadow:0 0 14px rgba(74,222,128,.2)!important}
 .tn-fail{border-color:var(--red)!important;box-shadow:0 0 14px rgba(248,113,113,.2)!important}
-
-/* Lösung-Knoten */
-.sn{
-  position:absolute;background:var(--bg3);border:1px solid var(--bdrh);
-  border-radius:var(--r2);padding:9px 12px;text-align:center;
-}
+.sn{position:absolute;background:var(--bg3);border:1px solid var(--bdrh);border-radius:var(--r2);padding:9px 12px;text-align:center}
 .sn-root{background:rgba(139,92,246,.1);border-color:var(--ac)}
-.sn-lbl{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac);margin-bottom:3px;display:block}
 .sn-feat{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:3px}
 .sn-meta{font-size:10px;color:var(--t2);line-height:1.55}
-.sn-gv{color:var(--ac2);font-weight:500}
 .sn-leaf-ja  {background:var(--grnb);border-color:var(--grnbr)}
 .sn-leaf-nein{background:var(--redb);border-color:var(--redbr)}
 .sn-leaf-txt{font-size:12.5px;font-weight:700;display:block;margin-bottom:2px}
-.sn-leaf-ja   .sn-leaf-txt{color:var(--grn)}
+.sn-leaf-ja .sn-leaf-txt{color:var(--grn)}
 .sn-leaf-nein .sn-leaf-txt{color:var(--red)}
-
-/* Ergebnis-Banner */
 .rbanner{border-radius:var(--r1);padding:17px 22px;border:1px solid var(--bdr);margin-top:20px;animation:up .4s ease both}
 .rbanner.ok  {background:var(--grnb);border-color:var(--grnbr)}
-.rbanner.part{background:var(--ylwb);border-color:var(--ylwbr)}
 .rbanner.fail{background:var(--redb);border-color:var(--redbr)}
 .rb-title{font-size:14px;font-weight:700;margin-bottom:6px}
-.rbanner.ok   .rb-title{color:var(--grn)}
-.rbanner.part .rb-title{color:var(--ylw)}
-.rbanner.fail .rb-title{color:var(--red)}
-.rb-body{font-size:12.5px;line-height:1.75;color:var(--t2);font-weight:300}
-.rb-body strong{color:var(--t1)}
-
-/* Hinweis */
-.hint{background:rgba(139,92,246,.05);border:1px solid var(--bdr);border-radius:var(--r2);padding:12px 16px;display:flex;gap:10px;font-size:12px;color:var(--t2);line-height:1.7;margin-top:14px}
-.hint strong{color:var(--ac2)}
-
-/* Toast */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--bg3);border:1px solid var(--bdrh);border-radius:var(--r2);padding:10px 18px;font-size:12px;color:var(--t1);box-shadow:0 8px 32px rgba(0,0,0,.5);opacity:0;transition:opacity .28s,transform .28s;pointer-events:none;white-space:nowrap;z-index:9999}
-#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-
+.rb-body{font-size:12.5px;line-height:1.75;color:var(--t2)}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg3);padding:10px 18px;border-radius:var(--r2);opacity:0;transition:all .3s}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(-10px)}
 @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 </style>
-
+</head>
 <body>
+
 <div class="page">
-
-<!-- NAV -->
-<nav class="nav">
-  <span class="nav-logo">🌳 ML Grundlagen</span>
-  <span class="nav-badge">Interaktiver Selbsttest</span>
-</nav>
-
-<!-- HERO -->
-<header class="hero">
-  <div class="chip">Maschinelles Lernen · Selbsttest</div>
-  <h1>Baue deinen eigenen<br><em>Entscheidungsbaum</em></h1>
-  <p>Bearbeite die Datentabelle, füge Attribute hinzu oder entferne sie — dann konstruiere den passenden Entscheidungsbaum und lass ihn prüfen.</p>
-</header>
-
-<!-- ═══════════════════ SCHRITT 1: TABELLE ═══════════════════ -->
-<section style="margin-bottom:44px;animation:up .5s ease .1s both">
-  <div class="sep"><span>Schritt 1 · Datentabelle bearbeiten</span></div>
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <div class="card-title">Trainingsdaten</div>
-        <div class="card-sub">Zelle anklicken zum Bearbeiten · Attributnamen oben umbenennen</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-add btn-sm" onclick="addRow()">+ Zeile</button>
-        <button class="btn btn-add btn-sm" onclick="addAttr()">+ Attribut</button>
-        <button class="btn btn-ghost btn-sm" onclick="regenData()">↻ Neu</button>
-      </div>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-links" role="list">
+      <a href="index.html" class="nav-link" role="listitem">Startseite</a>
+      <a href="entscheidungsbaum.html" class="nav-link nav-link--aktiv" role="listitem" aria-current="page">🌳 Entscheidungsbäume</a>
+      <a href="gini-impurity.html" class="nav-link" role="listitem">📐 Gini Impurity</a>
     </div>
-    <div class="table-scroll">
-      <table id="tbl"><thead id="thead"></thead><tbody id="tbody"></tbody></table>
-    </div>
-  </div>
-  <div class="hint">
-    <span style="font-size:16px;flex-shrink:0">💡</span>
-    <div><strong>Tipp:</strong> Welches Attribut trennt Happy / Not Happy am saubersten?
-    Zähle für jeden Attributwert, wie viele Happy-Einträge dahinter stehen.
-    Das Attribut mit der klarsten Trennung gehört an die Baumwurzel.</div>
-  </div>
-</section>
+    <span class="nav-badge">Unterrichtsmaterial</span>
+  </nav>
 
-<!-- ═══════════════════ SCHRITT 2: BAUM ═══════════════════ -->
-<section style="animation:up .5s ease .18s both">
-  <div class="sep"><span>Schritt 2 · Deinen Baum aufbauen</span></div>
-  <div class="card">
-    <div class="card-head">
-      <div>
-        <div class="card-title">Entscheidungsbaum</div>
-        <div class="card-sub" id="depth-info">—</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="checkTree()">✓ Baum prüfen</button>
-        <button class="btn btn-danger btn-sm" onclick="resetTree()">↺ Zurücksetzen</button>
-      </div>
-    </div>
-    <!-- Schüler-Baum -->
-    <div class="tree-scroll" id="student-scroll">
-      <div class="tree-canvas" id="student-canvas">
-        <svg id="student-svg"></svg>
-      </div>
-    </div>
-    <!-- Ergebnis -->
-    <div id="rbanner" style="display:none" class="rbanner">
-      <div class="rb-title" id="rb-title"></div>
-      <div class="rb-body"  id="rb-body"></div>
-    </div>
-  </div>
+  <!-- HERO -->
+  <header class="hero">
+    <div class="chip">Maschinelles Lernen · Selbsttest</div>
+    <h1>Baue deinen eigenen<br><em>Entscheidungsbaum</em></h1>
+    <p>Wähle für jeden Knoten das Attribut aus, das die Daten am besten trennt. Die Äste zeigen dir automatisch die zugehörigen Werte.</p>
+  </header>
 
-  <!-- Lösungs-Baum -->
-  <div id="sol-wrap" style="display:none;margin-top:32px">
-    <div class="sep"><span>Optimaler Entscheidungsbaum (Lösung)</span></div>
+  <!-- TABELLE -->
+  <section style="margin-bottom:44px;">
+    <div class="sep"><span>Schritt 1 · Datentabelle</span></div>
     <div class="card">
       <div class="card-head">
-        <div class="card-title">Berechneter Baum mit Gini-Werten</div>
+        <div><div class="card-title">Trainingsdaten</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-add btn-sm" onclick="addRow()">+ Zeile</button>
+          <button class="btn btn-ghost btn-sm" onclick="regenData()">↻ Neu</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table id="tbl"><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- BAUM -->
+  <section>
+    <div class="sep"><span>Schritt 2 · Baumstruktur</span></div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Dein Baum</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" onclick="checkTree()">✓ Prüfen</button>
+          <button class="btn btn-danger btn-sm" onclick="resetTree()">↺ Reset</button>
+        </div>
       </div>
       <div class="tree-scroll">
-        <div class="tree-canvas" id="sol-canvas">
-          <svg id="sol-svg"></svg>
+        <div class="tree-canvas" id="student-canvas"><svg id="student-svg"></svg></div>
+      </div>
+      <div id="rbanner" style="display:none" class="rbanner">
+        <div class="rb-title" id="rb-title"></div>
+        <div class="rb-body"  id="rb-body"></div>
+      </div>
+    </div>
+
+    <!-- LÖSUNG -->
+    <div id="sol-wrap" style="display:none;margin-top:32px">
+      <div class="sep"><span>Die optimale Lösung</span></div>
+      <div class="card">
+        <div class="tree-scroll">
+          <div class="tree-canvas" id="sol-canvas"><svg id="sol-svg"></svg></div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 
-</div><!-- .page -->
 <div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-// DATEN-MODELL
-// ═══════════════════════════════════════════════════════════════
-
-/*
-  attrs[] – Attribut-Definitionen
-    { key:string, label:string, values:[{val,label,css}] }
-
-  rows[]  – Datenpunkte
-    { [attrKey]:string, ergebnis:'ja'|'nein' }
-
-  solution – rekursiver Baum (buildTree() Ergebnis)
-
-  CSS-Klassen für Chips:
-  cv-hell, cv-dunkel, cv-kreis, cv-viereck, cv-A, cv-B, cv-wert1, cv-wert2
-*/
-
-let attrs = [];
-let rows  = [];
+// --- LOGIK & DATEN ---
+let attrs = [
+  { key:'farbe', label:'Farbe', values:[{val:'hell',label:'☀️ Hell'}, {val:'dunkel',label:'🌑 Dunkel'}]},
+  { key:'form', label:'Form', values:[{val:'kreis',label:'⭕ Kreis'}, {val:'viereck',label:'🟦 Viereck'}]},
+  { key:'buchstabe', label:'Buchstabe', values:[{val:'A',label:'🔤 A'}, {val:'B',label:'🔤 B'}]}
+];
+let rows = [];
 let solution = null;
+let stree = null;
+let snodeMap = {};
+let nc = 0;
 
-// Schüler-Baum-Knoten: Objekte mit DOM-Referenzen
-let sNodes = []; // Array aller Knoten-Objekte
+const NW=148, NH_N=70, NH_L=56, ROW=80, PAD=20;
 
-// ─── Konstanten für Layout ───
-const NW   = 148;  // Knoten-Breite
-const NH_N = 98;   // Knoten-Höhe (innen, mit 2 Selects)
-const NH_L = 56;   // Blatt-Höhe
-const ROW  = 72;   // Zeilen-Abstand (Mitte→nächste Mitte)
-const PAD  = 20;   // Rand-Padding
-
-// ═══════════════════════════════════════════════════════════════
-// START-DATEN
-// ═══════════════════════════════════════════════════════════════
-
-function defaultAttrs() {
-  return [
-    { key:'farbe', label:'Farbe', values:[
-      {val:'hell',    label:'☀️ Hell',    css:'cv-hell'},
-      {val:'dunkel',  label:'🌑 Dunkel',  css:'cv-dunkel'}]},
-    { key:'form', label:'Form', values:[
-      {val:'kreis',   label:'⭕ Kreis',   css:'cv-kreis'},
-      {val:'viereck', label:'🟦 Viereck', css:'cv-viereck'}]},
-    { key:'buchstabe', label:'Buchstabe', values:[
-      {val:'A', label:'🔤 A', css:'cv-A'},
-      {val:'B', label:'🔤 B', css:'cv-B'}]},
-  ];
+function init(){
+  rows = generateRows(attrs);
+  renderTable();
+  rebuildAll();
 }
-
-function rand(arr){ return arr[Math.floor(Math.random()*arr.length)] }
 
 function generateRows(attrList) {
-  const mainA = rand(attrList);
-  const mainV = rand(mainA.values).val;
-  let best = [], tries = 0;
-  while(tries++ < 80) {
-    const ds = [];
-    for(let i=0;i<8;i++){
-      const p={ergebnis:null};
-      attrList.forEach(a=>{ p[a.key]=rand(a.values).val });
-      const match = p[mainA.key]===mainV;
-      const noise = Math.random()<0.15;
-      p.ergebnis = (match!==noise)?'ja':'nein';
-      ds.push(p);
-    }
-    if(ds.some(d=>d.ergebnis==='ja') && ds.some(d=>d.ergebnis==='nein')){
-      best=ds; break;
-    }
+  const mainA = attrList[Math.floor(Math.random()*attrList.length)];
+  const mainV = mainA.values[0].val;
+  let ds = [];
+  for(let i=0;i<8;i++){
+    const p={}; attrList.forEach(a=> p[a.key]=a.values[Math.floor(Math.random()*2)].val);
+    p.ergebnis = (p[mainA.key]===mainV) ? (Math.random()<0.2?'nein':'ja') : (Math.random()<0.2?'ja':'nein');
+    ds.push(p);
   }
-  return best;
+  return ds;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// TABELLE
-// ═══════════════════════════════════════════════════════════════
-
-function renderTable(){ renderThead(); renderTbody(); }
-
-function renderThead(){
-  const htr = document.createElement('tr');
-
-  // # Spalte
-  const th0 = document.createElement('th');
-  th0.textContent='#';
-  htr.appendChild(th0);
-
-  attrs.forEach((a,ai)=>{
-    const th = document.createElement('th');
-    const wrap = document.createElement('div');
-    wrap.style.cssText='display:flex;align-items:center;gap:5px';
-
-    const inp = document.createElement('input');
-    inp.className='attr-inp';
-    inp.value = a.label;
-    inp.title = 'Umbenennen';
-    inp.addEventListener('change', ()=>{
-      a.label=inp.value.trim()||a.label;
-      renderThead(); renderStudentTree(); renderSolutionTree();
-    });
-    inp.addEventListener('click', e=>e.stopPropagation());
-    wrap.appendChild(inp);
-
-    if(attrs.length>1){
-      const del = document.createElement('button');
-      del.className='btn btn-danger btn-icon';
-      del.textContent='✕';
-      del.title='Attribut entfernen';
-      del.onclick = ()=>removeAttr(ai);
-      wrap.appendChild(del);
-    }
-    th.appendChild(wrap);
-    htr.appendChild(th);
-  });
-
-  // Ergebnis-Spalte
-  const thE = document.createElement('th');
-  thE.textContent='Ergebnis';
-  htr.appendChild(thE);
-
-  // Aktions-Spalte
-  const thA = document.createElement('th');
-  htr.appendChild(thA);
-
-  document.getElementById('thead').innerHTML='';
-  document.getElementById('thead').appendChild(htr);
-}
-
-function renderTbody(){
+function renderTable(){
+  const thead = document.getElementById('thead');
+  thead.innerHTML = `<tr><th>#</th>${attrs.map(a=>`<th>${a.label}</th>`).join('')}<th>Ergebnis</th><th></th></tr>`;
   const tbody = document.getElementById('tbody');
-  tbody.innerHTML='';
-  rows.forEach((row,ri)=>{
-    const tr = document.createElement('tr');
-
-    // Index
-    const tdI = document.createElement('td');
-    tdI.className='td-idx';
-    tdI.textContent=ri+1;
-    tr.appendChild(tdI);
-
-    // Attribut-Zellen
-    attrs.forEach(a=>{
-      const val = row[a.key]||a.values[0].val;
-      const vDef = a.values.find(v=>v.val===val)||a.values[0];
-      const td = document.createElement('td');
-      td.className='editable';
-      td.innerHTML=`<span class="chip-v ${vDef.css}">${vDef.label}</span>`;
-      td.onclick=()=>openCellEdit(td, ri, a.key);
-      tr.appendChild(td);
-    });
-
-    // Ergebnis
-    const tdE = document.createElement('td');
-    tdE.className='editable';
-    const isJa = row.ergebnis==='ja';
-    tdE.innerHTML=isJa
-      ?'<span class="badge-ja">😊 Happy</span>'
-      :'<span class="badge-nein">😞 Not Happy</span>';
-    tdE.onclick=()=>openCellEdit(tdE, ri, 'ergebnis');
-    tr.appendChild(tdE);
-
-    // Löschen
-    const tdA = document.createElement('td');
-    tdA.className='td-act';
-    const del = document.createElement('button');
-    del.className='btn btn-danger btn-icon btn-sm';
-    del.textContent='✕';
-    del.onclick=()=>removeRow(ri);
-    tdA.appendChild(del);
-    tr.appendChild(tdA);
-
-    tbody.appendChild(tr);
-  });
-}
-
-function openCellEdit(td, ri, key){
-  if(td.querySelector('select')) return;
-  let opts=[];
-  if(key==='ergebnis'){
-    opts=[{val:'ja',label:'😊 Happy'},{val:'nein',label:'😞 Not Happy'}];
-  } else {
-    const a=attrs.find(a=>a.key===key);
-    if(!a) return;
-    opts=a.values.map(v=>({val:v.val,label:v.label}));
-  }
-  const sel = document.createElement('select');
-  sel.className='cell-sel';
-  opts.forEach(o=>{
-    const op=document.createElement('option');
-    op.value=o.val; op.textContent=o.label;
-    if(rows[ri][key]===o.val) op.selected=true;
-    sel.appendChild(op);
-  });
-  td.innerHTML='';
-  td.appendChild(sel);
-  sel.focus();
-  sel.addEventListener('change',()=>{
-    rows[ri][key]=sel.value;
-    rebuildAll();
-  });
-  sel.addEventListener('blur',()=>{ renderTbody() });
-}
-
-function removeAttr(ai){
-  if(attrs.length<=1){ showToast('⚠️ Mindestens 1 Attribut nötig'); return }
-  const key=attrs[ai].key;
-  attrs.splice(ai,1);
-  rows.forEach(r=>delete r[key]);
-  renderTable();
-  rebuildAll();
-}
-
-function addAttr(){
-  const key='attr'+Date.now();
-  attrs.push({
-    key, label:'Attr '+(attrs.length+1),
-    values:[
-      {val:'wert1',label:'Wert 1',css:'cv-wert1'},
-      {val:'wert2',label:'Wert 2',css:'cv-wert2'},
-    ]
-  });
-  rows.forEach(r=>{ r[key]=rand(attrs[attrs.length-1].values).val });
-  renderTable();
-  rebuildAll();
+  tbody.innerHTML = rows.map((r,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      ${attrs.map(a=>`<td><span class="chip-v">${a.values.find(v=>v.val===r[a.key]).label}</span></td>`).join('')}
+      <td>${r.ergebnis==='ja'?'<span class="badge-ja">😊 Happy</span>':'<span class="badge-nein">😞 Not Happy</span>'}</td>
+      <td><button class="btn btn-danger btn-icon btn-sm" onclick="removeRow(${i})">✕</button></td>
+    </tr>
+  `).join('');
 }
 
 function addRow(){
   const r={ergebnis:Math.random()<.5?'ja':'nein'};
-  attrs.forEach(a=>{ r[a.key]=rand(a.values).val });
-  rows.push(r);
-  renderTbody();
-  rebuildAll();
+  attrs.forEach(a=> r[a.key]=a.values[Math.floor(Math.random()*2)].val);
+  rows.push(r); renderTable(); rebuildAll();
 }
+function removeRow(i){ rows.splice(i,1); renderTable(); rebuildAll(); }
+function regenData(){ rows=generateRows(attrs); renderTable(); rebuildAll(); }
 
-function removeRow(ri){
-  if(rows.length<=2){ showToast('⚠️ Mindestens 2 Zeilen nötig'); return }
-  rows.splice(ri,1);
-  renderTbody();
-  rebuildAll();
-}
-
-function regenData(){
-  rows=generateRows(attrs);
-  renderTbody();
-  rebuildAll();
-}
-
-// ═══════════════════════════════════════════════════════════════
-// GINI-ALGORITHMUS
-// ═══════════════════════════════════════════════════════════════
-
+// --- GINI ---
 function gini(g){
   if(!g.length) return 0;
-  const nJ=g.filter(d=>d.ergebnis==='ja').length;
-  const p=nJ/g.length, q=1-p;
-  return 1-p*p-q*q;
+  const p = g.filter(d=>d.ergebnis==='ja').length / g.length;
+  return 1 - p*p - (1-p)*(1-p);
 }
-function wGini(l,r){
-  const n=l.length+r.length;
-  if(!n) return 1;
-  return (l.length/n)*gini(l)+(r.length/n)*gini(r);
-}
-function majority(g){
-  return g.filter(d=>d.ergebnis==='ja').length>=g.length/2?'ja':'nein';
-}
-function bestSplit(g, used){
-  let bwg=Infinity, best=null;
+function buildTree(g, used, depth){
+  const gv = gini(g);
+  if(gv===0 || depth>=attrs.length) return {type:'leaf',label:g.filter(d=>d.ergebnis==='ja').length>=g.length/2?'ja':'nein',gv,n:g.length};
+  let best = null, bwg = Infinity;
   attrs.forEach(a=>{
     if(used.has(a.key)) return;
-    a.values.forEach(v=>{
-      const l=g.filter(d=>d[a.key]===v.val);
-      const r=g.filter(d=>d[a.key]!==v.val);
-      if(!l.length||!r.length) return;
-      const wg=wGini(l,r);
-      if(wg<bwg){ bwg=wg; best={a,v,l,r,wg} }
-    });
+    const v0 = a.values[0].val;
+    const l = g.filter(d=>d[a.key]===v0), r = g.filter(d=>d[a.key]!==v0);
+    if(!l.length || !r.length) return;
+    const wg = (l.length/g.length)*gini(l) + (r.length/g.length)*gini(r);
+    if(wg < bwg){ bwg=wg; best={a, v:a.values[0], l, r}; }
   });
-  return best;
+  if(!best) return {type:'leaf',label:g.filter(d=>d.ergebnis==='ja').length>=g.length/2?'ja':'nein',gv,n:g.length};
+  const nu = new Set(used); nu.add(best.a.key);
+  return {type:'node', a:best.a, v:best.v, gv, n:g.length, left:buildTree(best.l, nu, depth+1), right:buildTree(best.r, nu, depth+1)};
 }
 
-/*
-  buildTree → rekursive Struktur:
-  Knoten: { type:'node', a,v,wg, gv,n,nJ,nN, left,right }
-  Blatt:  { type:'leaf', label, gv,n,nJ,nN }
-*/
-function buildTree(g, used, depth, maxD){
-  const nJ=g.filter(d=>d.ergebnis==='ja').length;
-  const nN=g.length-nJ;
-  const gv=gini(g);
-  if(!g.length) return {type:'leaf',label:'nein',gv,n:0,nJ:0,nN:0};
-  if(gv===0||depth>=maxD){
-    return {type:'leaf',label:majority(g),gv,n:g.length,nJ,nN};
-  }
-  const sp=bestSplit(g,used);
-  if(!sp) return {type:'leaf',label:majority(g),gv,n:g.length,nJ,nN};
-  const nu=new Set(used); nu.add(sp.a.key);
-  return {
-    type:'node', a:sp.a, v:sp.v, wg:sp.wg, gv, n:g.length, nJ, nN,
-    left:  buildTree(sp.l, nu, depth+1, maxD),
-    right: buildTree(sp.r, nu, depth+1, maxD),
-  };
-}
-
-function treeDepth(node){
-  if(!node||node.type==='leaf') return 0;
-  return 1+Math.max(treeDepth(node.left),treeDepth(node.right));
-}
-
-// ═══════════════════════════════════════════════════════════════
-// LAYOUT-BERECHNUNG
-// Positionen als (_x, _y) Pixel auf dem Canvas
-// ═══════════════════════════════════════════════════════════════
-
-/*
-  assignLayout(node, x, y, halfSpan)
-  x = Mittelpunkt-X des Knotens
-  y = obere Kante des Knotens
-  halfSpan = halbe verfügbare Breite für Kinder
-*/
-function assignLayout(node, x, y, hs){
-  node._x=x; node._y=y;
-  if(node.type==='node'){
-    const childY = y + NH_N + ROW;
-    assignLayout(node.left,  x-hs/2, childY, hs/2);
-    assignLayout(node.right, x+hs/2, childY, hs/2);
-  }
-}
-
-function canvasWidth(depth){
-  // Anzahl Blätter = 2^depth, jedes braucht NW + min. 20px Abstand
-  return Math.max(Math.pow(2,depth)*(NW+24)+PAD*2, 480);
-}
-function canvasHeight(depth){
-  return (depth+1)*(NH_N+ROW)+NH_L+PAD*2;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// SCHÜLER-BAUM
-// ═══════════════════════════════════════════════════════════════
-
-let snodeMap = {}; // id → { node, selM, selV, selE }
-let nc = 0;
-
+// --- STUDENT TREE ---
 function mkEmptyTree(depth, level){
   const id='s'+(nc++);
-  if(depth<=0) return {type:'leaf',id,level,_x:0,_y:0,answer:null};
-  return {
-    type:'node',id,level,_x:0,_y:0,
-    merkmal:null,wert:null,
-    left:  mkEmptyTree(depth-1,level+1),
-    right: mkEmptyTree(depth-1,level+1),
-  };
+  if(level >= depth) return {type:'leaf',id,level};
+  return {type:'node',id,level,merkmal:null,left:mkEmptyTree(depth,level+1),right:mkEmptyTree(depth,level+1)};
 }
-
-let stree = null; // Schüler-Baum Struktur
 
 function renderStudentTree(){
   nc=0; snodeMap={};
-  const depth = attrs.length; // Tiefe = Anzahl Attribute
-  stree = mkEmptyTree(depth, 0);
-
-  const cw = canvasWidth(depth);
-  const ch = canvasHeight(depth);
-
-  assignLayout(stree, cw/2, PAD, (cw-PAD*2)/2);
-
+  stree = mkEmptyTree(2, 0); // Feste Tiefe für Testbarkeit
+  const cw = 600, ch = 300;
+  assignLayout(stree, cw/2, PAD, cw/4);
   const canvas = document.getElementById('student-canvas');
-  const svg    = document.getElementById('student-svg');
-
-  // Löschen
-  Array.from(canvas.children).forEach(c=>{ if(c!==svg) canvas.removeChild(c) });
-  svg.innerHTML='';
-  canvas.style.cssText=`position:relative;width:${cw}px;height:${ch}px`;
+  const svg = document.getElementById('student-svg');
+  canvas.style.width=cw+'px'; canvas.style.height=ch+'px';
   svg.setAttribute('width',cw); svg.setAttribute('height',ch);
-
-  drawStudentNode(stree, null, canvas, svg, null);
-
-  // Tiefe-Info
-  document.getElementById('depth-info').textContent =
-    `Tiefe ${depth} · ${attrs.length} Attribute · ${rows.length} Einträge`;
+  canvas.querySelectorAll('.tn').forEach(n=>n.remove());
+  svg.innerHTML='';
+  drawStudentNode(stree, null, canvas, svg);
 }
 
-function drawStudentNode(node, parent, canvas, svg, side){
-  if(parent){
-    const py = parent._y + (parent.type==='node'?NH_N:NH_L);
-    drawLine(svg, parent._x, py, node._x, node._y,
-      side==='left'?'Ja ✓':'Nein ✗',
-      side==='left'?'#4ade80':'#f87171');
-  }
+function assignLayout(node, x, y, hs){
+  node._x=x; node._y=y;
   if(node.type==='node'){
-    drawStudentInner(node, canvas);
-    drawStudentNode(node.left,  node, canvas, svg, 'left');
-    drawStudentNode(node.right, node, canvas, svg, 'right');
-  } else {
-    drawStudentLeaf(node, canvas);
+    assignLayout(node.left, x-hs, y+ROW, hs/2);
+    assignLayout(node.right, x+hs, y+ROW, hs/2);
   }
 }
 
-function drawStudentInner(node, canvas){
-  const div=document.createElement('div');
-  div.className='tn'+(node.level===0?' tn-root':'');
-  div.id=node.id;
-  div.style.cssText=`left:${node._x-NW/2}px;top:${node._y}px;width:${NW}px`;
+function drawStudentNode(node, parent, canvas, svg){
+  if(parent && parent.merkmal){
+    const attr = attrs.find(a=>a.key===parent.merkmal);
+    const label = node === parent.left ? attr.values[0].label : attr.values[1].label;
+    drawLine(svg, parent._x, parent._y+NH_N, node._x, node._y, label);
+  } else if(parent) {
+    drawLine(svg, parent._x, parent._y+NH_N, node._x, node._y, "?");
+  }
 
-  const lbl=document.createElement('span');
-  lbl.className='tn-lbl';
-  lbl.textContent=node.level===0?'Wurzel':'Knoten Eb.'+node.level;
-  div.appendChild(lbl);
+  const div = document.createElement('div');
+  div.className = 'tn' + (node.level===0?' tn-root':'');
+  div.style.left = (node._x-NW/2)+'px'; div.style.top = node._y+'px'; div.style.width = NW+'px';
+  div.id = node.id;
 
-  // Merkmal-Select
-  const selM=document.createElement('select');
-  selM.title='Welches Attribut wird gefragt?';
-  const op0=document.createElement('option');
-  op0.value=''; op0.textContent='— Attribut —'; selM.appendChild(op0);
-  attrs.forEach(a=>{
-    const o=document.createElement('option');
-    o.value=a.key; o.textContent=a.label; selM.appendChild(o);
-  });
-
-  // Wert-Select
-  const selV=document.createElement('select');
-  selV.title='Welcher Wert führt zu Ja?';
-  selV.disabled=true;
-  const ov0=document.createElement('option');
-  ov0.value=''; ov0.textContent='— Wert = Ja —'; selV.appendChild(ov0);
-
-  selM.addEventListener('change',()=>{
-    selV.innerHTML=''; const ov=document.createElement('option');
-    ov.value=''; ov.textContent='— Wert = Ja —'; selV.appendChild(ov);
-    const a=attrs.find(a=>a.key===selM.value);
-    if(a){ a.values.forEach(v=>{ const o=document.createElement('option'); o.value=v.val; o.textContent=v.label; selV.appendChild(o); }); selV.disabled=false; }
-    else selV.disabled=true;
-    node.merkmal=selM.value||null; node.wert=null;
-  });
-  selV.addEventListener('change',()=>{ node.wert=selV.value||null });
-
-  div.appendChild(selM);
-  div.appendChild(selV);
+  if(node.type==='node'){
+    div.innerHTML = `<span class="tn-lbl">Merkmal wählen</span><select onchange="updateNode('${node.id}', this.value)"><option value="">-- ? --</option>${attrs.map(a=>`<option value="${a.key}">${a.label}</option>`).join('')}</select>`;
+    snodeMap[node.id] = node;
+  } else {
+    div.innerHTML = `<span class="tn-lbl">Klasse</span><select onchange="streeMapLeaf('${node.id}', this.value)"><option value="">-- ? --</option><option value="ja">😊 Happy</option><option value="nein">😞 Not Happy</option></select>`;
+    snodeMap[node.id] = node;
+  }
   canvas.appendChild(div);
-  snodeMap[node.id]={node,selM,selV};
+  if(node.left) drawStudentNode(node.left, node, canvas, svg);
+  if(node.right) drawStudentNode(node.right, node, canvas, svg);
 }
 
-function drawStudentLeaf(node, canvas){
-  const div=document.createElement('div');
-  div.className='tn';
-  div.id=node.id;
-  div.style.cssText=`left:${node._x-NW/2}px;top:${node._y}px;width:${NW}px`;
-
-  const lbl=document.createElement('span');
-  lbl.className='tn-lbl';
-  lbl.style.fontSize='8.5px';
-  lbl.textContent='Blatt';
-  div.appendChild(lbl);
-
-  const sel=document.createElement('select');
-  const o0=document.createElement('option'); o0.value=''; o0.textContent='— Ergebnis —'; sel.appendChild(o0);
-  ['ja','nein'].forEach(v=>{
-    const o=document.createElement('option'); o.value=v; o.textContent=v==='ja'?'😊 Happy':'😞 Not Happy'; sel.appendChild(o);
-  });
-  sel.addEventListener('change',()=>{ node.answer=sel.value||null });
-  div.appendChild(sel);
-  canvas.appendChild(div);
-  snodeMap[node.id]={node,selE:sel};
+function updateNode(id, val){
+  snodeMap[id].merkmal = val;
+  const canvas = document.getElementById('student-canvas');
+  const svg = document.getElementById('student-svg');
+  svg.innerHTML = '';
+  // Redraw Lines only
+  redrawLines(stree, null, svg);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PRÜFEN
-// ═══════════════════════════════════════════════════════════════
+function redrawLines(node, parent, svg){
+  if(parent){
+    let label = "?";
+    if(parent.merkmal){
+      const attr = attrs.find(a=>a.key===parent.merkmal);
+      label = node === parent.left ? attr.values[0].label : attr.values[1].label;
+    }
+    drawLine(svg, parent._x, parent._y+NH_N, node._x, node._y, label);
+  }
+  if(node.left){ redrawLines(node.left, node, svg); redrawLines(node.right, node, svg); }
+}
+
+function streeMapLeaf(id, val){ snodeMap[id].answer = val; }
+
+function drawLine(svg, x1,y1,x2,y2, txt){
+  const ns='http://www.w3.org/2000/svg';
+  const l=document.createElementNS(ns,'line');
+  l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+  l.setAttribute('stroke','rgba(139,92,246,.3)'); l.setAttribute('stroke-width','2');
+  svg.appendChild(l);
+  const t=document.createElementNS(ns,'text');
+  t.setAttribute('x',(x1+x2)/2 + 5); t.setAttribute('y',(y1+y2)/2);
+  t.setAttribute('fill','var(--ac2)'); t.setAttribute('font-size','10'); t.textContent=txt;
+  svg.appendChild(t);
+}
 
 function checkTree(){
-  // Eingaben von Selects in stree-Struktur lesen
-  readInputs(stree);
-
-  // Vergleich mit Lösung
-  const res = compare(stree, solution);
-  const {total,correct} = res;
-
-  // Knoten einfärben
-  markNodes(stree, solution);
-
-  // Banner
-  const banner = document.getElementById('rbanner');
-  const title  = document.getElementById('rb-title');
-  const body   = document.getElementById('rb-body');
-  banner.className='rbanner';
-
-  const pct = total>0 ? Math.round(correct/total*100) : 0;
-  if(correct===total && total>0){
-    banner.classList.add('ok');
-    title.textContent=`🎉 Perfekt! Alle ${total} Knoten korrekt!`;
-    const wn = solution.type==='node'
-      ? `<strong>${solution.a.label} = ${solution.v.label}</strong> (Gini-Gain: ${(gini(rows)-solution.wg).toFixed(3)})`
-      : '(nur ein Blatt)';
-    body.innerHTML=`Dein Baum stimmt vollständig mit dem optimalen Baum überein.
-      Beste Wurzel-Entscheidung: ${wn}.`;
-  } else if(pct>=60){
-    banner.classList.add('part');
-    title.textContent=`🔍 Gut! ${correct} von ${total} Knoten korrekt (${pct}%)`;
-    body.innerHTML=`Fast richtig — schau dir die <span style="color:var(--red)">rot</span> markierten
-      Knoten an und vergleiche mit dem Lösungsbaum unten.
-      ${solution.type==='node'
-        ?`Tipp: Die Wurzel sollte <strong>${solution.a.label} = ${solution.v.label}</strong> fragen.`
-        :''}`;
-  } else {
-    banner.classList.add('fail');
-    title.textContent=`💡 ${correct} von ${total} Knoten korrekt (${pct}%)`;
-    body.innerHTML=`Schau dir die Datentabelle nochmal an und berechne für jedes Attribut
-      den Gini-Wert. Das Attribut mit dem kleinsten gewichteten Gini gehört an die Wurzel.
-      ${solution.type==='node'
-        ?`Hinweis: Die beste Wurzel ist <strong>${solution.a.label}</strong>.`
-        :''}
-      Der vollständige Lösungsbaum mit allen Gini-Werten ist unten sichtbar.`;
+  let correct = true;
+  function validate(s, sol){
+    const el = document.getElementById(s.id);
+    el.classList.remove('tn-ok','tn-fail');
+    if(s.type==='leaf'){
+      const isOk = s.answer === (sol.type==='leaf'?sol.label:'ja');
+      el.classList.add(isOk?'tn-ok':'tn-fail'); if(!isOk) correct=false;
+    } else {
+      const isOk = sol.type==='node' && s.merkmal === sol.a.key;
+      el.classList.add(isOk?'tn-ok':'tn-fail'); if(!isOk) correct=false;
+      validate(s.left, sol.left || sol); validate(s.right, sol.right || sol);
+    }
   }
-  banner.style.display='block';
-
-  // Lösungsbaum rendern und einblenden
+  validate(stree, solution);
+  const rb = document.getElementById('rbanner');
+  rb.style.display='block';
+  rb.className = 'rbanner ' + (correct?'ok':'fail');
+  document.getElementById('rb-title').textContent = correct ? "Ausgezeichnet!" : "Noch nicht ganz...";
+  document.getElementById('rb-body').textContent = correct ? "Dein Baum trennt die Daten perfekt." : "Einige Knoten sind noch falsch gesetzt. Vergleiche sie mit der Lösung unten.";
   renderSolutionTree();
   document.getElementById('sol-wrap').style.display='block';
-  setTimeout(()=>{
-    document.getElementById('sol-wrap').scrollIntoView({behavior:'smooth',block:'nearest'});
-  },250);
 }
-
-function readInputs(node){
-  if(!node) return;
-  const e=snodeMap[node.id];
-  if(!e) return;
-  if(node.type==='node'){
-    node.merkmal=e.selM?.value||null;
-    node.wert   =e.selV?.value||null;
-    readInputs(node.left); readInputs(node.right);
-  } else {
-    node.answer=e.selE?.value||null;
-  }
-}
-
-function compare(s, sol){
-  if(!s||!sol) return {total:0,correct:0};
-  if(s.type==='leaf'){
-    const expLabel=sol.type==='leaf'?sol.label:majority(rows);
-    return {total:1, correct: s.answer===expLabel?1:0};
-  }
-  // Innerer Knoten: Merkmal korrekt?
-  const solKey=sol.type==='node'?sol.a.key:null;
-  const nc=s.merkmal&&s.merkmal===solKey?1:0;
-  const lr=compare(s.left,  sol.type==='node'?sol.left: sol);
-  const rr=compare(s.right, sol.type==='node'?sol.right:sol);
-  return {total:1+lr.total+rr.total, correct:nc+lr.correct+rr.correct};
-}
-
-function markNodes(s, sol){
-  if(!s) return;
-  const el=document.getElementById(s.id);
-  if(!el) return;
-  el.classList.remove('tn-ok','tn-fail');
-  if(s.type==='leaf'){
-    const exp=sol?.type==='leaf'?sol.label:majority(rows);
-    el.classList.add(s.answer===exp?'tn-ok':'tn-fail');
-  } else {
-    const solKey=sol?.type==='node'?sol.a.key:null;
-    el.classList.add(s.merkmal&&s.merkmal===solKey?'tn-ok':'tn-fail');
-    markNodes(s.left,  sol?.type==='node'?sol.left: sol);
-    markNodes(s.right, sol?.type==='node'?sol.right:sol);
-  }
-}
-
-function resetTree(){
-  renderStudentTree();
-  document.getElementById('rbanner').style.display='none';
-  document.getElementById('sol-wrap').style.display='none';
-}
-
-// ═══════════════════════════════════════════════════════════════
-// LÖSUNGS-BAUM ZEICHNEN
-// ═══════════════════════════════════════════════════════════════
 
 function renderSolutionTree(){
-  const canvas=document.getElementById('sol-canvas');
-  const svg   =document.getElementById('sol-svg');
-  Array.from(canvas.children).forEach(c=>{ if(c!==svg) canvas.removeChild(c) });
-  svg.innerHTML='';
-
-  const depth=treeDepth(solution);
-  const cw=canvasWidth(depth);
-  const ch=canvasHeight(depth);
-
-  canvas.style.cssText=`position:relative;width:${cw}px;height:${ch}px`;
-  svg.setAttribute('width',cw); svg.setAttribute('height',ch);
-
-  assignLayout(solution, cw/2, PAD, (cw-PAD*2)/2);
-  drawSolNode(solution, null, canvas, svg, null, true);
+  const canvas = document.getElementById('sol-canvas');
+  const svg = document.getElementById('sol-svg');
+  canvas.querySelectorAll('.sn').forEach(n=>n.remove()); svg.innerHTML='';
+  const cw = 600; assignLayout(solution, cw/2, PAD, cw/4);
+  drawSolNode(solution, null, canvas, svg);
 }
 
-function drawSolNode(node, parent, canvas, svg, side, isRoot){
+function drawSolNode(node, parent, canvas, svg){
   if(parent){
-    const py=parent._y+(parent.type==='node'?NH_N:NH_L);
-    drawLine(svg, parent._x, py, node._x, node._y,
-      side==='left'?'Ja ✓':'Nein ✗',
-      side==='left'?'#4ade80':'#f87171');
+    const label = node === parent.left ? parent.a.values[0].label : parent.a.values[1].label;
+    drawLine(svg, parent._x, parent._y+NH_N, node._x, node._y, label);
   }
+  const div = document.createElement('div');
+  div.className = 'sn';
+  div.style.left = (node._x-NW/2)+'px'; div.style.top = node._y+'px'; div.style.width = NW+'px';
   if(node.type==='node'){
-    const div=document.createElement('div');
-    div.className='sn'+(isRoot?' sn-root':'');
-    div.style.cssText=`left:${node._x-NW/2}px;top:${node._y}px;width:${NW}px`;
-    const gvS=node.gv.toFixed(3);
-    const ggS=(node.gv-node.wg).toFixed(3);
-    div.innerHTML=`<span class="sn-lbl">${isRoot?'Wurzel':'Knoten'}</span>
-      <div class="sn-feat">${node.a.label} = ${node.v.label}</div>
-      <div class="sn-meta">
-        <span class="sn-gv">Gini: ${gvS}</span><br/>
-        n=${node.n} &nbsp;(✓${node.nJ} &nbsp;✗${node.nN})<br/>
-        Gini-Gain: ${ggS}
-      </div>`;
-    canvas.appendChild(div);
-    drawSolNode(node.left,  node, canvas, svg, 'left',  false);
-    drawSolNode(node.right, node, canvas, svg, 'right', false);
+    div.innerHTML = `<div class="sn-feat">${node.a.label}</div><div class="sn-meta">Gini: ${node.gv.toFixed(2)}</div>`;
   } else {
-    const isJa=node.label==='ja';
-    const div=document.createElement('div');
-    div.className='sn '+(isJa?'sn-leaf-ja':'sn-leaf-nein');
-    div.style.cssText=`left:${node._x-NW/2}px;top:${node._y}px;width:${NW}px`;
-    div.innerHTML=`<span class="sn-leaf-txt">${isJa?'😊 Happy':'😞 Not Happy'}</span>
-      <div style="font-size:10px;color:var(--t2)">
-        Gini: ${node.gv.toFixed(3)}<br/>
-        n=${node.n} &nbsp;(✓${node.nJ} &nbsp;✗${node.nN})
-      </div>`;
-    canvas.appendChild(div);
+    div.className += (node.label==='ja'?' sn-leaf-ja':' sn-leaf-nein');
+    div.innerHTML = `<span class="sn-leaf-txt">${node.label==='ja'?'Happy':'Not Happy'}</span>`;
   }
+  canvas.appendChild(div);
+  if(node.left){ drawSolNode(node.left, node, canvas, svg); drawSolNode(node.right, node, canvas, svg); }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SVG HILFSFUNKTIONEN
-// ═══════════════════════════════════════════════════════════════
+function rebuildAll(){ solution = buildTree(rows, new Set(), 0); renderStudentTree(); }
+function resetTree(){ renderStudentTree(); document.getElementById('rbanner').style.display='none'; document.getElementById('sol-wrap').style.display='none'; }
 
-function drawLine(svg, x1,y1,x2,y2, label, col){
-  const ns='http://www.w3.org/2000/svg';
-  const line=document.createElementNS(ns,'line');
-  line.setAttribute('x1',x1); line.setAttribute('y1',y1);
-  line.setAttribute('x2',x2); line.setAttribute('y2',y2);
-  line.setAttribute('stroke',col||'rgba(139,92,246,.4)');
-  line.setAttribute('stroke-width','1.5');
-  svg.appendChild(line);
-  if(label){
-    const mx=(x1+x2)/2, my=(y1+y2)/2;
-    const txt=document.createElementNS(ns,'text');
-    txt.setAttribute('x',mx+4); txt.setAttribute('y',my);
-    txt.setAttribute('dominant-baseline','middle');
-    txt.setAttribute('fill',col||'#8b5cf6');
-    txt.setAttribute('font-family',"'JetBrains Mono',monospace");
-    txt.setAttribute('font-size','9.5');
-    txt.setAttribute('font-weight','700');
-    txt.textContent=label;
-    svg.appendChild(txt);
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// REBUILD ALL (nach Tabellen-Änderungen)
-// ═══════════════════════════════════════════════════════════════
-
-function rebuildAll(){
-  // Lösung neu berechnen
-  solution = buildTree(rows, new Set(), 0, attrs.length);
-  // Schüler-Baum neu zeichnen (leert Eingaben)
-  renderStudentTree();
-  // Ergebnis und Lösung verstecken
-  document.getElementById('rbanner').style.display='none';
-  document.getElementById('sol-wrap').style.display='none';
-}
-
-// ═══════════════════════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════════════════════
-
-let _tt=null;
-function showToast(msg){
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('on');
-  if(_tt) clearTimeout(_tt);
-  _tt=setTimeout(()=>el.classList.remove('on'),2600);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════════
-
-document.addEventListener('DOMContentLoaded',()=>{
-  attrs = defaultAttrs();
-  rows  = generateRows(attrs);
-  renderTable();
-  rebuildAll();
-});
+init();
 </script>
+</body>
 </html>
