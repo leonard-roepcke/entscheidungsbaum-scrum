@@ -3,125 +3,51 @@
   ╔══════════════════════════════════════════════════════════════════════╗
   ║   ENTSCHEIDUNGSBÄUME & GINI IMPURITY – Lern-Startseite             ║
   ║   Erstellt als didaktisches Unterrichtsmaterial                     ║
-  ║                                                                      ║
-  ║   STRUKTUR DIESER DATEI:                                             ║
-  ║   1. <head>     – Metadaten und Schriftarten                        ║
-  ║   2. <style>    – Das gesamte CSS (Design & Layout)                 ║
-  ║   3. <body>     – Das gesamte HTML (Inhalt & Struktur)              ║
-  ║   4. <script>   – Das gesamte JavaScript (Logik & Interaktion)     ║
-  ║                                                                      ║
-  ║   LERNZIEL: Verstehe, wie HTML, CSS und JS zusammenspielen,         ║
-  ║   und wie man eine moderne Web-App baut.                             ║
   ╚══════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="de">
-
 <head>
-  <!-- ================================================================
-    META-DATEN
-    Diese Tags geben dem Browser wichtige Informationen über die Seite.
-    - charset: Zeichenkodierung (UTF-8 unterstützt Umlaute wie ä, ö, ü)
-    - viewport: Macht die Seite auf Mobilgeräten korrekt darstellbar
-    - title: Der Text im Browser-Tab
-  ================================================================ -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Entscheidungsbäume & Gini Impurity</title>
-
-  <!-- ================================================================
-    SCHRIFTARTEN
-    Wir laden zwei Google Fonts:
-    - "DM Serif Display": Elegante Überschriften-Schrift
-    - "JetBrains Mono": Monospace-Schrift, ideal für technische Inhalte
-    
-    🔬 EXPERIMENTIERZONE: Tausche die Schriftarten gegen andere aus:
-       https://fonts.google.com
-  ================================================================ -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
 </head>
-
-<!-- ================================================================
-  CSS-BEREICH
-  Hier definieren wir das gesamte Design der Seite.
-  
-  WICHTIGE KONZEPTE:
-  - CSS Custom Properties (--variablen): Farben zentral definieren
-  - Flexbox & Grid: Moderne Layout-Techniken
-  - @keyframes: Animationen
-  - ::before / ::after: Pseudo-Elemente für Dekorations-Effekte
-================================================================ -->
 <style>
-
-  /* ──────────────────────────────────────────────────────────────────
-    CSS CUSTOM PROPERTIES (CSS-Variablen)
-    
-    Was: Farbwerte und Maße, die im gesamten CSS wiederverwendet werden.
-    Warum: Ändert man hier eine Farbe, ändert sie sich überall.
-    
-    🔬 EXPERIMENTIERZONE: Ändere die Farben und schau, was passiert!
-       --akzent-lila bestimmt die Hauptfarbe der Akzente.
-  ────────────────────────────────────────────────────────────────── */
   :root {
-    /* Hintergrundfarben – von sehr dunkel bis mittel-dunkel */
     --hg-tief:        #0a0a0f;
     --hg-mittel:      #111118;
     --hg-hell:        #18181f;
     --hg-karte:       #1c1c26;
     --hg-karte-hover: #22222e;
-
-    /* Akzentfarben – Lila-/Violett-Töne */
     --akzent-lila:    #8b5cf6;
     --akzent-hell:    #a78bfa;
     --akzent-dunkel:  #6d28d9;
     --akzent-glow:    rgba(139, 92, 246, 0.35);
     --akzent-glow-s:  rgba(139, 92, 246, 0.15);
-
-    /* Textfarben */
     --text-haupt:     #e2e8f0;
     --text-zweig:     #94a3b8;
     --text-schwach:   #475569;
-
-    /* Rahmen */
     --rahmen:         rgba(139, 92, 246, 0.2);
     --rahmen-hell:    rgba(139, 92, 246, 0.4);
-
-    /* Abstände und Radien */
     --radius-gross:   16px;
     --radius-mittel:  10px;
     --radius-klein:   6px;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    RESET & GRUNDSTILE
-    
-    Was: Browser-Standardstile werden zurückgesetzt.
-    Warum: Jeder Browser rendert HTML leicht anders. Mit einem Reset
-           beginnen wir von einer einheitlichen Ausgangsbasis.
-  ────────────────────────────────────────────────────────────────── */
   *, *::before, *::after {
-    /* box-sizing: border-box = Padding und Border werden INNEN
-       vom Element berechnet, nicht außen. Erleichtert Layout-Arbeit. */
     box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    BODY – GRUNDLAYOUT
-    
-    Wir verwenden Flexbox, um den Inhalt vertikal zu zentrieren.
-    min-height: 100vh = Mindesthöhe ist die gesamte Bildschirmhöhe.
-  ────────────────────────────────────────────────────────────────── */
   body {
     font-family: 'JetBrains Mono', monospace;
     background-color: var(--hg-tief);
     color: var(--text-haupt);
     min-height: 100vh;
-    overflow-x: hidden; /* Verhindert horizontales Scrollen */
-
-    /* Dezentes Raster-Muster als Hintergrundtextur */
+    overflow-x: hidden;
     background-image:
       radial-gradient(ellipse 80% 50% at 50% -10%,
         rgba(139, 92, 246, 0.12), transparent),
@@ -130,21 +56,13 @@
     background-size: auto, 40px 40px, 40px 40px;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    HAUPT-CONTAINER
-    
-    max-width begrenzt die Breite auf Großbildschirmen.
-    margin: 0 auto = horizontal zentriert.
-  ────────────────────────────────────────────────────────────────── */
   .seite-container {
     max-width: 960px;
     margin: 0 auto;
     padding: 48px 24px 80px;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    NAVIGATIONSLEISTE (oben)
-  ────────────────────────────────────────────────────────────────── */
+  /* ── NAVIGATION ── */
   .nav-leiste {
     display: flex;
     align-items: center;
@@ -153,12 +71,10 @@
     background: rgba(28, 28, 38, 0.8);
     border: 1px solid var(--rahmen);
     border-radius: var(--radius-gross);
-    backdrop-filter: blur(12px); /* Mattglas-Effekt */
+    backdrop-filter: blur(12px);
     margin-bottom: 56px;
-    /* Animation beim Laden der Seite */
     animation: einblenden 0.6s ease both;
   }
-
   .nav-logo {
     font-size: 13px;
     font-weight: 700;
@@ -166,12 +82,33 @@
     text-transform: uppercase;
     color: var(--akzent-hell);
   }
-
-  .nav-badge {
+  /* Navigation Links */
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-link {
     font-size: 11px;
     font-weight: 500;
     color: var(--text-zweig);
-    background: rgba(139, 92, 246, 0.1);
+    text-decoration: none;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    letter-spacing: 0.05em;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .nav-link:hover {
+    color: var(--akzent-hell);
+    border-color: var(--rahmen);
+    background: rgba(139, 92, 246, 0.08);
+  }
+  .nav-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-schwach);
+    background: rgba(139, 92, 246, 0.06);
     border: 1px solid var(--rahmen);
     padding: 4px 10px;
     border-radius: 20px;
@@ -179,18 +116,12 @@
     text-transform: uppercase;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    HEADER / HERO-BEREICH
-    
-    Der erste Bereich, den Besucher sehen – die "Bühne" der Seite.
-  ────────────────────────────────────────────────────────────────── */
+  /* ── HERO ── */
   .hero-bereich {
     text-align: center;
     margin-bottom: 64px;
     animation: einblenden 0.7s ease 0.1s both;
   }
-
-  /* Kleines Label über der Überschrift */
   .hero-label {
     display: inline-block;
     font-size: 11px;
@@ -204,26 +135,19 @@
     border-radius: 20px;
     margin-bottom: 24px;
   }
-
-  /* Hauptüberschrift */
   .hero-titel {
     font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.2rem, 5vw, 3.6rem); /* clamp = responsiv skaliert */
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
     line-height: 1.15;
     color: var(--text-haupt);
     margin-bottom: 20px;
   }
-
-  /* Der hervorgehobene, glühende Teil der Überschrift */
   .hero-titel .akzent-text {
     color: var(--akzent-hell);
-    /* text-shadow erzeugt den "Glow"-Effekt */
     text-shadow:
       0 0 40px rgba(167, 139, 250, 0.5),
       0 0 80px rgba(139, 92, 246, 0.3);
   }
-
-  /* Beschreibungstext unter der Überschrift */
   .hero-beschreibung {
     font-size: 14px;
     line-height: 1.75;
@@ -233,24 +157,20 @@
     font-weight: 300;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    TRENNLINIE MIT LABEL
-  ────────────────────────────────────────────────────────────────── */
+  /* ── TRENNLINIE ── */
   .abschnitt-trenner {
     display: flex;
     align-items: center;
     gap: 14px;
     margin-bottom: 28px;
   }
-
   .abschnitt-trenner::before,
   .abschnitt-trenner::after {
-    content: '';      /* Pseudo-Elemente brauchen content: '' */
+    content: '';
     flex: 1;
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--rahmen), transparent);
   }
-
   .abschnitt-label {
     font-size: 10px;
     font-weight: 700;
@@ -260,63 +180,40 @@
     white-space: nowrap;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    THEMEN-KARTEN
-    
-    Jedes Thema (Entscheidungsbäume, Gini) hat eine eigene Karte.
-    Die Karten sind in einem CSS-Grid angeordnet.
-    
-    🔬 EXPERIMENTIERZONE:
-       grid-template-columns: repeat(2, 1fr) = 2 gleichbreite Spalten
-       Ändere '2' zu '3' für 3 Spalten, oder '1' für eine Spalte.
-  ────────────────────────────────────────────────────────────────── */
+  /* ── THEMEN-KARTEN ── */
   .themen-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     margin-bottom: 48px;
   }
-
-  /* Auf kleinen Bildschirmen (< 640px) nur eine Spalte */
   @media (max-width: 640px) {
-    .themen-grid {
-      grid-template-columns: 1fr;
-    }
+    .themen-grid { grid-template-columns: 1fr; }
   }
 
-  /* Einzelne Themenkarte */
   .thema-karte {
     background: var(--hg-karte);
     border: 1px solid var(--rahmen);
     border-radius: var(--radius-gross);
     padding: 28px;
-    /* transition = weicher Übergang bei Hover-Effekten */
     transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     animation: aufsteigen 0.6s ease both;
     display: flex;
     flex-direction: column;
     gap: 16px;
   }
-
-  /* Verzögerung der Animation für die zweite Karte */
-  .thema-karte:nth-child(2) {
-    animation-delay: 0.15s;
-  }
-
-  /* Hover-Effekt: Karte hebt sich leicht an */
+  .thema-karte:nth-child(2) { animation-delay: 0.15s; }
   .thema-karte:hover {
     border-color: var(--rahmen-hell);
     transform: translateY(-3px);
     box-shadow: 0 12px 40px var(--akzent-glow-s);
   }
 
-  /* Icon-Bereich oben in der Karte */
   .karte-icon-bereich {
     display: flex;
     align-items: center;
     gap: 12px;
   }
-
   .karte-icon {
     width: 44px;
     height: 44px;
@@ -327,11 +224,9 @@
     align-items: center;
     justify-content: center;
     font-size: 20px;
-    /* Sanfter pulsierender Glow */
     animation: puls 3s ease-in-out infinite;
     flex-shrink: 0;
   }
-
   .karte-nummer {
     font-size: 11px;
     font-weight: 700;
@@ -339,27 +234,21 @@
     color: var(--akzent-lila);
     text-transform: uppercase;
   }
-
   .karte-titel {
     font-family: 'DM Serif Display', serif;
     font-size: 1.3rem;
     color: var(--text-haupt);
     line-height: 1.3;
   }
-
   .karte-text {
     font-size: 13px;
     line-height: 1.7;
     color: var(--text-zweig);
     font-weight: 300;
-    flex: 1; /* Nimmt verfügbaren Platz ein */
+    flex: 1;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    FORMEL-BADGE (für Gini-Impurity)
-    
-    Zeigt die mathematische Formel in einem hervorgehobenen Block.
-  ────────────────────────────────────────────────────────────────── */
+  /* ── FORMEL-BADGE ── */
   .formel-badge {
     background: rgba(139, 92, 246, 0.08);
     border: 1px solid var(--rahmen);
@@ -371,7 +260,6 @@
     font-weight: 500;
     letter-spacing: 0.03em;
   }
-
   .formel-badge .formel-label {
     font-size: 10px;
     color: var(--text-schwach);
@@ -381,33 +269,23 @@
     margin-bottom: 4px;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    SCHALTFLÄCHEN (Buttons)
-    
-    Zwei Varianten:
-    - btn-primaer: Ausgefüllter Lila-Button (Hauptaktion)
-    - btn-sekundaer: Rahmen-Button (Nebenakton)
-    
-    🔬 EXPERIMENTIERZONE: Ändere die Farben, Abstände oder border-radius!
-  ────────────────────────────────────────────────────────────────── */
+  /* ── BUTTONS ── */
   .btn-gruppe {
     display: flex;
     gap: 10px;
-    flex-wrap: wrap; /* Bricht auf kleinen Screens in neue Zeile */
+    flex-wrap: wrap;
   }
-
-  /* Basis-Stil für alle Buttons */
   .btn {
     display: inline-flex;
     align-items: center;
     gap: 7px;
     padding: 9px 16px;
     border-radius: var(--radius-mittel);
-    font-family: inherit;       /* Erbt die Schriftart vom Elternelement */
+    font-family: inherit;
     font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.05em;
-    cursor: pointer;            /* Zeiger-Cursor beim Hover */
+    cursor: pointer;
     border: none;
     transition: all 0.25s ease;
     text-decoration: none;
@@ -415,63 +293,55 @@
     position: relative;
     overflow: hidden;
   }
-
-  /* Primär-Button: ausgefüllt, Lila */
   .btn-primaer {
     background: linear-gradient(135deg, var(--akzent-dunkel), var(--akzent-lila));
     color: #fff;
     box-shadow: 0 4px 16px var(--akzent-glow-s);
   }
-
   .btn-primaer:hover {
     box-shadow: 0 6px 24px var(--akzent-glow);
     transform: translateY(-1px);
     filter: brightness(1.1);
   }
-
-  /* Sekundär-Button: transparent mit Rahmen */
   .btn-sekundaer {
     background: rgba(139, 92, 246, 0.08);
     color: var(--akzent-hell);
     border: 1px solid var(--rahmen);
   }
-
   .btn-sekundaer:hover {
     background: rgba(139, 92, 246, 0.15);
     border-color: var(--rahmen-hell);
     transform: translateY(-1px);
   }
-
-  /* "Bald verfügbar"-Hinweis beim Drücken der Buttons */
-  .btn:active::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: inherit;
+  /* Extern-Link-Button (→ Unterseite) */
+  .btn-extern {
+    background: rgba(139, 92, 246, 0.12);
+    color: var(--akzent-hell);
+    border: 1px solid var(--rahmen-hell);
+  }
+  .btn-extern:hover {
+    background: rgba(139, 92, 246, 0.22);
+    border-color: var(--akzent-lila);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px var(--akzent-glow-s);
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    VIDEO-BEREICH
-  ────────────────────────────────────────────────────────────────── */
+  /* ── VIDEO ── */
   .video-bereich {
     margin-bottom: 48px;
     animation: aufsteigen 0.6s ease 0.4s both;
   }
-
   .video-container {
     background: var(--hg-karte);
     border: 1px solid var(--rahmen);
     border-radius: var(--radius-gross);
-    overflow: hidden; /* Rundet auch den Inhalt ab */
+    overflow: hidden;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
   }
-
   .video-container:hover {
     border-color: var(--rahmen-hell);
     box-shadow: 0 8px 32px var(--akzent-glow-s);
   }
-
   .video-kopf {
     display: flex;
     align-items: center;
@@ -480,54 +350,28 @@
     background: rgba(139, 92, 246, 0.05);
     border-bottom: 1px solid var(--rahmen);
   }
-
-  /* Macintosh-ähnliche Fensterknöpfe (rein dekorativ) */
-  .fenster-punkte {
-    display: flex;
-    gap: 6px;
-  }
-
-  .fenster-punkt {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-
+  .fenster-punkte { display: flex; gap: 6px; }
+  .fenster-punkt { width: 10px; height: 10px; border-radius: 50%; }
   .fenster-punkt.rot   { background: #ff5f56; }
   .fenster-punkt.gelb  { background: #febc2e; }
   .fenster-punkt.gruen { background: #28c840; }
-
   .video-kopf-titel {
     font-size: 11px;
     color: var(--text-zweig);
     margin-left: 4px;
     letter-spacing: 0.05em;
   }
-
-  /* ──────────────────────────────────────────────────────────────────
-    IFRAME (eingebettetes Video)
-    
-    Das YouTube-Video wird in einem <iframe> eingebettet.
-    
-    aspect-ratio: 16 / 9 = Das Video hat immer das 16:9-Format,
-    unabhängig von der Bildschirmbreite. Moderne CSS-Technik!
-  ────────────────────────────────────────────────────────────────── */
   .video-wrapper {
     width: 100%;
     aspect-ratio: 16 / 9;
     display: block;
   }
-
   .video-wrapper iframe {
     width: 100%;
     height: 100%;
     display: block;
     border: none;
   }
-
-  /* ──────────────────────────────────────────────────────────────────
-    INFO-LEISTE UNTER DEM VIDEO
-  ────────────────────────────────────────────────────────────────── */
   .video-fuss {
     display: flex;
     align-items: center;
@@ -536,13 +380,7 @@
     flex-wrap: wrap;
     gap: 8px;
   }
-
-  .video-info {
-    font-size: 11px;
-    color: var(--text-schwach);
-    letter-spacing: 0.05em;
-  }
-
+  .video-info { font-size: 11px; color: var(--text-schwach); letter-spacing: 0.05em; }
   .video-tag {
     font-size: 10px;
     font-weight: 600;
@@ -555,49 +393,13 @@
     border-radius: 12px;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    HINWEIS-BANNER
-  ────────────────────────────────────────────────────────────────── */
-  .hinweis-banner {
-    background: rgba(139, 92, 246, 0.07);
-    border: 1px solid var(--rahmen);
-    border-radius: var(--radius-mittel);
-    padding: 16px 20px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 48px;
-    animation: aufsteigen 0.6s ease 0.5s both;
-  }
-
-  .hinweis-icon {
-    font-size: 16px;
-    line-height: 1.5;
-    flex-shrink: 0;
-  }
-
-  .hinweis-text {
-    font-size: 12px;
-    color: var(--text-zweig);
-    line-height: 1.7;
-    font-weight: 300;
-  }
-
-  .hinweis-text strong {
-    color: var(--akzent-hell);
-    font-weight: 600;
-  }
-
-  /* ──────────────────────────────────────────────────────────────────
-    FOOTER
-  ────────────────────────────────────────────────────────────────── */
+  /* ── FOOTER ── */
   .seite-footer {
     text-align: center;
     padding-top: 32px;
     border-top: 1px solid rgba(139, 92, 246, 0.1);
     animation: einblenden 0.6s ease 0.6s both;
   }
-
   .footer-text {
     font-size: 11px;
     color: var(--text-schwach);
@@ -605,23 +407,11 @@
     line-height: 1.8;
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    KAPITEL-SEKTIONEN
-    
-    Was: Die tiefen Vertiefungs-Kapitel, zu denen per Smooth-Scroll
-         gescrollt wird.
-    Scroll-Offset: scroll-margin-top = gibt Abstand vom Seitenrand,
-    damit der Kapitel-Titel nicht direkt am Rand klebt.
-  ────────────────────────────────────────────────────────────────── */
+  /* ── KAPITEL ── */
   .kapitel-bereich {
     margin-bottom: 64px;
-    /* scroll-margin-top: Wenn man per Anchor-Link springt, bleibt
-       dieser Abstand vom oberen Rand. Verhindert, dass der Titel
-       hinter der Navigationsleiste verschwindet. */
     scroll-margin-top: 32px;
   }
-
-  /* Header-Zeile mit großem Icon und Titel */
   .kapitel-header {
     display: flex;
     align-items: flex-start;
@@ -633,7 +423,6 @@
     border-radius: var(--radius-gross);
     animation: aufsteigen 0.5s ease both;
   }
-
   .kapitel-icon-gross {
     font-size: 36px;
     line-height: 1;
@@ -643,7 +432,7 @@
     border-radius: var(--radius-mittel);
     flex-shrink: 0;
   }
-
+  .kapitel-header-text { flex: 1; }
   .kapitel-nummer {
     font-size: 11px;
     font-weight: 700;
@@ -652,7 +441,6 @@
     color: var(--akzent-lila);
     margin-bottom: 4px;
   }
-
   .kapitel-titel {
     font-family: 'DM Serif Display', serif;
     font-size: clamp(1.5rem, 3vw, 2.2rem);
@@ -660,41 +448,29 @@
     line-height: 1.2;
     margin-bottom: 4px;
   }
-
   .kapitel-untertitel {
     font-size: 12px;
     color: var(--text-zweig);
     font-weight: 300;
     letter-spacing: 0.04em;
+    margin-bottom: 16px;
   }
-
-  /* ──────────────────────────────────────────────────────────────────
-    KAPITEL-GRID: Text links, Visual rechts
-    
-    Auf kleinen Screens stapeln sich die Spalten untereinander.
-  ────────────────────────────────────────────────────────────────── */
   .kapitel-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     align-items: start;
   }
-
   @media (max-width: 720px) {
-    .kapitel-grid {
-      grid-template-columns: 1fr;
-    }
+    .kapitel-grid { grid-template-columns: 1fr; }
   }
 
-  /* ──────────────────────────────────────────────────────────────────
-    LERN-BLÖCKE (Inhalts-Karten innerhalb eines Kapitels)
-  ────────────────────────────────────────────────────────────────── */
+  /* ── LERN-BLÖCKE ── */
   .kapitel-texte {
     display: flex;
     flex-direction: column;
     gap: 16px;
   }
-
   .lern-block {
     background: var(--hg-karte);
     border: 1px solid var(--rahmen);
@@ -705,11 +481,7 @@
     gap: 10px;
     transition: border-color 0.3s ease;
   }
-
-  .lern-block:hover {
-    border-color: var(--rahmen-hell);
-  }
-
+  .lern-block:hover { border-color: var(--rahmen-hell); }
   .lern-block-titel {
     font-size: 12px;
     font-weight: 600;
@@ -719,7 +491,6 @@
     gap: 8px;
     letter-spacing: 0.03em;
   }
-
   .lern-block-nr {
     display: inline-flex;
     align-items: center;
@@ -734,29 +505,16 @@
     color: var(--akzent-lila);
     flex-shrink: 0;
   }
-
   .lern-block-text {
     font-size: 12.5px;
     line-height: 1.75;
     color: var(--text-zweig);
     font-weight: 300;
   }
+  .herv { color: var(--text-haupt); font-weight: 600; }
 
-  /* Hervorgehobener Text innerhalb von Fließtext */
-  .herv {
-    color: var(--text-haupt);
-    font-weight: 600;
-  }
-
-  /* ──────────────────────────────────────────────────────────────────
-    PRO/CONTRA-GRID (Stärken & Schwächen nebeneinander)
-  ────────────────────────────────────────────────────────────────── */
-  .pro-contra-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
+  /* ── PRO/CONTRA ── */
+  .pro-contra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .liste-label {
     font-size: 10px;
     font-weight: 700;
@@ -767,26 +525,9 @@
     border-radius: var(--radius-klein);
     display: inline-block;
   }
-
-  .liste-label--pro {
-    color: #4ade80;
-    background: rgba(74, 222, 128, 0.1);
-    border: 1px solid rgba(74, 222, 128, 0.2);
-  }
-
-  .liste-label--contra {
-    color: #f87171;
-    background: rgba(248, 113, 113, 0.1);
-    border: 1px solid rgba(248, 113, 113, 0.2);
-  }
-
-  .punkte-liste {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
+  .liste-label--pro  { color: #4ade80; background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.2); }
+  .liste-label--contra { color: #f87171; background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.2); }
+  .punkte-liste { list-style: none; display: flex; flex-direction: column; gap: 6px; }
   .punkte-liste li {
     font-size: 11.5px;
     color: var(--text-zweig);
@@ -795,19 +536,9 @@
     padding-left: 14px;
     position: relative;
   }
+  .punkte-liste li::before { content: '·'; position: absolute; left: 0; color: var(--akzent-lila); font-weight: 700; }
 
-  /* Kleiner Punkt vor jedem Listenelement */
-  .punkte-liste li::before {
-    content: '·';
-    position: absolute;
-    left: 0;
-    color: var(--akzent-lila);
-    font-weight: 700;
-  }
-
-  /* ──────────────────────────────────────────────────────────────────
-    MINI-BAUM (visuelle Darstellung des Entscheidungsbaums)
-  ────────────────────────────────────────────────────────────────── */
+  /* ── MINI-BAUM ── */
   .kapitel-visual {
     background: var(--hg-karte);
     border: 1px solid var(--rahmen);
@@ -816,11 +547,9 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    /* sticky: Die Visual-Spalte bleibt beim Scrollen sichtbar */
     position: sticky;
     top: 24px;
   }
-
   .visual-label {
     font-size: 10px;
     font-weight: 700;
@@ -829,31 +558,9 @@
     color: var(--text-schwach);
     text-align: center;
   }
-
-  /* Der Baum-Container */
-  .mini-baum {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-  }
-
-  /* Eine Reihe von Knoten auf gleicher Ebene */
-  .baum-ebene {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-  }
-
-  /* Nur unter dem linken Knoten (letzte Ebene) */
-  .baum-ebene--links-only {
-    justify-content: flex-start;
-    padding-left: 16px;
-    gap: 8px;
-  }
-
-  /* Ein einzelner Knoten im Baum */
+  .mini-baum { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .baum-ebene { display: flex; justify-content: center; gap: 12px; width: 100%; }
+  .baum-ebene--links-only { justify-content: flex-start; padding-left: 16px; gap: 8px; }
   .baum-knoten {
     background: var(--hg-hell);
     border: 1px solid var(--rahmen-hell);
@@ -864,93 +571,20 @@
     max-width: 140px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
   }
+  .baum-knoten:hover { border-color: var(--akzent-hell); box-shadow: 0 0 12px var(--akzent-glow-s); }
+  .baum-knoten--wurzel { background: rgba(139, 92, 246, 0.12); border-color: var(--akzent-lila); min-width: 150px; }
+  .baum-knoten--blatt { font-weight: 600; }
+  .baum-knoten--ja  { background: rgba(74, 222, 128, 0.08); border-color: rgba(74, 222, 128, 0.3); }
+  .baum-knoten--nein { background: rgba(248, 113, 113, 0.08); border-color: rgba(248, 113, 113, 0.3); }
+  .knoten-frage { font-size: 11px; color: var(--text-haupt); line-height: 1.4; display: block; }
+  .baum-verbindung { display: flex; justify-content: center; width: 100%; gap: 80px; height: 32px; position: relative; }
+  .baum-verbindung--links-only { justify-content: flex-start; padding-left: 55px; gap: 80px; }
+  .verbindung-ast { display: flex; flex-direction: column; align-items: center; position: relative; }
+  .verbindung-ast::before { content: ''; width: 1px; height: 100%; background: var(--rahmen-hell); display: block; }
+  .ast-label { position: absolute; top: 4px; font-size: 10px; font-weight: 600; color: var(--akzent-lila); background: var(--hg-karte); padding: 0 4px; }
 
-  .baum-knoten:hover {
-    border-color: var(--akzent-hell);
-    box-shadow: 0 0 12px var(--akzent-glow-s);
-  }
-
-  /* Wurzel-Knoten: breiter und heller hervorgehoben */
-  .baum-knoten--wurzel {
-    background: rgba(139, 92, 246, 0.12);
-    border-color: var(--akzent-lila);
-    min-width: 150px;
-  }
-
-  /* Blatt-Knoten: Endentscheidung */
-  .baum-knoten--blatt {
-    font-weight: 600;
-  }
-
-  .baum-knoten--ja {
-    background: rgba(74, 222, 128, 0.08);
-    border-color: rgba(74, 222, 128, 0.3);
-  }
-
-  .baum-knoten--nein {
-    background: rgba(248, 113, 113, 0.08);
-    border-color: rgba(248, 113, 113, 0.3);
-  }
-
-  .knoten-frage {
-    font-size: 11px;
-    color: var(--text-haupt);
-    line-height: 1.4;
-    display: block;
-  }
-
-  /* Verbindungen zwischen den Ebenen */
-  .baum-verbindung {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    gap: 80px;
-    height: 32px;
-    position: relative;
-  }
-
-  /* Nur unter dem linken Teil */
-  .baum-verbindung--links-only {
-    justify-content: flex-start;
-    padding-left: 55px;
-    gap: 80px;
-  }
-
-  .verbindung-ast {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-  }
-
-  /* Vertikale Linie */
-  .verbindung-ast::before {
-    content: '';
-    width: 1px;
-    height: 100%;
-    background: var(--rahmen-hell);
-    display: block;
-  }
-
-  .ast-label {
-    position: absolute;
-    top: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--akzent-lila);
-    background: var(--hg-karte);
-    padding: 0 4px;
-  }
-
-  /* ──────────────────────────────────────────────────────────────────
-    FORMEL-SCHRITTE (Schritt-für-Schritt Erklärung)
-  ────────────────────────────────────────────────────────────────── */
-  .formel-schritte {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
+  /* ── FORMEL-SCHRITTE ── */
+  .formel-schritte { display: flex; flex-direction: column; gap: 8px; }
   .formel-schritt {
     background: var(--hg-hell);
     border: 1px solid var(--rahmen);
@@ -960,25 +594,9 @@
     flex-direction: column;
     gap: 6px;
   }
-
-  .schritt-kopf {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .schritt-nr {
-    font-size: 14px;
-    color: var(--akzent-lila);
-  }
-
-  .schritt-name {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-haupt);
-    letter-spacing: 0.04em;
-  }
-
+  .schritt-kopf { display: flex; align-items: center; gap: 8px; }
+  .schritt-nr { font-size: 14px; color: var(--akzent-lila); }
+  .schritt-name { font-size: 11px; font-weight: 600; color: var(--text-haupt); letter-spacing: 0.04em; }
   .schritt-code {
     font-size: 13px;
     color: var(--akzent-hell);
@@ -988,17 +606,9 @@
     border-radius: var(--radius-klein);
     letter-spacing: 0.05em;
   }
+  .schritt-erkl { font-size: 11.5px; color: var(--text-zweig); font-weight: 300; line-height: 1.5; }
 
-  .schritt-erkl {
-    font-size: 11.5px;
-    color: var(--text-zweig);
-    font-weight: 300;
-    line-height: 1.5;
-  }
-
-  /* ──────────────────────────────────────────────────────────────────
-    RECHENBEISPIEL-BLOCK
-  ────────────────────────────────────────────────────────────────── */
+  /* ── RECHNUNG ── */
   .rechnung-block {
     background: var(--hg-hell);
     border: 1px solid var(--rahmen);
@@ -1008,7 +618,6 @@
     flex-direction: column;
     gap: 6px;
   }
-
   .rechnung-zeile {
     display: grid;
     grid-template-columns: 80px 16px 1fr;
@@ -1016,124 +625,64 @@
     align-items: baseline;
     font-size: 12px;
   }
+  .rechnung-zeile--ergebnis { border-top: 1px solid var(--rahmen); padding-top: 8px; margin-top: 4px; }
+  .r-label { color: var(--akzent-hell); font-weight: 600; }
+  .r-gleich { color: var(--text-schwach); text-align: center; }
+  .r-wert { color: var(--text-zweig); font-weight: 300; line-height: 1.6; }
+  .rechnung-zeile--ergebnis .r-wert { color: var(--text-haupt); }
 
-  .rechnung-zeile--ergebnis {
-    border-top: 1px solid var(--rahmen);
-    padding-top: 8px;
-    margin-top: 4px;
-  }
-
-  .r-label {
-    color: var(--akzent-hell);
-    font-weight: 600;
-  }
-
-  .r-gleich {
-    color: var(--text-schwach);
-    text-align: center;
-  }
-
-  .r-wert {
-    color: var(--text-zweig);
-    font-weight: 300;
-    line-height: 1.6;
-  }
-
-  .rechnung-zeile--ergebnis .r-wert {
-    color: var(--text-haupt);
-  }
-
-  /* ──────────────────────────────────────────────────────────────────
-    GINI-BALKENDIAGRAMM
-  ────────────────────────────────────────────────────────────────── */
-  .gini-visualisierung {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .gini-zeile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .gini-zeile-label {
-    font-size: 11px;
-    color: var(--text-zweig);
-    font-weight: 300;
-    min-width: 130px;
-    flex-shrink: 0;
-  }
-
-  /* Die graue Hintergrund-Spur des Balkens */
-  .gini-balken-spur {
-    flex: 1;
-    height: 8px;
-    background: rgba(139, 92, 246, 0.08);
-    border-radius: 4px;
-    border: 1px solid var(--rahmen);
-    overflow: hidden;
-  }
-
-  /* Der farbige Balken, dessen Breite per CSS-Variable gesetzt wird */
-  .gini-balken {
-    height: 100%;
-    border-radius: 4px;
-    width: var(--breite); /* Wird im style-Attribut gesetzt */
-    /* Animation beim Laden: Balken wächst von 0 auf seine Breite */
-    animation: balken-wachsen 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  /* Verschiedene Farben je nach Gini-Wert */
+  /* ── GINI BALKEN ── */
+  .gini-visualisierung { display: flex; flex-direction: column; gap: 14px; }
+  .gini-zeile { display: flex; align-items: center; gap: 10px; }
+  .gini-zeile-label { font-size: 11px; color: var(--text-zweig); font-weight: 300; min-width: 130px; flex-shrink: 0; }
+  .gini-balken-spur { flex: 1; height: 8px; background: rgba(139, 92, 246, 0.08); border-radius: 4px; border: 1px solid var(--rahmen); overflow: hidden; }
+  .gini-balken { height: 100%; border-radius: 4px; width: var(--breite); animation: balken-wachsen 1.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
   .gini-balken--rein   { background: #4ade80; animation-delay: 0.3s; }
   .gini-balken--mittel { background: #facc15; animation-delay: 0.5s; }
   .gini-balken--hoch   { background: #fb923c; animation-delay: 0.7s; }
   .gini-balken--max    { background: #f87171; animation-delay: 0.9s; }
-
-  .gini-wert {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-haupt);
-    min-width: 28px;
-    text-align: right;
-  }
-
-  .gini-legende {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    font-size: 10.5px;
-    color: var(--text-schwach);
-    padding-top: 8px;
-    border-top: 1px solid var(--rahmen);
-  }
-
-  .legende-punkt {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
+  .gini-wert { font-size: 11px; font-weight: 600; color: var(--text-haupt); min-width: 28px; text-align: right; }
+  .gini-legende { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 10.5px; color: var(--text-schwach); padding-top: 8px; border-top: 1px solid var(--rahmen); }
+  .legende-punkt { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .legende-punkt--rein { background: #4ade80; }
   .legende-punkt--max  { background: #f87171; }
 
-  /* Animation: Balken wächst von 0 auf var(--breite) */
-  @keyframes balken-wachsen {
-    from { width: 0; }
-    to   { width: var(--breite); }
+  /* ── FORTSCHRITTS-PILLS (neu) ── */
+  .fortschritt-leiste {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 48px;
+    animation: einblenden 0.6s ease 0.3s both;
+    flex-wrap: wrap;
   }
+  .fortschritt-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--text-schwach);
+    background: rgba(139, 92, 246, 0.05);
+    border: 1px solid var(--rahmen);
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  .fortschritt-pill:hover {
+    color: var(--akzent-hell);
+    border-color: var(--rahmen-hell);
+    background: rgba(139, 92, 246, 0.1);
+  }
+  .fortschritt-pill .pill-icon { font-size: 13px; }
+  .fortschritt-trenner { color: var(--text-schwach); font-size: 10px; }
 
-  /* ──────────────────────────────────────────────────────────────────
-    TOAST-BENACHRICHTIGUNG
-    
-    Erscheint, wenn man auf einen Button klickt.
-    Wird per JavaScript ein- und ausgeblendet.
-  ────────────────────────────────────────────────────────────────── */
+  /* ── TOAST ── */
   .toast {
-    position: fixed;          /* Immer sichtbar, auch beim Scrollen */
+    position: fixed;
     bottom: 28px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
@@ -1146,84 +695,51 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px var(--akzent-glow-s);
     opacity: 0;
     transition: opacity 0.3s ease, transform 0.3s ease;
-    pointer-events: none; /* Verhindert versehentliche Klicks */
+    pointer-events: none;
     white-space: nowrap;
     z-index: 1000;
   }
+  .toast.sichtbar { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* Klasse, die per JavaScript hinzugefügt wird, um den Toast zu zeigen */
-  .toast.sichtbar {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* ──────────────────────────────────────────────────────────────────
-    ANIMATIONEN (CSS @keyframes)
-    
-    @keyframes definiert den Ablauf einer Animation.
-    Die Animation wird dann mit 'animation:' auf Elemente angewendet.
-  ────────────────────────────────────────────────────────────────── -->
-  
-  /* Einblenden: Opacity von 0 → 1 */
+  /* ── ANIMATIONEN ── */
   @keyframes einblenden {
     from { opacity: 0; }
     to   { opacity: 1; }
   }
-
-  /* Aufsteigen: von unten einblenden */
   @keyframes aufsteigen {
-    from {
-      opacity: 0;
-      transform: translateY(18px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-
-  /* Pulsierendes Glühen (für Icons) */
   @keyframes puls {
-    0%, 100% {
-      box-shadow: 0 0 0 0 transparent;
-    }
-    50% {
-      box-shadow: 0 0 16px 2px var(--akzent-glow-s);
-    }
+    0%, 100% { box-shadow: 0 0 0 0 transparent; }
+    50%       { box-shadow: 0 0 16px 2px var(--akzent-glow-s); }
   }
-
+  @keyframes balken-wachsen {
+    from { width: 0; }
+    to   { width: var(--breite); }
+  }
 </style>
 
-<!-- ================================================================
-  HTML-BEREICH (BODY)
-  
-  Hier steht der sichtbare Inhalt der Seite.
-  
-  WICHTIG: IDs (z.B. id="toast") werden im JavaScript referenziert.
-  Klassen (class="...") werden im CSS für das Design verwendet.
-================================================================ -->
 <body>
-
-  <!-- ────────────────────────────────────────────────────────────────
-    NAVIGATIONSLEISTE
-  ──────────────────────────────────────────────────────────────── -->
   <div class="seite-container">
+
+    <!-- ── NAVIGATION ── -->
     <nav class="nav-leiste" role="navigation" aria-label="Seitennavigation">
       <span class="nav-logo">🌳 ML Grundlagen</span>
+      <div class="nav-links">
+        <a href="entscheidungsbaum.html" class="nav-link">🌳 Baum-Builder</a>
+        <a href="gini-impurity.html" class="nav-link">📐 Gini-Rechner</a>
+      </div>
       <span class="nav-badge">Unterrichtsmaterial</span>
     </nav>
 
-    <!-- ────────────────────────────────────────────────────────────────
-      HERO-BEREICH: Hauptüberschrift und Einleitung
-    ──────────────────────────────────────────────────────────────── -->
+    <!-- ── HERO ── -->
     <header class="hero-bereich" role="banner">
       <div class="hero-label">Maschinelles Lernen · Kapitel 1</div>
-
       <h1 class="hero-titel">
         Wie lernen<br />
         <span class="akzent-text">Maschinen</span> zu entscheiden?
       </h1>
-
       <p class="hero-beschreibung">
         Entscheidungsbäume sind eines der grundlegendsten Konzepte im maschinellen Lernen.
         Auf dieser Seite lernst du, wie sie funktionieren — und wie Gini Impurity dabei hilft,
@@ -1231,28 +747,30 @@
       </p>
     </header>
 
-    <!-- ────────────────────────────────────────────────────────────────
-      ABSCHNITT: DIE BEIDEN HAUPTTHEMEN
-    ──────────────────────────────────────────────────────────────── -->
+    <!-- ── SCHNELLNAVIGATION (neu) ── -->
+    <nav class="fortschritt-leiste" aria-label="Seiteninhalt">
+      <a href="#kapitel-baum" class="fortschritt-pill">
+        <span class="pill-icon">🌳</span> Entscheidungsbäume
+      </a>
+      <span class="fortschritt-trenner">→</span>
+      <a href="#kapitel-gini" class="fortschritt-pill">
+        <span class="pill-icon">📐</span> Gini Impurity
+      </a>
+      <span class="fortschritt-trenner">→</span>
+      <a href="#erklaervideo" class="fortschritt-pill">
+        <span class="pill-icon">▶</span> Erklärvideo
+      </a>
+    </nav>
+
+    <!-- ── THEMEN-KARTEN ── -->
     <section aria-label="Hauptthemen">
       <div class="abschnitt-trenner">
         <span class="abschnitt-label">Die Konzepte</span>
       </div>
 
-      <!--
-        Das Grid enthält zwei Karten.
-        Jede Karte hat:
-        - Ein Icon und eine Nummerierung
-        - Einen Titel
-        - Einen Erklärungstext
-        - Optionale Formel (nur bei Gini)
-        - Zwei Schaltflächen
-      -->
       <div class="themen-grid">
-
-        <!-- ════ KARTE 1: ENTSCHEIDUNGSBÄUME ════ -->
+        <!-- KARTE 1: ENTSCHEIDUNGSBÄUME -->
         <article class="thema-karte" aria-labelledby="baum-titel">
-
           <div class="karte-icon-bereich">
             <div class="karte-icon" aria-hidden="true">🌳</div>
             <div>
@@ -1260,7 +778,6 @@
               <h2 class="karte-titel" id="baum-titel">Entscheidungs&shy;bäume</h2>
             </div>
           </div>
-
           <p class="karte-text">
             Ein Entscheidungsbaum ist ein Modell, das Fragen in einer baumartigen
             Struktur stellt. Jeder <strong style="color: var(--text-haupt)">Knoten</strong> ist eine Ja/Nein-Frage,
@@ -1271,26 +788,14 @@
             → Ist es bewölkt? → Wie hoch ist die Luftfeuchtigkeit?
             → Entscheidung: Ja oder Nein.
           </p>
-
           <div class="btn-gruppe">
-            <!--
-              Diese Buttons haben noch keine echte Zielseite.
-              Sie rufen die JavaScript-Funktion zeigeToast() auf.
-              onclick="..." verbindet HTML direkt mit JavaScript.
-            -->
-            <button
+            <a
+              href="entscheidungsbaum.html"
               class="btn btn-primaer"
-              onclick="zeigeToast('🌳 Interaktiver Baum-Builder — kommt bald!')"
-              aria-label="Baum selbst bauen (noch nicht verfügbar)"
+              aria-label="Interaktiven Baum-Builder öffnen"
             >
               <span>▶</span> Baum bauen
-            </button>
-
-            <!--
-              onclick="scrolleZuKapitel('kapitel-baum')"
-              ruft die JS-Funktion auf und übergibt die ID des Ziel-Elements.
-              Das Element weiter unten hat id="kapitel-baum".
-            -->
+            </a>
             <button
               class="btn btn-sekundaer"
               onclick="scrolleZuKapitel('kapitel-baum')"
@@ -1299,12 +804,10 @@
               <span>↓</span> Mehr erfahren
             </button>
           </div>
-
         </article>
 
-        <!-- ════ KARTE 2: GINI IMPURITY ════ -->
+        <!-- KARTE 2: GINI IMPURITY -->
         <article class="thema-karte" aria-labelledby="gini-titel">
-
           <div class="karte-icon-bereich">
             <div class="karte-icon" aria-hidden="true">📐</div>
             <div>
@@ -1312,7 +815,6 @@
               <h2 class="karte-titel" id="gini-titel">Gini Impurity</h2>
             </div>
           </div>
-
           <p class="karte-text">
             Gini Impurity misst, wie „gemischt" eine Gruppe ist.
             Ein perfekter Knoten enthält nur eine Klasse → Gini = 0 (rein).
@@ -1322,22 +824,18 @@
             <strong style="color: var(--text-haupt)">Gini-Unreinheit am stärksten reduziert</strong> —
             also die Gruppen möglichst „sauber" trennt.
           </p>
-
-          <!-- Hervorgehobene Formelbox -->
           <div class="formel-badge" role="math" aria-label="Gini-Formel">
             <span class="formel-label">Formel</span>
             Gini = 1 − Σ (pᵢ)²
           </div>
-
           <div class="btn-gruppe">
-            <button
+            <a
+              href="gini-impurity.html"
               class="btn btn-primaer"
-              onclick="zeigeToast('📐 Gini Impurity Rechner — kommt bald!')"
-              aria-label="Gini Impurity ausprobieren (noch nicht verfügbar)"
+              aria-label="Gini Impurity Rechner öffnen"
             >
               <span>▶</span> Gini ausprobieren
-            </button>
-
+            </a>
             <button
               class="btn btn-sekundaer"
               onclick="scrolleZuKapitel('kapitel-gini')"
@@ -1346,40 +844,33 @@
               <span>↓</span> Mehr erfahren
             </button>
           </div>
-
         </article>
-
-      </div><!-- Ende .themen-grid -->
+      </div>
     </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════════
       KAPITEL 1: ENTSCHEIDUNGSBÄUME – VERTIEFUNG
-      
-      id="kapitel-baum" ist der Scroll-Anker.
-      Die JS-Funktion scrolleZuKapitel() sucht dieses Element per ID.
-    ════════════════════════════════════════════════════════════════ -->
+    ══════════════════════════════════════════════════════════ -->
     <section id="kapitel-baum" class="kapitel-bereich" aria-labelledby="kapitel-baum-titel">
-
       <div class="abschnitt-trenner">
         <span class="abschnitt-label">Kapitel 1 · Vertiefung</span>
       </div>
 
-      <!-- Kapitel-Header -->
       <div class="kapitel-header">
         <div class="kapitel-icon-gross" aria-hidden="true">🌳</div>
-        <div>
+        <div class="kapitel-header-text">
           <div class="kapitel-nummer">Kapitel 01</div>
           <h2 class="kapitel-titel" id="kapitel-baum-titel">Entscheidungsbäume</h2>
           <p class="kapitel-untertitel">Von der Idee zum Algorithmus</p>
+          <!-- Direktlink zur Unterseite im Kapitel-Header -->
+          <a href="entscheidungsbaum.html" class="btn btn-extern" style="display: inline-flex; margin-top: 4px;">
+            <span>🌳</span> Interaktiv ausprobieren →
+          </a>
         </div>
       </div>
 
-      <!-- Inhalt-Grid: Text links, Visualisierung rechts -->
       <div class="kapitel-grid">
-
-        <!-- Linke Spalte: Text-Blöcke -->
         <div class="kapitel-texte">
-
           <div class="lern-block">
             <div class="lern-block-titel">
               <span class="lern-block-nr">01</span>
@@ -1420,7 +911,6 @@
               <span class="lern-block-nr">03</span>
               Stärken &amp; Schwächen
             </div>
-            <!-- Zweispaltige Liste: Stärken und Schwächen nebeneinander -->
             <div class="pro-contra-grid">
               <div class="pro-liste">
                 <div class="liste-label liste-label--pro">Stärken</div>
@@ -1442,42 +932,21 @@
               </div>
             </div>
           </div>
-
-        </div><!-- Ende .kapitel-texte -->
+        </div>
 
         <!-- Rechte Spalte: Visueller Mini-Baum -->
         <div class="kapitel-visual">
           <div class="visual-label" aria-hidden="true">Beispiel: Regenschirm mitnehmen?</div>
-
-          <!--
-            Ein einfacher Baum als HTML-Struktur.
-            Jeder Knoten ist ein <div>, die Verbindungen sind
-            CSS-Linien (::before / ::after Pseudo-Elemente).
-            
-            🔬 EXPERIMENTIERZONE:
-               Ändere die Fragen in den Knoten oder füge
-               eine weitere Ebene hinzu!
-          -->
           <div class="mini-baum" role="img" aria-label="Visueller Entscheidungsbaum: Regenschirm-Beispiel">
-
-            <!-- Wurzel-Knoten -->
             <div class="baum-ebene">
               <div class="baum-knoten baum-knoten--wurzel">
                 <span class="knoten-frage">Ist es bewölkt?</span>
               </div>
             </div>
-
-            <!-- Verbindungslinien zur zweiten Ebene -->
             <div class="baum-verbindung">
-              <div class="verbindung-ast verbindung-links">
-                <span class="ast-label">Ja</span>
-              </div>
-              <div class="verbindung-ast verbindung-rechts">
-                <span class="ast-label">Nein</span>
-              </div>
+              <div class="verbindung-ast verbindung-links"><span class="ast-label">Ja</span></div>
+              <div class="verbindung-ast verbindung-rechts"><span class="ast-label">Nein</span></div>
             </div>
-
-            <!-- Zweite Ebene -->
             <div class="baum-ebene">
               <div class="baum-knoten">
                 <span class="knoten-frage">Hohe Luftfeuchtigkeit?</span>
@@ -1486,18 +955,10 @@
                 <span class="knoten-frage">❌ Kein Schirm</span>
               </div>
             </div>
-
-            <!-- Verbindungslinien zur dritten Ebene (nur links) -->
             <div class="baum-verbindung baum-verbindung--links-only">
-              <div class="verbindung-ast verbindung-links">
-                <span class="ast-label">Ja</span>
-              </div>
-              <div class="verbindung-ast verbindung-rechts">
-                <span class="ast-label">Nein</span>
-              </div>
+              <div class="verbindung-ast verbindung-links"><span class="ast-label">Ja</span></div>
+              <div class="verbindung-ast verbindung-rechts"><span class="ast-label">Nein</span></div>
             </div>
-
-            <!-- Dritte Ebene (nur unter linkem Knoten) -->
             <div class="baum-ebene baum-ebene--links-only">
               <div class="baum-knoten baum-knoten--blatt baum-knoten--ja">
                 <span class="knoten-frage">☂️ Schirm!</span>
@@ -1506,39 +967,34 @@
                 <span class="knoten-frage">❌ Kein Schirm</span>
               </div>
             </div>
-
-          </div><!-- Ende .mini-baum -->
-        </div><!-- Ende .kapitel-visual -->
-
-      </div><!-- Ende .kapitel-grid -->
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════════
       KAPITEL 2: GINI IMPURITY – VERTIEFUNG
-      
-      id="kapitel-gini" ist der Scroll-Anker für den zweiten Button.
-    ════════════════════════════════════════════════════════════════ -->
+    ══════════════════════════════════════════════════════════ -->
     <section id="kapitel-gini" class="kapitel-bereich" aria-labelledby="kapitel-gini-titel">
-
       <div class="abschnitt-trenner">
         <span class="abschnitt-label">Kapitel 2 · Vertiefung</span>
       </div>
 
-      <!-- Kapitel-Header -->
       <div class="kapitel-header">
         <div class="kapitel-icon-gross" aria-hidden="true">📐</div>
-        <div>
+        <div class="kapitel-header-text">
           <div class="kapitel-nummer">Kapitel 02</div>
           <h2 class="kapitel-titel" id="kapitel-gini-titel">Gini Impurity</h2>
           <p class="kapitel-untertitel">Das Maß für Unreinheit einer Gruppe</p>
+          <!-- Direktlink zur Unterseite im Kapitel-Header -->
+          <a href="gini-impurity.html" class="btn btn-extern" style="display: inline-flex; margin-top: 4px;">
+            <span>📐</span> Interaktiv berechnen →
+          </a>
         </div>
       </div>
 
       <div class="kapitel-grid">
-
-        <!-- Linke Spalte: Text-Blöcke -->
         <div class="kapitel-texte">
-
           <div class="lern-block">
             <div class="lern-block-titel">
               <span class="lern-block-nr">01</span>
@@ -1562,8 +1018,6 @@
               <span class="lern-block-nr">02</span>
               Die Formel Schritt für Schritt
             </div>
-
-            <!-- Formel-Schritt-Karten -->
             <div class="formel-schritte">
               <div class="formel-schritt">
                 <div class="schritt-kopf">
@@ -1600,7 +1054,6 @@
             <p class="lern-block-text">
               Eine Gruppe enthält <strong class="herv">6 Äpfel</strong> und <strong class="herv">4 Birnen</strong> (10 Früchte gesamt):
             </p>
-            <!-- Schritt-für-Schritt Rechnung -->
             <div class="rechnung-block">
               <div class="rechnung-zeile">
                 <span class="r-label">p(Apfel)</span>
@@ -1623,24 +1076,12 @@
               Ein Entscheidungsbaum würde versuchen, diese Gruppe weiter aufzuteilen.
             </p>
           </div>
-
-        </div><!-- Ende .kapitel-texte -->
+        </div>
 
         <!-- Rechte Spalte: Visuelle Gini-Darstellung -->
         <div class="kapitel-visual">
           <div class="visual-label" aria-hidden="true">Gini-Wert visualisiert</div>
-
-          <!--
-            Balkendiagramm: Verschiedene Gruppen und ihr Gini-Wert.
-            Die Balken werden per CSS-Variable --breite gesetzt,
-            die wir direkt im style-Attribut definieren.
-            
-            🔬 EXPERIMENTIERZONE:
-               Ändere die --breite Werte (0% bis 100%) und beobachte,
-               wie sich der Balken verändert!
-          -->
           <div class="gini-visualisierung" role="img" aria-label="Balkendiagramm: Gini-Werte verschiedener Gruppen">
-
             <div class="gini-zeile">
               <div class="gini-zeile-label">Alle Äpfel (rein)</div>
               <div class="gini-balken-spur">
@@ -1648,7 +1089,6 @@
               </div>
               <div class="gini-wert">0,00</div>
             </div>
-
             <div class="gini-zeile">
               <div class="gini-zeile-label">8 Äpfel, 2 Birnen</div>
               <div class="gini-balken-spur">
@@ -1656,7 +1096,6 @@
               </div>
               <div class="gini-wert">0,32</div>
             </div>
-
             <div class="gini-zeile">
               <div class="gini-zeile-label">6 Äpfel, 4 Birnen</div>
               <div class="gini-balken-spur">
@@ -1664,7 +1103,6 @@
               </div>
               <div class="gini-wert">0,48</div>
             </div>
-
             <div class="gini-zeile">
               <div class="gini-zeile-label">5 Äpfel, 5 Birnen (max)</div>
               <div class="gini-balken-spur">
@@ -1672,34 +1110,23 @@
               </div>
               <div class="gini-wert">0,50</div>
             </div>
-
-          </div><!-- Ende .gini-visualisierung -->
-
-          <!-- Legende -->
+          </div>
           <div class="gini-legende">
             <div class="legende-punkt legende-punkt--rein"></div>
             <span>Gini = 0 → rein</span>
             <div class="legende-punkt legende-punkt--max" style="margin-left: 12px;"></div>
             <span>Gini = 0,5 → gemischt</span>
           </div>
-
-        </div><!-- Ende .kapitel-visual -->
-
-      </div><!-- Ende .kapitel-grid -->
+        </div>
+      </div>
     </section>
 
-    <!-- ────────────────────────────────────────────────────────────────
-      ABSCHNITT: ERKLÄRVIDEO
-    ──────────────────────────────────────────────────────────────── -->
-    <section class="video-bereich" aria-label="Erklärvideo">
-
+    <!-- ── ERKLÄRVIDEO ── -->
+    <section id="erklaervideo" class="video-bereich" aria-label="Erklärvideo">
       <div class="abschnitt-trenner">
         <span class="abschnitt-label">Erklärvideo</span>
       </div>
-
       <div class="video-container">
-
-        <!-- Dekorativer "Fenster"-Kopf im Code-Editor-Stil -->
         <div class="video-kopf" aria-hidden="true">
           <div class="fenster-punkte">
             <div class="fenster-punkt rot"></div>
@@ -1708,19 +1135,6 @@
           </div>
           <span class="video-kopf-titel">StatQuest — Decision Trees · YouTube</span>
         </div>
-
-        <!--
-          IFRAME: Eingebettetes YouTube-Video
-          
-          src: Die YouTube-Embed-URL. Wichtig: 'embed/' statt 'watch?v='
-          allow: Erlaubt dem Video Vollbild und automatisches Abspielen
-          loading="lazy": Video wird erst geladen, wenn es sichtbar wird
-                         (verbessert die Ladegeschwindigkeit)
-          
-          🔬 EXPERIMENTIERZONE:
-             Ersetze die Video-ID (I6169uhA_6c) durch eine andere
-             YouTube-Video-ID, um ein anderes Video einzubetten!
-        -->
         <div class="video-wrapper">
           <iframe
             src="https://www.youtube.com/embed/I6169uhA_6c"
@@ -1730,31 +1144,14 @@
             loading="lazy"
           ></iframe>
         </div>
-
         <div class="video-fuss">
           <span class="video-info">StatQuest with Josh Starmer · Englisch · ~18 Minuten</span>
           <span class="video-tag">Empfohlen</span>
         </div>
-
       </div>
     </section>
 
-    <!-- ────────────────────────────────────────────────────────────────
-      HINWEIS-BANNER
-    ──────────────────────────────────────────────────────────────── -->
-    <aside class="hinweis-banner" role="note" aria-label="Hinweis für Lernende">
-      <div class="hinweis-icon" aria-hidden="true">💡</div>
-      <p class="hinweis-text">
-        <strong>Tipp für Schüler:</strong>
-        Die Buttons „Baum bauen" und „Gini ausprobieren" werden demnächst auf
-        interaktive Lernseiten verweisen. Dort kannst du eigene Datensätze eingeben
-        und sehen, wie der Baum wächst — Schritt für Schritt!
-      </p>
-    </aside>
-
-    <!-- ────────────────────────────────────────────────────────────────
-      FOOTER
-    ──────────────────────────────────────────────────────────────── -->
+    <!-- ── FOOTER ── -->
     <footer class="seite-footer" role="contentinfo">
       <p class="footer-text">
         Maschinelles Lernen · Grundlagen · Didaktisches Unterrichtsmaterial<br />
@@ -1764,180 +1161,47 @@
 
   </div><!-- Ende .seite-container -->
 
-  <!-- Toast-Benachrichtigung (wird per JS befüllt und angezeigt) -->
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
 </body>
 
-<!-- ================================================================
-  JAVASCRIPT-BEREICH
-  
-  WICHTIG: Das Script kommt NACH dem Body (ganz am Ende),
-  damit das HTML schon geladen ist, wenn JS es ansprechen möchte.
-  
-  STRUKTUR:
-  1. Hilfsfunktionen (werden von Buttons aufgerufen)
-  2. Initialisierung (läuft automatisch beim Laden)
-  
-  ════════════════════════════════════════════════════════════════
-  📚 IDEEN FÜR SCHÜLER-ERWEITERUNGEN
-  ════════════════════════════════════════════════════════════════
-  
-  EINFACH (Einsteiger):
-  ─────────────────────
-  1. Eigene Farbpalette einbauen: Ändere die CSS-Variablen in :root
-     und gib der Seite ein komplett anderes Aussehen.
-  
-  2. Neues Thema hinzufügen: Kopiere eine .thema-karte und erstelle
-     einen Eintrag über "Information Gain" oder "Random Forests".
-  
-  3. Dark/Light-Mode-Umschalter: Füge einen Button hinzu, der
-     per JavaScript die Farbvariablen zwischen Dark und Light wechselt.
-  
-  MITTEL (Fortgeschrittene):
-  ──────────────────────────
-  4. Gini-Rechner: Baue unter der Gini-Karte ein kleines Formular,
-     in das Schüler zwei Zahlen eingeben und die Formel berechnet wird.
-  
-  5. Fortschrittsleiste: Zeige an, wie viele Module der Schüler
-     bereits "abgehakt" hat (mit localStorage speichern).
-  
-  6. Quiz-Modus: Füge eine Frage-Sektion hinzu, bei der Schüler
-     Multiple-Choice-Fragen zu Entscheidungsbäumen beantworten können.
-  
-  SCHWIERIG (Experten):
-  ─────────────────────
-  7. Mini-Entscheidungsbaum: Implementiere einen einfachen
-     visuellen Baum als SVG oder Canvas-Element.
-  
-  8. CSV-Import: Lass Schüler eine CSV-Datei hochladen und zeige
-     einen automatisch generierten Entscheidungsbaum an.
-  
-  9. Animierter Baum-Wachstum: Animiere, wie sich ein Baum Schritt
-     für Schritt aufbaut, während man die Daten erklärt bekommt.
-================================================================ -->
 <script>
-
-  // ================================================================
-  // VARIABLEN FÜR TOAST-STEUERUNG
-  //
-  // Was: Wir speichern eine Referenz auf das Toast-Element und
-  //      einen Timer-Handle in Variablen.
-  // Warum: So können wir auf das Element zugreifen und den
-  //        Timer bei Bedarf abbrechen.
-  // ================================================================
-
-  // 'const' = unveränderliche Variable (die Referenz auf das Element)
+  // ── TOAST ──
   const toastElement = document.getElementById('toast');
-
-  // 'let' = veränderliche Variable (der Timer kann sich ändern)
   let toastTimer = null;
 
-
-  // ================================================================
-  // FUNKTION: zeigeToast(nachricht)
-  //
-  // Was: Zeigt eine temporäre Benachrichtigung unten auf der Seite.
-  // Warum: Buttons haben noch keine Zielseite → wir informieren
-  //        den Nutzer über den kommenden Inhalt.
-  //
-  // Parameter:
-  //   nachricht (String) — der anzuzeigende Text
-  //
-  // 🔬 EXPERIMENTIERZONE:
-  //    Ändere '2800' (Millisekunden) um den Toast länger/kürzer zu zeigen.
-  // ================================================================
   function zeigeToast(nachricht) {
-
-    // Schritt 1: Text in das Toast-Element schreiben
+    if (!toastElement) return; // Graceful fallback
     toastElement.textContent = nachricht;
-
-    // Schritt 2: CSS-Klasse hinzufügen → macht den Toast sichtbar
-    //   classList.add fügt eine Klasse hinzu,
-    //   classList.remove entfernt sie,
-    //   classList.toggle wechselt sie.
     toastElement.classList.add('sichtbar');
-
-    // Schritt 3: Falls bereits ein Timer läuft, abbrechen.
-    //   Ohne dies würde ein neues setTimeout den alten überschreiben
-    //   und der Toast zu früh verschwinden.
-    if (toastTimer !== null) {
-      clearTimeout(toastTimer);
-    }
-
-    // Schritt 4: Nach 2800ms den Toast wieder ausblenden
-    //   setTimeout führt eine Funktion verzögert aus.
-    //   Hier: Nach 2800 Millisekunden (= 2,8 Sekunden).
+    if (toastTimer !== null) clearTimeout(toastTimer);
     toastTimer = setTimeout(function() {
       toastElement.classList.remove('sichtbar');
-      toastTimer = null; // Timer-Handle zurücksetzen
+      toastTimer = null;
     }, 2800);
-
   }
 
-
-  // ================================================================
-  // FUNKTION: scrolleZuKapitel(kapitelId)
-  //
-  // Was: Scrollt sanft ("smooth") zu dem Element mit der angegebenen ID.
-  // Warum: So können die "Mehr erfahren"-Buttons direkt zum passenden
-  //        Kapitel weiter unten auf der Seite springen.
-  //
-  // Parameter:
-  //   kapitelId (String) — die id="" des Ziel-Elements im HTML
-  //
-  // Wie es funktioniert:
-  //   1. document.getElementById() sucht das Element mit der ID.
-  //   2. .scrollIntoView() scrollt die Seite zu diesem Element.
-  //   3. { behavior: 'smooth' } macht den Scroll animiert statt abrupt.
-  //   4. { block: 'start' } richtet das Element am oberen Rand aus.
-  //
-  // 🔬 EXPERIMENTIERZONE:
-  //    Ändere 'smooth' zu 'instant' für sofortiges Springen.
-  //    Ändere 'start' zu 'center' um das Element in der Mitte zu zeigen.
-  // ================================================================
+  // ── SCROLL ──
   function scrolleZuKapitel(kapitelId) {
-
-    // Schritt 1: Das Ziel-Element im DOM suchen
-    const zielElement = document.getElementById(kapitelId);
-
-    // Schritt 2: Sicherheitsprüfung — existiert das Element überhaupt?
-    //   Mit 'if' prüfen wir, ob das Element gefunden wurde.
-    //   null bedeutet: nicht gefunden.
-    if (zielElement === null) {
-      console.warn('Kapitel nicht gefunden: ' + kapitelId);
-      return; // Funktion verlassen, wenn kein Element gefunden wurde
+    try {
+      const zielElement = document.getElementById(kapitelId);
+      if (!zielElement) {
+        console.warn('Kapitel nicht gefunden: ' + kapitelId);
+        return;
+      }
+      zielElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) {
+      console.warn('Scroll fehlgeschlagen:', e);
     }
-
-    // Schritt 3: Smooth-Scroll zum Element
-    zielElement.scrollIntoView({
-      behavior: 'smooth', // Animiertes Scrollen
-      block: 'start'      // Obere Kante des Elements ansteuern
-    });
-
   }
 
-
-  // ================================================================
-  // INITIALISIERUNG: Läuft einmal beim Laden der Seite
-  //
-  // Das Event 'DOMContentLoaded' feuert, wenn das HTML vollständig
-  // geparst wurde. Es ist sicherer als window.onload (das auch auf
-  // Bilder und andere Ressourcen wartet).
-  // ================================================================
+  // ── INIT ──
   document.addEventListener('DOMContentLoaded', function() {
-
-    // Kleines "Willkommen"-Feedback in der Browser-Konsole
-    // Öffne die Entwicklertools (F12 → Konsole), um es zu sehen!
     console.log('%c🌳 Entscheidungsbäume & Gini Impurity',
       'color: #a78bfa; font-size: 16px; font-weight: bold;');
     console.log('%cDidaktisches Unterrichtsmaterial — Viel Spaß beim Lernen!',
       'color: #475569; font-size: 12px;');
     console.log('%c💡 Tipp: Schau dir den Quellcode an (Strg+U oder F12 → Quelltext)!',
       'color: #6d28d9; font-size: 12px;');
-
   });
-
 </script>
-
 </html>
