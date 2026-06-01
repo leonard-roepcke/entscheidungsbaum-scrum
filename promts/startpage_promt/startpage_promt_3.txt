@@ -40,143 +40,77 @@
     margin: 0;
     padding: 0;
   }
-
-  /* ── DYNAMISCHER HINTERGRUND ── */
   body {
     font-family: 'JetBrains Mono', monospace;
     background-color: var(--hg-tief);
     color: var(--text-haupt);
     min-height: 100vh;
     overflow-x: hidden;
-    position: relative;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%,
+        rgba(139, 92, 246, 0.12), transparent),
+      linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+    background-size: auto, 40px 40px, 40px 40px;
   }
-
-  /* Canvas-Hintergrund für pulsierende Grid-Animation */
-  #bg-canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.9;
-  }
-
-  /* Statischer Radial-Gradient bleibt als Basis-Atmosphäre */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse 80% 50% at 50% -10%,
-      rgba(139, 92, 246, 0.12), transparent);
-    pointer-events: none;
-    z-index: 0;
-  }
-
   .seite-container {
     max-width: 960px;
     margin: 0 auto;
     padding: 48px 24px 80px;
-    position: relative;
-    z-index: 1;
   }
-
-  /* ══════════════════════════════════════
-     NAVIGATION – cleaner redesign
-  ══════════════════════════════════════ */
+  /* ── NAVIGATION ── */
   .nav-leiste {
     display: flex;
     align-items: center;
-    gap: 0;
-    padding: 0;
-    background: rgba(18, 18, 26, 0.85);
-    border: 1px solid rgba(139, 92, 246, 0.18);
-    border-radius: 14px;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(28, 28, 38, 0.8);
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-gross);
+    backdrop-filter: blur(12px);
     margin-bottom: 56px;
     animation: einblenden 0.6s ease both;
-    overflow: hidden;
-    height: 52px;
   }
-
-  /* Home-Button ganz links */
-  .nav-home {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 0 18px;
-    height: 100%;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
+  .nav-logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--akzent-hell);
-    text-decoration: none;
-    border-right: 1px solid rgba(139, 92, 246, 0.15);
-    background: rgba(139, 92, 246, 0.07);
-    transition: background 0.2s ease, color 0.2s ease;
-    white-space: nowrap;
-    flex-shrink: 0;
   }
-  .nav-home:hover {
-    background: rgba(139, 92, 246, 0.15);
-    color: #fff;
-  }
-  .nav-home-icon {
-    font-size: 15px;
-    line-height: 1;
-  }
-
-  /* Mittlerer Bereich: App-Links */
+  /* Navigation Links */
   .nav-links {
     display: flex;
     align-items: center;
-    flex: 1;
-    padding: 0 8px;
-    gap: 2px;
-    height: 100%;
+    gap: 8px;
   }
-
   .nav-link {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 500;
     color: var(--text-zweig);
     text-decoration: none;
-    letter-spacing: 0.04em;
-    transition: color 0.2s ease, background 0.2s ease;
-    white-space: nowrap;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    letter-spacing: 0.05em;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
   }
   .nav-link:hover {
     color: var(--akzent-hell);
-    background: rgba(139, 92, 246, 0.1);
+    border-color: var(--rahmen);
+    background: rgba(139, 92, 246, 0.08);
   }
-  .nav-link-icon {
-    font-size: 13px;
-    opacity: 0.85;
-  }
-
-  /* Rechts: Badge */
   .nav-badge {
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 500;
     color: var(--text-schwach);
-    letter-spacing: 0.08em;
+    background: rgba(139, 92, 246, 0.06);
+    border: 1px solid var(--rahmen);
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    padding: 0 18px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    border-left: 1px solid rgba(139, 92, 246, 0.15);
-    white-space: nowrap;
-    flex-shrink: 0;
   }
-
   /* ── HERO ── */
   .hero-bereich {
     text-align: center;
@@ -217,7 +151,6 @@
     margin: 0 auto;
     font-weight: 300;
   }
-
   /* ── TRENNLINIE ── */
   .abschnitt-trenner {
     display: flex;
@@ -240,7 +173,6 @@
     color: var(--akzent-lila);
     white-space: nowrap;
   }
-
   /* ── THEMEN-KARTEN ── */
   .themen-grid {
     display: grid;
@@ -306,7 +238,6 @@
     font-weight: 300;
     flex: 1;
   }
-
   /* ── FORMEL-BADGE ── */
   .formel-badge {
     background: rgba(139, 92, 246, 0.08);
@@ -327,7 +258,6 @@
     display: block;
     margin-bottom: 4px;
   }
-
   /* ── BUTTONS ── */
   .btn-gruppe {
     display: flex;
@@ -372,6 +302,7 @@
     border-color: var(--rahmen-hell);
     transform: translateY(-1px);
   }
+  /* Extern-Link-Button (→ Unterseite) */
   .btn-extern {
     background: rgba(139, 92, 246, 0.12);
     color: var(--akzent-hell);
@@ -383,7 +314,6 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 16px var(--akzent-glow-s);
   }
-
   /* ── VIDEO ── */
   .video-bereich {
     margin-bottom: 48px;
@@ -450,7 +380,6 @@
     padding: 3px 9px;
     border-radius: 12px;
   }
-
   /* ── FOOTER ── */
   .seite-footer {
     text-align: center;
@@ -464,7 +393,6 @@
     letter-spacing: 0.08em;
     line-height: 1.8;
   }
-
   /* ── KAPITEL ── */
   .kapitel-bereich {
     margin-bottom: 64px;
@@ -522,7 +450,6 @@
   @media (max-width: 720px) {
     .kapitel-grid { grid-template-columns: 1fr; }
   }
-
   /* ── LERN-BLÖCKE ── */
   .kapitel-texte {
     display: flex;
@@ -570,7 +497,6 @@
     font-weight: 300;
   }
   .herv { color: var(--text-haupt); font-weight: 600; }
-
   /* ── PRO/CONTRA ── */
   .pro-contra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .liste-label {
@@ -595,7 +521,6 @@
     position: relative;
   }
   .punkte-liste li::before { content: '·'; position: absolute; left: 0; color: var(--akzent-lila); font-weight: 700; }
-
   /* ── MINI-BAUM ── */
   .kapitel-visual {
     background: var(--hg-karte);
@@ -640,7 +565,6 @@
   .verbindung-ast { display: flex; flex-direction: column; align-items: center; position: relative; }
   .verbindung-ast::before { content: ''; width: 1px; height: 100%; background: var(--rahmen-hell); display: block; }
   .ast-label { position: absolute; top: 4px; font-size: 10px; font-weight: 600; color: var(--akzent-lila); background: var(--hg-karte); padding: 0 4px; }
-
   /* ── FORMEL-SCHRITTE ── */
   .formel-schritte { display: flex; flex-direction: column; gap: 8px; }
   .formel-schritt {
@@ -665,7 +589,6 @@
     letter-spacing: 0.05em;
   }
   .schritt-erkl { font-size: 11.5px; color: var(--text-zweig); font-weight: 300; line-height: 1.5; }
-
   /* ── RECHNUNG ── */
   .rechnung-block {
     background: var(--hg-hell);
@@ -688,7 +611,6 @@
   .r-gleich { color: var(--text-schwach); text-align: center; }
   .r-wert { color: var(--text-zweig); font-weight: 300; line-height: 1.6; }
   .rechnung-zeile--ergebnis .r-wert { color: var(--text-haupt); }
-
   /* ── GINI BALKEN ── */
   .gini-visualisierung { display: flex; flex-direction: column; gap: 14px; }
   .gini-zeile { display: flex; align-items: center; gap: 10px; }
@@ -704,8 +626,7 @@
   .legende-punkt { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .legende-punkt--rein { background: #4ade80; }
   .legende-punkt--max  { background: #f87171; }
-
-  /* ── FORTSCHRITTS-PILLS ── */
+  /* ── FORTSCHRITTS-PILLS (neu) ── */
   .fortschritt-leiste {
     display: flex;
     align-items: center;
@@ -737,7 +658,6 @@
   }
   .fortschritt-pill .pill-icon { font-size: 13px; }
   .fortschritt-trenner { color: var(--text-schwach); font-size: 10px; }
-
   /* ── TOAST ── */
   .toast {
     position: fixed;
@@ -758,7 +678,6 @@
     z-index: 1000;
   }
   .toast.sichtbar { opacity: 1; transform: translateX(-50%) translateY(0); }
-
   /* ── ANIMATIONEN ── */
   @keyframes einblenden {
     from { opacity: 0; }
@@ -776,44 +695,18 @@
     from { width: 0; }
     to   { width: var(--breite); }
   }
-
-  /* Mobile nav */
-  @media (max-width: 600px) {
-    .nav-badge { display: none; }
-    .nav-link span:last-child { display: none; }
-  }
 </style>
 <body>
-  <!-- Dynamischer Hintergrund-Canvas -->
-  <canvas id="bg-canvas" aria-hidden="true"></canvas>
-
   <div class="seite-container">
-    <!-- ══════════════════════════════════════
-         NAVIGATION – cleaner redesign
-    ══════════════════════════════════════ -->
+    <!-- ── NAVIGATION ── -->
     <nav class="nav-leiste" role="navigation" aria-label="Seitennavigation">
-      <!-- Home-Button -->
-      <a href="index.html" class="nav-home" aria-label="Startseite">
-        <span class="nav-home-icon">⌂</span>
-        <span>Home</span>
-      </a>
-
-      <!-- App-Links -->
+      <span class="nav-logo">🌳 ML Grundlagen</span>
       <div class="nav-links">
-        <a href="gini-impurity.html" class="nav-link">
-          <span class="nav-link-icon">📐</span>
-          <span>Gini-Rechner</span>
-        </a>
-        <a href="entscheidungsbaum.html" class="nav-link">
-          <span class="nav-link-icon">🌳</span>
-          <span>Baum-Builder</span>
-        </a>
+        <a href="entscheidungsbaum.html" class="nav-link">🌳 Baum-Builder</a>
+        <a href="gini-impurity.html" class="nav-link">📐 Gini-Rechner</a>
       </div>
-
-      <!-- Badge -->
       <span class="nav-badge">Unterrichtsmaterial</span>
     </nav>
-
     <!-- ── HERO ── -->
     <header class="hero-bereich" role="banner">
       <div class="hero-label">Maschinelles Lernen · Kapitel 1</div>
@@ -827,35 +720,68 @@
         den besten Entscheidungsweg zu finden.
       </p>
     </header>
-
-    <!-- ── SCHNELLNAVIGATION ── -->
+    <!-- ── SCHNELLNAVIGATION (neu) ── -->
     <nav class="fortschritt-leiste" aria-label="Seiteninhalt">
-      <a href="#kapitel-gini" class="fortschritt-pill">
-        <span class="pill-icon">📐</span> Gini Impurity
-      </a>
-      <span class="fortschritt-trenner">→</span>
       <a href="#kapitel-baum" class="fortschritt-pill">
         <span class="pill-icon">🌳</span> Entscheidungsbäume
+      </a>
+      <span class="fortschritt-trenner">→</span>
+      <a href="#kapitel-gini" class="fortschritt-pill">
+        <span class="pill-icon">📐</span> Gini Impurity
       </a>
       <span class="fortschritt-trenner">→</span>
       <a href="#erklaervideo" class="fortschritt-pill">
         <span class="pill-icon">▶</span> Erklärvideo
       </a>
     </nav>
-
-    <!-- ── THEMEN-KARTEN (Gini zuerst) ── -->
+    <!-- ── THEMEN-KARTEN ── -->
     <section aria-label="Hauptthemen">
       <div class="abschnitt-trenner">
         <span class="abschnitt-label">Die Konzepte</span>
       </div>
       <div class="themen-grid">
-
-        <!-- KARTE 1: GINI IMPURITY -->
+        <!-- KARTE 1: ENTSCHEIDUNGSBÄUME -->
+        <article class="thema-karte" aria-labelledby="baum-titel">
+          <div class="karte-icon-bereich">
+            <div class="karte-icon" aria-hidden="true">🌳</div>
+            <div>
+              <div class="karte-nummer">Konzept 01</div>
+              <h2 class="karte-titel" id="baum-titel">Entscheidungs&shy;bäume</h2>
+            </div>
+          </div>
+          <p class="karte-text">
+            Ein Entscheidungsbaum ist ein Modell, das Fragen in einer baumartigen
+            Struktur stellt. Jeder <strong style="color: var(--text-haupt)">Knoten</strong> ist eine Ja/Nein-Frage,
+            jeder <strong style="color: var(--text-haupt)">Ast</strong> eine mögliche Antwort,
+            und jedes <strong style="color: var(--text-haupt)">Blatt</strong> ein finales Ergebnis.
+            <br /><br />
+            Stell dir vor: Soll ich heute einen Regenschirm mitnehmen?
+            → Ist es bewölkt? → Wie hoch ist die Luftfeuchtigkeit?
+            → Entscheidung: Ja oder Nein.
+          </p>
+          <div class="btn-gruppe">
+            
+              href="entscheidungsbaum.html"
+              class="btn btn-primaer"
+              aria-label="Interaktiven Baum-Builder öffnen"
+            >
+              <span>▶</span> Baum bauen
+            </a>
+            <button
+              class="btn btn-sekundaer"
+              onclick="scrolleZuKapitel('kapitel-baum')"
+              aria-label="Mehr über Entscheidungsbäume erfahren"
+            >
+              <span>↓</span> Mehr erfahren
+            </button>
+          </div>
+        </article>
+        <!-- KARTE 2: GINI IMPURITY -->
         <article class="thema-karte" aria-labelledby="gini-titel">
           <div class="karte-icon-bereich">
             <div class="karte-icon" aria-hidden="true">📐</div>
             <div>
-              <div class="karte-nummer">Konzept 01</div>
+              <div class="karte-nummer">Konzept 02</div>
               <h2 class="karte-titel" id="gini-titel">Gini Impurity</h2>
             </div>
           </div>
@@ -873,7 +799,7 @@
             Gini = 1 − Σ (pᵢ)²
           </div>
           <div class="btn-gruppe">
-            <a
+            
               href="gini-impurity.html"
               class="btn btn-primaer"
               aria-label="Gini Impurity Rechner öffnen"
@@ -889,60 +815,140 @@
             </button>
           </div>
         </article>
-
-        <!-- KARTE 2: ENTSCHEIDUNGSBÄUME -->
-        <article class="thema-karte" aria-labelledby="baum-titel">
-          <div class="karte-icon-bereich">
-            <div class="karte-icon" aria-hidden="true">🌳</div>
-            <div>
-              <div class="karte-nummer">Konzept 02</div>
-              <h2 class="karte-titel" id="baum-titel">Entscheidungs&shy;bäume</h2>
-            </div>
-          </div>
-          <p class="karte-text">
-            Ein Entscheidungsbaum ist ein Modell, das Fragen in einer baumartigen
-            Struktur stellt. Jeder <strong style="color: var(--text-haupt)">Knoten</strong> ist eine Ja/Nein-Frage,
-            jeder <strong style="color: var(--text-haupt)">Ast</strong> eine mögliche Antwort,
-            und jedes <strong style="color: var(--text-haupt)">Blatt</strong> ein finales Ergebnis.
-            <br /><br />
-            Stell dir vor: Soll ich heute einen Regenschirm mitnehmen?
-            → Ist es bewölkt? → Wie hoch ist die Luftfeuchtigkeit?
-            → Entscheidung: Ja oder Nein.
-          </p>
-          <div class="btn-gruppe">
-            <a
-              href="entscheidungsbaum.html"
-              class="btn btn-primaer"
-              aria-label="Interaktiven Baum-Builder öffnen"
-            >
-              <span>▶</span> Baum bauen
-            </a>
-            <button
-              class="btn btn-sekundaer"
-              onclick="scrolleZuKapitel('kapitel-baum')"
-              aria-label="Mehr über Entscheidungsbäume erfahren"
-            >
-              <span>↓</span> Mehr erfahren
-            </button>
-          </div>
-        </article>
-
       </div>
     </section>
-
     <!-- ══════════════════════════════════════════════════════════
-      KAPITEL 1: GINI IMPURITY – VERTIEFUNG (jetzt zuerst)
+      KAPITEL 1: ENTSCHEIDUNGSBÄUME – VERTIEFUNG
     ══════════════════════════════════════════════════════════ -->
-    <section id="kapitel-gini" class="kapitel-bereich" aria-labelledby="kapitel-gini-titel">
+    <section id="kapitel-baum" class="kapitel-bereich" aria-labelledby="kapitel-baum-titel">
       <div class="abschnitt-trenner">
         <span class="abschnitt-label">Kapitel 1 · Vertiefung</span>
       </div>
       <div class="kapitel-header">
-        <div class="kapitel-icon-gross" aria-hidden="true">📐</div>
+        <div class="kapitel-icon-gross" aria-hidden="true">🌳</div>
         <div class="kapitel-header-text">
           <div class="kapitel-nummer">Kapitel 01</div>
+          <h2 class="kapitel-titel" id="kapitel-baum-titel">Entscheidungsbäume</h2>
+          <p class="kapitel-untertitel">Von der Idee zum Algorithmus</p>
+          <!-- Direktlink zur Unterseite im Kapitel-Header -->
+          <a href="entscheidungsbaum.html" class="btn btn-extern" style="display: inline-flex; margin-top: 4px;">
+            <span>🌳</span> Interaktiv ausprobieren →
+          </a>
+        </div>
+      </div>
+      <div class="kapitel-grid">
+        <div class="kapitel-texte">
+          <div class="lern-block">
+            <div class="lern-block-titel">
+              <span class="lern-block-nr">01</span>
+              Was ist ein Entscheidungsbaum?
+            </div>
+            <p class="lern-block-text">
+              Ein Entscheidungsbaum ist ein Modell aus der Welt des maschinellen Lernens.
+              Er imitiert, wie Menschen Entscheidungen treffen: durch das Stellen von
+              Fragen, die den Raum der Möglichkeiten immer weiter einschränken.
+            </p>
+            <p class="lern-block-text">
+              Der Baum beginnt an der <strong class="herv">Wurzel</strong> mit der wichtigsten Frage.
+              Jede Antwort führt einen <strong class="herv">Ast</strong> entlang zu einem neuen
+              <strong class="herv">Knoten</strong> mit der nächsten Frage — bis man ein
+              <strong class="herv">Blatt</strong> erreicht, das die finale Klasse oder Vorhersage enthält.
+            </p>
+          </div>
+          <div class="lern-block">
+            <div class="lern-block-titel">
+              <span class="lern-block-nr">02</span>
+              Wie wird ein Baum trainiert?
+            </div>
+            <p class="lern-block-text">
+              Beim Training sucht der Algorithmus bei jedem Schritt die Frage (das Merkmal
+              und den Schwellenwert), die die Daten am <strong class="herv">besten trennt</strong>.
+              „Am besten" bedeutet: die entstehenden Gruppen sind möglichst rein —
+              also enthalten idealerweise nur eine Klasse.
+            </p>
+            <p class="lern-block-text">
+              Dieser Prozess wird rekursiv wiederholt, bis alle Blätter rein sind oder
+              eine maximale Tiefe erreicht wurde.
+            </p>
+          </div>
+          <div class="lern-block">
+            <div class="lern-block-titel">
+              <span class="lern-block-nr">03</span>
+              Stärken &amp; Schwächen
+            </div>
+            <div class="pro-contra-grid">
+              <div class="pro-liste">
+                <div class="liste-label liste-label--pro">Stärken</div>
+                <ul class="punkte-liste">
+                  <li>Leicht verständlich &amp; erklärbar</li>
+                  <li>Kein Feature-Scaling nötig</li>
+                  <li>Funktioniert mit Zahlen &amp; Kategorien</li>
+                  <li>Schnelles Training</li>
+                </ul>
+              </div>
+              <div class="contra-liste">
+                <div class="liste-label liste-label--contra">Schwächen</div>
+                <ul class="punkte-liste">
+                  <li>Neigt zu Overfitting</li>
+                  <li>Instabil bei kleinen Datenänderungen</li>
+                  <li>Diagonale Grenzen schwierig</li>
+                  <li>Tiefe Bäume komplex</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Rechte Spalte: Visueller Mini-Baum -->
+        <div class="kapitel-visual">
+          <div class="visual-label" aria-hidden="true">Beispiel: Regenschirm mitnehmen?</div>
+          <div class="mini-baum" role="img" aria-label="Visueller Entscheidungsbaum: Regenschirm-Beispiel">
+            <div class="baum-ebene">
+              <div class="baum-knoten baum-knoten--wurzel">
+                <span class="knoten-frage">Ist es bewölkt?</span>
+              </div>
+            </div>
+            <div class="baum-verbindung">
+              <div class="verbindung-ast verbindung-links"><span class="ast-label">Ja</span></div>
+              <div class="verbindung-ast verbindung-rechts"><span class="ast-label">Nein</span></div>
+            </div>
+            <div class="baum-ebene">
+              <div class="baum-knoten">
+                <span class="knoten-frage">Hohe Luftfeuchtigkeit?</span>
+              </div>
+              <div class="baum-knoten baum-knoten--blatt baum-knoten--nein">
+                <span class="knoten-frage">❌ Kein Schirm</span>
+              </div>
+            </div>
+            <div class="baum-verbindung baum-verbindung--links-only">
+              <div class="verbindung-ast verbindung-links"><span class="ast-label">Ja</span></div>
+              <div class="verbindung-ast verbindung-rechts"><span class="ast-label">Nein</span></div>
+            </div>
+            <div class="baum-ebene baum-ebene--links-only">
+              <div class="baum-knoten baum-knoten--blatt baum-knoten--ja">
+                <span class="knoten-frage">☂️ Schirm!</span>
+              </div>
+              <div class="baum-knoten baum-knoten--blatt baum-knoten--nein">
+                <span class="knoten-frage">❌ Kein Schirm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ══════════════════════════════════════════════════════════
+      KAPITEL 2: GINI IMPURITY – VERTIEFUNG
+    ══════════════════════════════════════════════════════════ -->
+    <section id="kapitel-gini" class="kapitel-bereich" aria-labelledby="kapitel-gini-titel">
+      <div class="abschnitt-trenner">
+        <span class="abschnitt-label">Kapitel 2 · Vertiefung</span>
+      </div>
+      <div class="kapitel-header">
+        <div class="kapitel-icon-gross" aria-hidden="true">📐</div>
+        <div class="kapitel-header-text">
+          <div class="kapitel-nummer">Kapitel 02</div>
           <h2 class="kapitel-titel" id="kapitel-gini-titel">Gini Impurity</h2>
           <p class="kapitel-untertitel">Das Maß für Unreinheit einer Gruppe</p>
+          <!-- Direktlink zur Unterseite im Kapitel-Header -->
           <a href="gini-impurity.html" class="btn btn-extern" style="display: inline-flex; margin-top: 4px;">
             <span>📐</span> Interaktiv berechnen →
           </a>
@@ -1072,125 +1078,6 @@
         </div>
       </div>
     </section>
-
-    <!-- ══════════════════════════════════════════════════════════
-      KAPITEL 2: ENTSCHEIDUNGSBÄUME – VERTIEFUNG (jetzt zweites)
-    ══════════════════════════════════════════════════════════ -->
-    <section id="kapitel-baum" class="kapitel-bereich" aria-labelledby="kapitel-baum-titel">
-      <div class="abschnitt-trenner">
-        <span class="abschnitt-label">Kapitel 2 · Vertiefung</span>
-      </div>
-      <div class="kapitel-header">
-        <div class="kapitel-icon-gross" aria-hidden="true">🌳</div>
-        <div class="kapitel-header-text">
-          <div class="kapitel-nummer">Kapitel 02</div>
-          <h2 class="kapitel-titel" id="kapitel-baum-titel">Entscheidungsbäume</h2>
-          <p class="kapitel-untertitel">Von der Idee zum Algorithmus</p>
-          <a href="entscheidungsbaum.html" class="btn btn-extern" style="display: inline-flex; margin-top: 4px;">
-            <span>🌳</span> Interaktiv ausprobieren →
-          </a>
-        </div>
-      </div>
-      <div class="kapitel-grid">
-        <div class="kapitel-texte">
-          <div class="lern-block">
-            <div class="lern-block-titel">
-              <span class="lern-block-nr">01</span>
-              Was ist ein Entscheidungsbaum?
-            </div>
-            <p class="lern-block-text">
-              Ein Entscheidungsbaum ist ein Modell aus der Welt des maschinellen Lernens.
-              Er imitiert, wie Menschen Entscheidungen treffen: durch das Stellen von
-              Fragen, die den Raum der Möglichkeiten immer weiter einschränken.
-            </p>
-            <p class="lern-block-text">
-              Der Baum beginnt an der <strong class="herv">Wurzel</strong> mit der wichtigsten Frage.
-              Jede Antwort führt einen <strong class="herv">Ast</strong> entlang zu einem neuen
-              <strong class="herv">Knoten</strong> mit der nächsten Frage — bis man ein
-              <strong class="herv">Blatt</strong> erreicht, das die finale Klasse oder Vorhersage enthält.
-            </p>
-          </div>
-          <div class="lern-block">
-            <div class="lern-block-titel">
-              <span class="lern-block-nr">02</span>
-              Wie wird ein Baum trainiert?
-            </div>
-            <p class="lern-block-text">
-              Beim Training sucht der Algorithmus bei jedem Schritt die Frage (das Merkmal
-              und den Schwellenwert), die die Daten am <strong class="herv">besten trennt</strong>.
-              „Am besten" bedeutet: die entstehenden Gruppen sind möglichst rein —
-              also enthalten idealerweise nur eine Klasse.
-            </p>
-            <p class="lern-block-text">
-              Dieser Prozess wird rekursiv wiederholt, bis alle Blätter rein sind oder
-              eine maximale Tiefe erreicht wurde.
-            </p>
-          </div>
-          <div class="lern-block">
-            <div class="lern-block-titel">
-              <span class="lern-block-nr">03</span>
-              Stärken &amp; Schwächen
-            </div>
-            <div class="pro-contra-grid">
-              <div class="pro-liste">
-                <div class="liste-label liste-label--pro">Stärken</div>
-                <ul class="punkte-liste">
-                  <li>Leicht verständlich &amp; erklärbar</li>
-                  <li>Kein Feature-Scaling nötig</li>
-                  <li>Funktioniert mit Zahlen &amp; Kategorien</li>
-                  <li>Schnelles Training</li>
-                </ul>
-              </div>
-              <div class="contra-liste">
-                <div class="liste-label liste-label--contra">Schwächen</div>
-                <ul class="punkte-liste">
-                  <li>Neigt zu Overfitting</li>
-                  <li>Instabil bei kleinen Datenänderungen</li>
-                  <li>Diagonale Grenzen schwierig</li>
-                  <li>Tiefe Bäume komplex</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Rechte Spalte: Visueller Mini-Baum -->
-        <div class="kapitel-visual">
-          <div class="visual-label" aria-hidden="true">Beispiel: Regenschirm mitnehmen?</div>
-          <div class="mini-baum" role="img" aria-label="Visueller Entscheidungsbaum: Regenschirm-Beispiel">
-            <div class="baum-ebene">
-              <div class="baum-knoten baum-knoten--wurzel">
-                <span class="knoten-frage">Ist es bewölkt?</span>
-              </div>
-            </div>
-            <div class="baum-verbindung">
-              <div class="verbindung-ast verbindung-links"><span class="ast-label">Ja</span></div>
-              <div class="verbindung-ast verbindung-rechts"><span class="ast-label">Nein</span></div>
-            </div>
-            <div class="baum-ebene">
-              <div class="baum-knoten">
-                <span class="knoten-frage">Hohe Luftfeuchtigkeit?</span>
-              </div>
-              <div class="baum-knoten baum-knoten--blatt baum-knoten--nein">
-                <span class="knoten-frage">❌ Kein Schirm</span>
-              </div>
-            </div>
-            <div class="baum-verbindung baum-verbindung--links-only">
-              <div class="verbindung-ast verbindung-links"><span class="ast-label">Ja</span></div>
-              <div class="verbindung-ast verbindung-rechts"><span class="ast-label">Nein</span></div>
-            </div>
-            <div class="baum-ebene baum-ebene--links-only">
-              <div class="baum-knoten baum-knoten--blatt baum-knoten--ja">
-                <span class="knoten-frage">☂️ Schirm!</span>
-              </div>
-              <div class="baum-knoten baum-knoten--blatt baum-knoten--nein">
-                <span class="knoten-frage">❌ Kein Schirm</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ── ERKLÄRVIDEO ── -->
     <section id="erklaervideo" class="video-bereich" aria-label="Erklärvideo">
       <div class="abschnitt-trenner">
@@ -1220,7 +1107,6 @@
         </div>
       </div>
     </section>
-
     <!-- ── FOOTER ── -->
     <footer class="seite-footer" role="contentinfo">
       <p class="footer-text">
@@ -1229,103 +1115,14 @@
       </p>
     </footer>
   </div><!-- Ende .seite-container -->
-
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 <script>
-  // ══════════════════════════════════════════════════════════
-  // DYNAMISCHER HINTERGRUND – pulsierendes Gitter
-  // Sehr dezent: feine Linien, langsame Farbwellen
-  // ══════════════════════════════════════════════════════════
-  (function() {
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-
-    // Gitter-Konfiguration
-    const GRID   = 40;   // px zwischen den Linien
-    const SPEED  = 0.0004; // Animationsgeschwindigkeit (sehr langsam)
-
-    // Farbpalette: lila → blau → cyan (sehr dezente Töne)
-    const FARBEN = [
-      [139, 92, 246],   // lila
-      [96, 130, 242],   // blau-lila
-      [56, 170, 230],   // blau-cyan
-    ];
-
-    let t = 0;
-    let raf;
-
-    function resize() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    // Interpoliert sanft zwischen den Farben basierend auf Zeit + Position
-    function getLineColor(x, y, t) {
-      // Wellenphase aus Position + Zeit
-      const phase = (x * 0.008 + y * 0.005 + t) % (Math.PI * 2);
-      const norm  = (Math.sin(phase) + 1) / 2; // 0..1
-
-      // Zwischen Farbe A und B interpolieren
-      const idx = norm * (FARBEN.length - 1);
-      const iA  = Math.floor(idx) % FARBEN.length;
-      const iB  = (iA + 1) % FARBEN.length;
-      const f   = idx - Math.floor(idx);
-
-      const r = FARBEN[iA][0] + (FARBEN[iB][0] - FARBEN[iA][0]) * f;
-      const g = FARBEN[iA][1] + (FARBEN[iB][1] - FARBEN[iA][1]) * f;
-      const b = FARBEN[iA][2] + (FARBEN[iB][2] - FARBEN[iA][2]) * f;
-
-      // Alpha sehr niedrig → unauffällig
-      const alpha = 0.03 + 0.025 * Math.sin(phase + x * 0.003);
-      return `rgba(${r|0},${g|0},${b|0},${alpha.toFixed(3)})`;
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const W = canvas.width;
-      const H = canvas.height;
-
-      // Vertikale Linien
-      for (let x = 0; x <= W; x += GRID) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, H);
-        ctx.strokeStyle = getLineColor(x, H / 2, t);
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      // Horizontale Linien
-      for (let y = 0; y <= H; y += GRID) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(W, y);
-        ctx.strokeStyle = getLineColor(W / 2, y, t + 1.0);
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      t += SPEED;
-      raf = requestAnimationFrame(draw);
-    }
-
-    resize();
-    window.addEventListener('resize', resize);
-    draw();
-
-    // Cleanup wenn Seite verlassen wird
-    window.addEventListener('pagehide', function() {
-      cancelAnimationFrame(raf);
-    });
-  })();
-
   // ── TOAST ──
   const toastElement = document.getElementById('toast');
   let toastTimer = null;
   function zeigeToast(nachricht) {
-    if (!toastElement) return;
+    if (!toastElement) return; // Graceful fallback
     toastElement.textContent = nachricht;
     toastElement.classList.add('sichtbar');
     if (toastTimer !== null) clearTimeout(toastTimer);
@@ -1334,7 +1131,6 @@
       toastTimer = null;
     }, 2800);
   }
-
   // ── SCROLL ──
   function scrolleZuKapitel(kapitelId) {
     try {
@@ -1348,7 +1144,6 @@
       console.warn('Scroll fehlgeschlagen:', e);
     }
   }
-
   // ── INIT ──
   document.addEventListener('DOMContentLoaded', function() {
     console.log('%c🌳 Entscheidungsbäume & Gini Impurity',
@@ -1360,3 +1155,11 @@
   });
 </script>
 </html>
+
+
+ändere diese Datie, behalte das singelfile no dependency setup bei:
+
+Aufgaben:
+tausche die Konzepte und die kappitel das gini impurity zuerst kommt. 
+Die obere leiste soll cleaner desighned sein und mann soll auch auf einen Hompage butten klicken können um auf diese aktuelle seite zu kommen. (Diese leiste wird später in die anderen apps auch eingefügt nur die links leicht verändert um die konsistenzu zu waren.
+der gitter hintergrund soll leicht dynamisch farbig pullsieren (es soll nur im hintergrund unaufällig sein.)
