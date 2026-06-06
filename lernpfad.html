@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Interaktiver Lernpfad · Entscheidungsbäume</title>
+<style>
+:root {
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --hg-tief: #0a0a0f;
+  --hg-hell: #18181f;
+  --hg-karte: #1c1c26;
+  --akzent-lila: #8b5cf6;
+  --akzent-hell: #a78bfa;
+  --akzent-dunkel: #6d28d9;
+  --akzent-glow-s: rgba(139, 92, 246, 0.15);
+  --text-haupt: #e2e8f0;
+  --text-zweig: #94a3b8;
+  --text-schwach: #475569;
+  --rahmen: rgba(139, 92, 246, 0.2);
+  --rahmen-hell: rgba(139, 92, 246, 0.4);
+  --grn: #4ade80;
+  --red: #f87171;
+  --r1: 16px;
+  --r2: 10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:var(--font-sans);background:var(--hg-tief);color:var(--text-haupt);min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(139,92,246,.12),transparent),
+    linear-gradient(rgba(139,92,246,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(139,92,246,.03) 1px,transparent 1px);
+  background-size:auto,40px 40px,40px 40px;
+}
+.seite-container{max-width:960px;margin:0 auto;padding:48px 24px 80px}
+
+.nav-leiste{display:flex;align-items:center;gap:0;padding:0;background:rgba(18,18,26,.85);
+  border:1px solid rgba(139,92,246,.18);border-radius:14px;margin-bottom:40px;overflow:hidden;height:52px}
+.nav-home{display:flex;align-items:center;gap:7px;padding:0 18px;height:100%;font-size:12px;font-weight:600;
+  color:var(--akzent-hell);text-decoration:none;border-right:1px solid rgba(139,92,246,.15);
+  background:rgba(139,92,246,.07);flex-shrink:0}
+.nav-links{display:flex;flex:1;padding:0 8px;gap:2px;height:100%;align-items:center}
+.nav-link{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-size:11.5px;
+  color:var(--text-zweig);text-decoration:none}
+.nav-link:hover{color:var(--akzent-hell);background:rgba(139,92,246,.1)}
+.nav-link--aktiv{color:var(--akzent-hell);background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.35)}
+.nav-badge{font-size:10.5px;color:var(--text-schwach);text-transform:uppercase;padding:0 18px;height:100%;
+  display:flex;align-items:center;border-left:1px solid rgba(139,92,246,.15);flex-shrink:0}
+@media(max-width:600px){.nav-badge{display:none}.nav-link span:last-child{display:none}}
+
+.hero-bereich{text-align:center;margin-bottom:36px}
+.hero-titel{font-family:var(--font-serif);font-size:clamp(1.8rem,4vw,2.8rem);margin-bottom:12px}
+.hero-titel em{color:var(--akzent-hell);font-style:italic}
+.hero-beschreibung{font-size:13px;color:var(--text-zweig);line-height:1.75;max-width:560px;margin:0 auto}
+
+.fortschritt-wrap{margin-bottom:32px}
+.fortschritt-kopf{display:flex;justify-content:space-between;font-size:11px;color:var(--text-zweig);margin-bottom:8px}
+.fortschritt-balken{height:8px;background:rgba(139,92,246,.1);border-radius:4px;border:1px solid var(--rahmen);overflow:hidden}
+.fortschritt-fill{height:100%;background:linear-gradient(90deg,var(--akzent-dunkel),var(--akzent-lila));width:0%;transition:width .5s ease}
+.schritt-punkte{display:flex;justify-content:space-between;margin-top:10px;gap:4px}
+.schritt-punkt{width:8px;height:8px;border-radius:50%;background:var(--hg-hell);border:1px solid var(--rahmen);flex:1;max-width:24px;margin:0 auto;transition:background .3s}
+.schritt-punkt.done{background:var(--akzent-lila);border-color:var(--akzent-hell)}
+.schritt-punkt.aktiv{background:var(--akzent-hell);box-shadow:0 0 8px var(--akzent-glow-s)}
+
+.schritt-karte{background:var(--hg-karte);border:1px solid var(--rahmen);border-radius:var(--r1);padding:28px;margin-bottom:24px}
+.schritt-nummer{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--akzent-lila);margin-bottom:8px}
+.schritt-titel{font-family:var(--font-serif);font-size:1.5rem;margin-bottom:12px}
+.schritt-text{font-size:13px;color:var(--text-zweig);line-height:1.75;margin-bottom:20px}
+.interaktiv-box{background:var(--hg-hell);border:1px solid var(--rahmen);border-radius:var(--r2);padding:20px;margin-bottom:20px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--r2);font-family:inherit;
+  font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+.btn-primaer{background:linear-gradient(135deg,var(--akzent-dunkel),var(--akzent-lila));color:#fff}
+.btn-sekundaer{background:rgba(139,92,246,.08);color:var(--akzent-hell);border:1px solid var(--rahmen)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.btn:not(:disabled):hover{filter:brightness(1.1);transform:translateY(-1px)}
+.nav-buttons{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* Schritt 1: Sortieren */
+.sort-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;
+  background:var(--hg-karte);border:1px solid var(--rahmen);border-radius:var(--r2);margin-bottom:8px}
+.sort-item.done{border-color:var(--grn)}
+
+/* Schritt 2: Pfad */
+.pfad-btn{display:block;width:100%;padding:12px;margin-bottom:8px;text-align:left;background:var(--hg-karte);
+  border:1px solid var(--rahmen);border-radius:var(--r2);color:var(--text-haupt);font-family:inherit;font-size:12px;cursor:pointer}
+.pfad-btn:hover{border-color:var(--rahmen-hell)}
+.pfad-btn.aktiv{border-color:var(--akzent-lila);background:rgba(139,92,246,.1)}
+.pfad-status{font-size:12px;color:var(--akzent-hell);margin-top:8px;min-height:20px}
+
+/* Schritt 3: Labels */
+.label-slot{min-height:44px;border:2px dashed var(--rahmen);border-radius:var(--r2);padding:8px;margin:8px 0;
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-schwach)}
+.label-slot.filled{border-style:solid;border-color:var(--akzent-lila);color:var(--text-haupt)}
+.label-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.label-chip{padding:8px 14px;background:rgba(139,92,246,.1);border:1px solid var(--rahmen);border-radius:20px;
+  font-size:11px;cursor:pointer;user-select:none}
+.label-chip.used{opacity:.35;pointer-events:none}
+
+/* Schritt 4: Tüte */
+.tuete-visual{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0;font-size:24px}
+.unsicher-slider{width:100%;margin:12px 0}
+
+/* Schritt 5: Formel */
+.formel-schritt{padding:12px;border:1px solid var(--rahmen);border-radius:var(--r2);margin-bottom:8px;cursor:pointer}
+.formel-schritt.offen{background:rgba(139,92,246,.08);border-color:var(--rahmen-hell)}
+.formel-inhalt{display:none;margin-top:8px;font-size:12px;color:var(--text-zweig)}
+.formel-schritt.offen .formel-inhalt{display:block}
+
+/* Schritt 6: Mini Gini */
+.mini-ergebnis{font-family:var(--font-serif);font-size:2rem;color:var(--akzent-hell);margin:12px 0}
+
+/* Schritt 7: Split */
+.split-option{display:block;width:100%;padding:14px;margin-bottom:8px;text-align:left;background:var(--hg-karte);
+  border:1px solid var(--rahmen);border-radius:var(--r2);color:var(--text-haupt);font-family:inherit;font-size:12px;cursor:pointer}
+.split-option.correct{border-color:var(--grn)}
+.split-option.wrong{border-color:var(--red)}
+
+/* Schritt 8: Baum wächst */
+.baum-stufe{opacity:0;transform:translateY(10px);transition:all .4s ease;margin:12px 0;padding:12px;
+  background:var(--hg-karte);border:1px solid var(--rahmen);border-radius:var(--r2)}
+.baum-stufe.sichtbar{opacity:1;transform:none}
+
+/* Schritt 9: Quiz */
+.quiz-frage{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--rahmen)}
+.quiz-opt{display:block;width:100%;padding:10px;margin-top:6px;text-align:left;background:var(--hg-karte);
+  border:1px solid var(--rahmen);border-radius:var(--r2);color:var(--text-zweig);font-family:inherit;font-size:12px;cursor:pointer}
+.quiz-opt.richtig{border-color:var(--grn);color:var(--grn)}
+.quiz-opt.falsch{border-color:var(--red);color:var(--red)}
+
+/* Schritt 10 */
+.zertifikat{text-align:center;padding:32px;background:rgba(139,92,246,.08);border:1px solid var(--rahmen-hell);border-radius:var(--r1)}
+.zertifikat-icon{font-size:48px;margin-bottom:12px}
+.link-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.link-karte{display:flex;align-items:center;gap:12px;padding:16px;background:var(--hg-karte);border:1px solid var(--rahmen);
+  border-radius:var(--r2);text-decoration:none;color:var(--text-haupt);transition:border-color .2s}
+.link-karte:hover{border-color:var(--rahmen-hell)}
+@media(max-width:540px){.link-grid{grid-template-columns:1fr}}
+
+.seite-footer{text-align:center;padding-top:32px;border-top:1px solid rgba(139,92,246,.1)}
+.footer-text{font-size:11px;color:var(--text-schwach);line-height:1.8}
+.feedback{font-size:12px;margin-top:10px;min-height:18px}
+.feedback.ok{color:var(--grn)}.feedback.fail{color:var(--red)}
+.erklaer-box{background:rgba(139,92,246,.06);border-left:3px solid var(--akzent-lila);padding:14px 16px;
+  border-radius:var(--r2);font-size:12.5px;color:var(--text-zweig);line-height:1.7;margin-bottom:16px}
+.erklaer-box strong{color:var(--text-haupt)}
+.btn-klein{padding:5px 10px;font-size:10.5px}
+.quiz-input{width:100%;max-width:200px;padding:10px 12px;background:var(--hg-karte);border:1px solid var(--rahmen);
+  border-radius:var(--r2);color:var(--text-haupt);font-family:inherit;font-size:13px;margin-top:8px}
+.label-chip.active{border-color:var(--akzent-lila);background:rgba(139,92,246,.2)}
+.label-chip.used-wrong{opacity:.5;text-decoration:line-through}
+.slot-row{margin-bottom:12px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="seite-container">
+  <nav class="nav-leiste">
+    <a href="index.html" class="nav-home"><span>⌂</span><span>Home</span></a>
+    <div class="nav-links">
+      <a href="lernpfad.html" class="nav-link nav-link--aktiv" aria-current="page"><span>🎓</span><span>Lernpfad</span></a>
+      <a href="gini-impurity.html" class="nav-link"><span>📐</span><span>Gini-Rechner</span></a>
+      <a href="entscheidungsbaum.html" class="nav-link"><span>🌳</span><span>Baum-Builder</span></a>
+    </div>
+    <span class="nav-badge">Unterrichtsmaterial</span>
+  </nav>
+
+  <header class="hero-bereich">
+    <h1 class="hero-titel">Dein <em>Lernpfad</em></h1>
+    <p class="hero-beschreibung">Jeder Schritt erklärt ein Konzept und prüft es direkt. Erst wenn die Aufgabe gelöst ist, geht es weiter.</p>
+  </header>
+
+  <div class="fortschritt-wrap">
+    <div class="fortschritt-kopf"><span id="schritt-label">Schritt 1 von 10</span><span id="prozent-label">0 %</span></div>
+    <div class="fortschritt-balken"><div class="fortschritt-fill" id="fortschritt-fill"></div></div>
+    <div class="schritt-punkte" id="schritt-punkte"></div>
+  </div>
+
+  <div class="schritt-karte" id="schritt-inhalt"></div>
+
+  <div class="nav-buttons">
+    <button class="btn btn-sekundaer" id="btn-zurueck" onclick="schrittZurueck()">← Zurück</button>
+    <button class="btn btn-primaer" id="btn-weiter" onclick="schrittWeiter()" disabled>Weiter →</button>
+  </div>
+
+  <footer class="seite-footer">
+    <p class="footer-text">Maschinelles Lernen · Interaktiver Lernpfad · Fortschritt wird lokal gespeichert</p>
+  </footer>
+</div>
+
+<script>
+/* Lernpfad: 10 Schritte mit Erklärung + Aufgabe. Fortschritt in localStorage. */
+var STORAGE_KEY = 'lernpfad-fortschritt-v2';
+var schrittIndex = 0;
+var schrittErledigt = {};
+var pfadState = { schritt: 0, ergebnisse: {} };
+var labelState = { ziel: {}, chips: ['Wurzel','Knoten','Ast','Blatt'] };
+var quizState = { beantwortet: 0, richtig: 0 };
+
+var SCHRITTE = [
+  { titel: 'Was ist Klassifikation?', prozent: 10,
+    render: renderSchritt1, check: function(){ return schrittErledigt[0]; } },
+  { titel: 'Die Idee des Entscheidungsbaums', prozent: 20,
+    render: renderSchritt2, check: function(){ return schrittErledigt[1]; } },
+  { titel: 'Knoten, Ast und Blatt', prozent: 30,
+    render: renderSchritt3, check: function(){ return schrittErledigt[2]; } },
+  { titel: 'Unreinheit in Daten', prozent: 40,
+    render: renderSchritt4, check: function(){ return schrittErledigt[3]; } },
+  { titel: 'Die Gini-Formel', prozent: 55,
+    render: renderSchritt5, check: function(){ return schrittErledigt[4]; } },
+  { titel: 'Gini selbst berechnen', prozent: 65,
+    render: renderSchritt6, check: function(){ return schrittErledigt[5]; } },
+  { titel: 'Den besten Split finden', prozent: 75,
+    render: renderSchritt7, check: function(){ return schrittErledigt[6]; } },
+  { titel: 'So wächst ein Baum', prozent: 85,
+    render: renderSchritt8, check: function(){ return schrittErledigt[7]; } },
+  { titel: 'Kurz-Quiz', prozent: 95,
+    render: renderSchritt9, check: function(){ return schrittErledigt[8]; } },
+  { titel: 'Geschafft!', prozent: 100,
+    render: renderSchritt10, check: function(){ return true; } }
+];
+
+function speichern() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ schrittIndex: schrittIndex, schrittErledigt: schrittErledigt }));
+  } catch (e) {}
+}
+
+function laden() {
+  try {
+    var d = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (d) {
+      schrittIndex = Math.min(d.schrittIndex || 0, SCHRITTE.length - 1);
+      schrittErledigt = d.schrittErledigt || {};
+    }
+  } catch (e) {}
+}
+
+function renderFortschritt() {
+  var p = SCHRITTE[schrittIndex].prozent;
+  document.getElementById('schritt-label').textContent = 'Schritt ' + (schrittIndex + 1) + ' von 10';
+  document.getElementById('prozent-label').textContent = p + ' %';
+  document.getElementById('fortschritt-fill').style.width = p + '%';
+  var punkte = '';
+  for (var i = 0; i < 10; i++) {
+    var cls = 'schritt-punkt';
+    if (i < schrittIndex) cls += ' done';
+    if (i === schrittIndex) cls += ' aktiv';
+    punkte += '<div class="' + cls + '"></div>';
+  }
+  document.getElementById('schritt-punkte').innerHTML = punkte;
+  document.getElementById('btn-zurueck').disabled = schrittIndex === 0;
+  document.getElementById('btn-weiter').disabled = !SCHRITTE[schrittIndex].check();
+  document.getElementById('btn-weiter').textContent = schrittIndex === 9 ? 'Fertig ✓' : 'Weiter →';
+}
+
+function renderAktuellenSchritt() {
+  SCHRITTE[schrittIndex].render();
+  renderFortschritt();
+}
+
+function schrittWeiter() {
+  if (!SCHRITTE[schrittIndex].check()) return;
+  if (schrittIndex < 9) {
+    schrittIndex++;
+    speichern();
+    renderAktuellenSchritt();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function schrittZurueck() {
+  if (schrittIndex > 0) {
+    schrittIndex--;
+    speichern();
+    renderAktuellenSchritt();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function erledigt(idx) {
+  schrittErledigt[idx] = true;
+  speichern();
+  renderFortschritt();
+}
+
+/* ── Schritt 1: Klassifikation ── */
+function renderSchritt1() {
+  var items = [
+    { text: 'E-Mail ist Spam?', kat: 'ja' },
+    { text: 'Katze auf dem Foto?', kat: 'ja' },
+    { text: 'Regnet es heute?', kat: 'ja' },
+    { text: 'Pizza-Rezept nachkochen', kat: 'nein' }
+  ];
+  document.getElementById('schritt-inhalt').innerHTML =
+    '<div class="schritt-nummer">Schritt 01 · Klassifikation</div>' +
+    '<h2 class="schritt-titel">Was ist Klassifikation?</h2>' +
+    '<div class="erklaer-box"><strong>Klassifikation</strong> bedeutet: Daten in feste Kategorien einteilen. ' +
+    'Typisch sind Ja/Nein-Entscheidungen — z.\u202fB. Spam oder kein Spam, Happy oder Not Happy.</div>' +
+    '<p class="schritt-text">Ordne jedes Beispiel zu: Ist es eine <strong>Ja/Nein-Klassifikation</strong> (Vorhersage einer Kategorie) oder etwas anderes?</p>' +
+    '<div class="interaktiv-box" id="s1-box">' + items.map(function(it, i) {
+      return '<div class="sort-item" id="s1-' + i + '"><span>' + it.text + '</span>' +
+        '<span><button class="btn btn-sekundaer btn-klein" onclick="s1antwort(' + i + ',\'ja\')">Ja/Nein</button> ' +
+        '<button class="btn btn-sekundaer btn-klein" onclick="s1antwort(' + i + ',\'nein\')">Anderes</button></span></div>';
+    }).join('') + '</div><div class="feedback" id="s1-fb"></div>';
+  window._s1items = items;
+  window._s1done = 0;
+  if (schrittErledigt[0]) items.forEach(function(_, i) {
+    var el = document.getElementById('s1-' + i);
+    if (el) { el.classList.add('done'); el.querySelector('span:last-child').innerHTML = '✓'; window._s1done++; }
+  });
+}
+
+function s1antwort(i, wahl) {
+  var it = window._s1items[i];
+  var el = document.getElementById('s1-' + i);
+  var ok = (wahl === 'ja' && it.kat === 'ja') || (wahl === 'nein' && it.kat === 'nein');
+  if (ok) {
+    el.classList.add('done');
+    el.querySelector('span:last-child').innerHTML = '✓';
+    if (!el.dataset.done) { el.dataset.done = '1'; window._s1done++; }
+    if (window._s1done >= 4) {
+      document.getElementById('s1-fb').className = 'feedback ok';
+      document.getElementById('s1-fb').textContent = 'Richtig! Klassifikation = Kategorie vorhersagen.';
+      erledigt(0);
+    }
+  } else {
+    document.getElementById('s1-fb').className = 'feedback fail';
+    document.getElementById('s1-fb').textContent = 'Nicht ganz — geht es um eine Ja/Nein-Vorhersage?';
+  }
+}
+
+/* ── Schritt 2: Entscheidungsbaum-Idee ── */
+function renderSchritt2() {
+  pfadState = { schritt: 0, ergebnisse: schrittErledigt[1] ? { sonne: true, bewoelkt: true } : {} };
+  document.getElementById('schritt-inhalt').innerHTML =
+    '<div class="schritt-nummer">Schritt 02 · Entscheidungsbaum</div>' +
+    '<h2 class="schritt-titel">Regenschirm mitnehmen?</h2>' +
+    '<div class="erklaer-box">Ein <strong>Entscheidungsbaum</strong> stellt Fragen nacheinander. ' +
+    'Jede Antwort führt zu einer neuen Frage oder einem <strong>Blatt</strong> (Ergebnis).</div>' +
+    '<p class="schritt-text">Durchlaufe <strong>beide</strong> Wege: einmal „Nein" bei Bewölkt (sonniger Pfad) und einmal „Ja" (bewölkter Pfad).</p>' +
+    '<div class="interaktiv-box" id="s2-box"></div>' +
+    '<div class="pfad-status" id="s2-status">Noch offen: sonniger Pfad und bewölkter Pfad</div>' +
+    '<button class="btn btn-sekundaer btn-klein" style="margin-top:8px" onclick="renderSchritt2()">↺ Von vorne</button>';
+  s2show();
+}
+
+var S2PFAD = [
+  { frage: 'Ist es bewölkt?', ja: 1, nein: { ergebnis: 'Nein — kein Schirm nötig ☀️', key: 'sonne' } },
+  { frage: 'Hohe Luftfeuchtigkeit?', ja: { ergebnis: 'Ja — Schirm mitnehmen! ☂️', key: 'bewoelkt' }, nein: { ergebnis: 'Nein — wahrscheinlich trocken', key: 'bewoelkt' } }
+];
+
+function s2show() {
+  var box = document.getElementById('s2-box');
+  if (!box) return;
+  pfadState.schritt = 0;
+  var s = S2PFAD[0];
+  box.innerHTML = '<p style="margin-bottom:12px;font-size:13px">' + s.frage + '</p>' +
+    '<button class="pfad-btn" onclick="s2wahl(true)">Ja</button>' +
+    '<button class="pfad-btn" onclick="s2wahl(false)">Nein</button>';
+  s2updateStatus();
+}
+
+function s2updateStatus() {
+  var done = pfadState.ergebnisse.sonne && pfadState.ergebnisse.bewoelkt;
+  var st = document.getElementById('s2-status');
+  if (!st) return;
+  var parts = [];
+  if (pfadState.ergebnisse.sonne) parts.push('☀️ sonniger Pfad ✓');
+  if (pfadState.ergebnisse.bewoelkt) parts.push('☁️ bewölkter Pfad ✓');
+  st.textContent = done ? 'Beide Pfade durchlaufen — genau so klassifiziert ein Baum Daten!' : 'Erledigt: ' + (parts.length ? parts.join(', ') : 'noch keiner');
+  if (done) erledigt(1);
+}
+
+function s2wahl(ja) {
+  var s = S2PFAD[pfadState.schritt];
+  var next = ja ? s.ja : s.nein;
+  if (typeof next === 'object' && next.ergebnis && next.key) {
+    pfadState.ergebnisse[next.key] = true;
+    document.getElementById('s2-box').innerHTML = '<p style="font-size:14px;color:var(--akzent-hell)">' + next.ergebnis + '</p>' +
+      '<button class="btn btn-sekundaer btn-klein" style="margin-top:12px" onclick="s2show()">Anderen Pfad probieren</button>';
+    s2updateStatus();
+  } else {
+    pfadState.schritt = next;
+    var s2 = S2PFAD[pfadState.schritt];
+    document.getElementById('s2-box').innerHTML = '<p style="margin-bottom:12px;font-size:13px">' + s2.frage + '</p>' +
+      '<button class="pfad-btn" onclick="s2wahl2(true)">Ja</button>' +
+      '<button class="pfad-btn" onclick="s2wahl2(false)">Nein</button>';
+  }
+}
+
+function s2wahl2(ja) {
+  var s = S2PFAD[1];
+  var next = ja ? s.ja : s.nein;
+  pfadState.ergebnisse[next.key] = true;
+  document.getElementById('s2-box').innerHTML = '<p style="font-size:14px;color:var(--akzent-hell)">' + next.ergebnis + '</p>' +
+    '<button class="btn btn-sekundaer btn-klein" style="margin-top:12px" onclick="s2show()">Anderen Pfad probieren</button>';
+  s2updateStatus();
+}
+
+/* ── Schritt 3: Baum-Begriffe ── */
+function renderSchritt3() {
+  labelState.ziel = { slot0: null, slot1: null, slot2: null };
+  document.getElementById('schritt-inhalt').innerHTML =
+    '<div class="schritt-nummer">Schritt 03 · Baum-Teile</div>' +
+    '<h2 class="schritt-titel">Knoten, Ast und Blatt</h2>' +
+    '<div class="erklaer-box"><strong>Wurzel</strong> = oberster Knoten · <strong>Knoten</strong> = Entscheidungsfrage · ' +
+    '<strong>Ast</strong> = Verbindung (Ja/Nein) · <strong>Blatt</strong> = finales Ergebnis ohne weitere Fragen</div>' +
+    '<p class="schritt-text">Wähle einen Begriff, klicke dann auf die passende Lücke. „Knoten" bleibt als Störbegriff übrig.</p>' +
+    '<div class="interaktiv-box">' +
+    '<div class="slot-row">Oberste Frage: <div class="label-slot" id="slot0" onclick="s3slot(0)">Begriff wählen → hier klicken</div></div>' +
+    '<div class="slot-row">Verbindung zwischen Knoten: <div class="label-slot" id="slot1" onclick="s3slot(1)">Begriff wählen → hier klicken</div></div>' +
+    '<div class="slot-row">Finales Ergebnis: <div class="label-slot" id="slot2" onclick="s3slot(2)">Begriff wählen → hier klicken</div></div>' +
+    '<div class="label-chips" id="s3-chips"></div></div>' +
+    '<div class="feedback" id="s3-fb"></div>' +
+    '<button class="btn btn-sekundaer btn-klein" onclick="s3reset()">↺ Zurücksetzen</button>';
+  s3renderChips();
+  window._s3active = null;
+}
+
+var S3LOESUNG = ['Wurzel', 'Ast', 'Blatt'];
+
+function s3renderChips() {
+  document.getElementById('s3-chips').innerHTML = labelState.chips.map(function(c) {
+    return '<span class="label-chip" id="chip-' + c + '" onclick="s3pick(\'' + c + '\')">' + c + '</span>';
+  }).join('');
+}
+
+function s3pick(c) {
+  window._s3active = c;
+  document.querySelectorAll('.label-chip').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('chip-' + c).classList.add('active');
+}
+
+function s3reset() {
+  labelState.ziel = { slot0: null, slot1: null, slot2: null };
+  [0,1,2].forEach(function(i) {
+    var slot = document.getElementById('slot' + i);
+    slot.textContent = 'Begriff wählen → hier klicken';
+    slot.classList.remove('filled');
+  });
+  s3renderChips();
+  document.getElementById('s3-fb').textContent = '';
+}
+
+function s3slot(idx) {
+  if (!window._s3active) return;
+  var key = 'slot' + idx;
+  var prev = labelState.ziel[key];
+  if (prev) document.getElementById('chip-' + prev).classList.remove('used');
+  labelState.ziel[key] = window._s3active;
+  document.getElementById('slot' + idx).textContent = window._s3active;
+  document.getElementById('slot' + idx).classList.add('filled');
+  document.getElementById('chip-' + window._s3active).classList.add('used');
+  window._s3active = null;
+  document.querySelectorAll('.label-chip').forEach(function(el) { el.classList.remove('active'); });
+  if (labelState.ziel.slot0 && labelState.ziel.slot1 && labelState.ziel.slot2) {
+    var ok = labelState.ziel.slot0 === S3LOESUNG[0] && labelState.ziel.slot1 === S3LOESUNG[1] && labelState.ziel.slot2 === S3LOESUNG[2];
+    var fb = document.getElementById('s3-fb');
+    if (ok) { fb.className = 'feedback ok'; fb.textContent = 'Richtig! Wurzel → Ast → Blatt. „Knoten" ist die allgemeine Bezeichnung für Fragen.'; erledigt(2); }
+    else { fb.className = 'feedback fail'; fb.textContent = 'Noch nicht richtig — nutze ↺ Zurücksetzen und versuche es erneut.'; }
+  }
+}
+
+/* ── Schritt 4: Unreinheit ── */
+function renderSchritt4() {
+  document.getElementById('schritt-inhalt').innerHTML =
+    '<div class="schritt-nummer">Schritt 04 · Unreinheit</div>' +
+    '<h2 class="schritt-titel">Warum braucht man ein Maß für Mischung?</h2>' +
+    '<div class="erklaer-box">Eine Gruppe mit <strong>6 Äpfeln und 4 Birnen</strong> ist gemischt. ' +
+    'Beim Blind-Ziehen rätst du oft falsch — <strong>Gini Impurity</strong> fasst diese Unordnung als Zahl zwischen 0 (rein) und 0,5 (max. Mischung bei 2 Klassen) zusammen.</div>' +
+    '<div class="interaktiv-box"><div class="tuete-visual">🍎🍎🍎🍎🍎🍎 🍐🍐🍐🍐</div>' +
+    '<p style="font-size:12px;margin-bottom:12px">Was trifft auf diese 6:4-Mischung am besten zu?</p>' +
+    '<button class="quiz-opt" onclick="s4pick(this,0)">Gini = 0 — die Gruppe ist rein</button>' +
+    '<button class="quiz-opt" onclick="s4pick(this,1)">Gini ≈ 0,48 — deutliche Mischung</button>' +
+    '<button class="quiz-opt" onclick="s4pick(this,2)">Gini = 1 — maximaler Wert überhaupt</button></div>' +
+    '<div class="feedback" id="s4-fb"></div>';
+}
+
+function s4pick(el, idx) {
+  document.querySelectorAll('#schritt-inhalt .quiz-opt').forEach(function(b) { b.disabled = true; });
+  var fb = document.getElementById('s4-fb');
+  if (idx === 1) {
+    el.classList.add('richtig');
+    fb.className = 'feedback ok';
+    fb.textContent = 'Richtig! 6:4 ergibt Gini = 1 − (0,6² + 0,4²) = 0,48.';
+    erledigt(3);
+  } else {
+    el.classList.add('falsch');
+    fb.className = 'feedback fail';
+    fb.textContent = 'Nicht ganz — bei 2 Klassen liegt Gini maximal bei 0,5, nicht bei 1.';
+  }
+}
+
+/* ── Schritt 5: Gini-Formel ── */
+function renderSchritt5() {
+  document.getElementById('schritt-inhalt').innerHTML =
+    '<div class="schritt-nummer">Schritt 05 · Formel</div>' +
+    '<h2 class="schritt-titel">Die Gini-Formel</h2>' +
+    '<div class="erklaer-box"><strong>Gini = 1 − Σ (pᵢ)²</strong><br>pᵢ = Anteil der Klasse i. ' +
+    'Erst Anteile berechnen, quadrieren, summieren, von 1 abziehen.</div>' +
+    '<p class="schritt-text">Klicke alle drei Rechenschritte für 6 Äpfel + 4 Birnen auf. Danach beantworte die Frage.</p>' +
+    '<div class="interaktiv-box">' +
+    ['① Anteile: p(Apfel)=6/10=0,6 · p(Birne)=4/10=0,4',
+     '② Quadrieren: 0,6² + 0,4² = 0,36 + 0,16 = 0,52',
+     '③ Gini = 1 − 0,52 = 0,48'].map(function(t, i) {
+      return '<div class="formel-schritt" id="fs' + i + '" onclick="s5toggle(' + i + ')"><strong>Schritt ' + (i+1) + '</strong><div class="formel-inhalt">' + t + '</div></div>';
+    }).join('') +
+    '<div id="s5-quiz" style="margin-top:16px;display:none">' +
+    '<p style="font-size:12px;margin-bottom:8px">Welche Formel beschreibt Gini Impurity?</p>' +
+    '<button class="quiz-opt" onclick="s5formel(this,0)">Gini = Σ (pᵢ)²</button>' +
+    '<button class="quiz-opt" onclick="s5formel(this,1)">Gini = 1 − Σ (pᵢ)²</button>' +
+    '<button class="quiz-opt" onclick="s5formel(this,2)">Gini = 1 + Σ (pᵢ)²</button></div></div>' +
+    '<div class="feedback" id="s5-fb"></div>';
+  window._s5open = {};
+}
+
+function s5toggle(i) {
+  document.getElementById('fs' + i).classList.toggle('offen');
+  if (document.getElementById('fs' + i).classList.contains('offen')) window._s5open[i] = true;
+  if (window._s5open[0] && window._s5open[1] && window._s5open[2]) {
+    document.getElementById('s5-quiz').style.display = 'block';
+    document.getElementById('s5-fb').className = 'feedback';
+    document.getElementById('s5-fb').textContent = 'Alle Schritte gelesen — jetzt die Formel-Frage beantworten.';
+  }
+}
+
+function s5formel(el, idx) {
+  document.querySelectorAll('#s5-quiz .quiz-opt').forEach(function(b) { b.disabled = true; });
+  var fb = document.getElementById('s5-fb');
+  if (idx === 1) {
+    el.classList.add('richtig');
+    fb.className = 'feedback ok';
+    fb.textContent = 'Korrekt! Gini = 1 − Σ (pᵢ)²';
+    erledigt(4);
+  } else {
+    el.classList.add('falsch');
+    fb.className = 'feedback fail';
+    fb.textContent = 'Die Summe der quadrierten Anteile wird von 1 abgezogen.';
+  }
+}
+
+/* ── Schritt 6: Gini berechnen ── */
+function renderSchritt6() {
+  document.getElementById('schritt-inhalt').innerHTML =
+    '<div class="schritt-nummer">Schritt 06 · Rechnen</div>' +
+    '<h2 class="schritt-titel">Gini selbst berechnen</h2>' +
+    '<div class="erklaer-box">Stelle <strong>6 Äpfel und 4 Birnen</strong> ein. Der Rechner zeigt den Gini-Wert live. ' +
+    'Trage denselben Wert unten ein (Komma oder Punkt).</div>' +
+    '<div class="interaktiv-box">' +
+    '🍎 Äpfel: <input type="range" id="s6-a" min="0" max="10" value="5" oninput="s6upd()"> <span id="s6-av">5</span><br><br>' +
+    '🍐 Birnen: <input type="range" id="s6-b" min="0" max="10" value="5" oninput="s6upd()"> <span id="s6-bv">5</span>' +
+    '<div class="mini-ergebnis" id="s6-gini">0,50</div>' +
+    '<label style="font-size:12px">Dein Gini-Wert für die eingestellte Verteilung:</label>' +
+    '<input type="text" class="quiz-input" id="s6-input" placeholder="z.\u202fB. 0,48">' +
+    '<button class="btn btn-primaer" style="margin-top:12px" onclick="s6check()">Antwort prüfen</button></div>' +
+    '<div class="feedback" id="s6-fb"></div>';
+  s6upd();
+}
+
+function s6gini(a, b) {
+  var n = a + b;
+  if (n === 0) return 0;
+  var pa = a/n, pb = b/n;
+  return 1 - pa*pa - pb*pb;
+}
+
+function s6upd() {
+  var a = parseInt(document.getElementById('s6-a').value, 10);
+  var b = parseInt(document.getElementById('s6-b').value, 10);
+  document.getElementById('s6-av').textContent = a;
+  document.getElementById('s6-bv').textContent = b;
+  document.getElementById('s6-gini').textContent = s6gini(a,b).toFixed(2).replace('.', ',');
+}
+
+function s6check() {
+  var a = parseInt(document.getElementById('s6-a').value, 10);
+  var b = parseInt(document.getElementById('s6-b').value, 10);
+  var eingabe = parseFloat(document.getElementById('s6-input').value.replace(',', '.'));
+  var erwartet = s6gini(a, b);
+  var fb = document.getElementById('s6-fb');
+  if (a !== 6 || b !== 4) {
+    fb.className = 'feedback fail';
+    fb.textContent = 'Stelle zuerst genau 6 Äpfel und 4 Birnen ein.';
+    return;
+  }
+  if (isNaN(eingabe) || Math.abs(eingabe - erwartet) > 0.02) {
+    fb.className = 'feedback fail';
+    fb.textContent = 'Der Wert passt nicht — rechne 1 − (0,6² + 0,4²) und versuche es erneut.';
+    return;
+  }
+  fb.className = 'feedback ok';
+  fb.textContent = 'Perfekt! 6:4 → Gini = 0,48. Du kannst Gini selbst berechnen.';
+  erledigt(5);
+}
+
+/* ── Schritt 7: Gini Gain ── */
+function renderSchritt7() {
+  document.getElementById('schritt-inhalt').innerHTML =
+    '<div class="schritt-nummer">Schritt 07 · Split</div>' +
+    '<h2 class="schritt-titel">Welcher Split ist am besten?</h2>' +
+    '<div class="erklaer-box"><strong>Gini Gain = Gini vor Split − gewichteter Gini danach.</strong><br>' +
+    'Der beste Split maximiert den Gain — die Kindknoten werden möglichst rein.</div>' +
+    '<p class="schritt-text">10 Datenpunkte: 6 Happy, 4 Not Happy (Gini = 0,48). Welches Merkmal trennt am saubersten?</p>' +
+    '<div class="interaktiv-box">' +
+    '<button class="split-option" onclick="s7pick(this,\'farbe\')">Farbe → links 5/5 gemischt, rechts 1/3 gemischt (Gain ≈ 0,08)</button>' +
+    '<button class="split-option" onclick="s7pick(this,\'form\')">Form → links 6/0 rein, rechts 0/4 rein (Gain = 0,48)</button>' +
+    '<button class="split-option" onclick="s7pick(this,\'groesse\')">Größe → links 4/4 gemischt, rechts 2/2 gemischt (Gain ≈ 0,08)</button>' +
+    '</div><div class="feedback" id="s7-fb"></div>';
+}
+
+function s7pick(el, wahl) {
+  document.querySelectorAll('.split-option').forEach(function(b){ b.classList.remove('correct','wrong'); b.disabled = true; });
+  var fb = document.getElementById('s7-fb');
+  if (wahl === 'form') {
+    el.classList.add('correct');
+    fb.className = 'feedback ok';
+    fb.textContent = 'Richtig! Form erzeugt reine Blätter — maximaler Gini Gain.';
+    erledigt(6);
+  } else {
+    el.classList.add('wrong');
+    fb.className = 'feedback fail';
+    fb.textContent = 'Dieser Split reduziert die Unreinheit kaum — wähle den Split mit reinen Gruppen.';
+    setTimeout(function() {
+      document.querySelectorAll('.split-option').forEach(function(b){ b.classList.remove('correct','wrong'); b.disabled = false; });
+    }, 2000);
+  }
+}
+
+/* ── Schritt 8: Baum wächst ── */
+function renderSchritt8() {
+  document.getElementById('schritt-inhalt').innerHTML =
+    '<div class="schritt-nummer">Schritt 08 · Baum wächst</div>' +
+    '<h2 class="schritt-titel">So wächst der Baum</h2>' +
+    '<div class="erklaer-box">Der Algorithmus wählt rekursiv den Split mit höchstem Gini Gain. ' +
+    'Stoppt, wenn Blätter rein sind oder Abbruchkriterien greifen (Tiefe, Mindestgröße).</div>' +
+    '<div class="interaktiv-box" id="s8-box">' +
+    '<div class="baum-stufe sichtbar" id="bs0">🌳 Wurzel: Alle 10 Daten (Gini = 0,48)</div>' +
+    '<div class="baum-stufe" id="bs1">↳ Split „Form" → links 6/0, rechts 0/4 (Gini Gain = 0,48)</div>' +
+    '<div class="baum-stufe" id="bs2">✅ Beide Blätter rein — Baum fertig!</div>' +
+    '<div id="s8-quiz" style="display:none;margin-top:12px">' +
+    '<p style="font-size:12px">Welches Merkmal wurde an der Wurzel gesplittet?</p>' +
+    '<button class="quiz-opt" onclick="s8antwort(this,\'farbe\')">Farbe</button>' +
+    '<button class="quiz-opt" onclick="s8antwort(this,\'form\')">Form</button>' +
+    '<button class="quiz-opt" onclick="s8antwort(this,\'buchstabe\')">Buchstabe</button></div>' +
+    '<button class="btn btn-primaer" id="s8-btn" style="margin-top:12px" onclick="s8next()">Nächste Ebene →</button></div>' +
+    '<div class="feedback" id="s8-fb"></div>';
+  window._s8lvl = 0;
+}
+
+function s8next() {
+  window._s8lvl = (window._s8lvl || 0) + 1;
+  var el = document.getElementById('bs' + window._s8lvl);
+  if (el) el.classList.add('sichtbar');
+  if (window._s8lvl >= 2) {
+    document.getElementById('s8-btn').style.display = 'none';
+    document.getElementById('s8-quiz').style.display = 'block';
+    document.getElementById('s8-fb').textContent = 'Baum fertig — beantworte die Frage.';
+  }
+}
+
+function s8antwort(el, wahl) {
+  document.querySelectorAll('#s8-quiz .quiz-opt').forEach(function(b) { b.disabled = true; });
+  var fb = document.getElementById('s8-fb');
+  if (wahl === 'form') {
+    el.classList.add('richtig');
+    fb.className = 'feedback ok';
+    fb.textContent = 'Richtig! Form hatte den höchsten Gini Gain — der Baum stoppt danach.';
+    erledigt(7);
+  } else {
+    el.classList.add('falsch');
+    fb.className = 'feedback fail';
+    fb.textContent = 'Schau nochmal auf Ebene 1 — welches Merkmal erzeugt reine Blätter?';
+    setTimeout(function() {
+      document.querySelectorAll('#s8-quiz .quiz-opt').forEach(function(b) { b.disabled = false; b.classList.remove('richtig','falsch'); });
+    }, 2000);
+  }
+}
+
+/* ── Schritt 9: Abschluss-Quiz ── */
+var QUIZ = [
+  { f: 'Was bedeutet Gini = 0?', a: ['Maximale Mischung', 'Vollständig reine Gruppe', 'Falscher Split'], r: 1 },
+  { f: 'Was maximiert der Entscheidungsbaum beim Splitten?', a: ['Gini Impurity', 'Gini Gain', 'Anzahl der Knoten'], r: 1 },
+  { f: 'Gini für 6 Äpfel + 4 Birnen?', a: ['0,32', '0,48', '0,50'], r: 1 },
+  { f: 'Was ist ein Blatt im Entscheidungsbaum?', a: ['Eine Entscheidungsfrage', 'Ein finales Klassenergebnis', 'Eine Verbindungslinie'], r: 1 },
+  { f: 'Wann stoppt der Baum-Algorithmus typischerweise?', a: ['Immer nach genau 3 Splits', 'Bei reinen Blättern oder Abbruchkriterien', 'Erst wenn alle Merkmale verbraucht sind'], r: 1 }
+];
+
+function renderSchritt9() {
+  quizState = { beantwortet: 0, richtig: 0 };
+  document.getElementById('schritt-inhalt').innerHTML =
+    '<div class="schritt-nummer">Schritt 09 · Quiz</div>' +
+    '<h2 class="schritt-titel">Wissens-Check</h2>' +
+    '<div class="erklaer-box">Alle Fragen beziehen sich auf das, was du in den Schritten 1–8 gelernt hast. ' +
+    '<strong>Alle 5 Fragen</strong> müssen richtig sein.</div>' +
+    '<div class="interaktiv-box">' + QUIZ.map(function(q, qi) {
+      return '<div class="quiz-frage" id="qq' + qi + '"><strong>' + (qi+1) + '. ' + q.f + '</strong>' +
+        q.a.map(function(opt, oi) {
+          return '<button class="quiz-opt" onclick="s9antwort(' + qi + ',' + oi + ',this)">' + opt + '</button>';
+        }).join('') + '</div>';
+    }).join('') + '</div><div class="feedback" id="s9-fb"></div>';
+}
+
+function s9antwort(qi, oi, btn) {
+  var q = QUIZ[qi];
+  var frage = document.getElementById('qq' + qi);
+  if (frage.dataset.done) return;
+  frage.dataset.done = '1';
+  frage.querySelectorAll('.quiz-opt').forEach(function(b){ b.disabled = true; });
+  if (oi === q.r) { btn.classList.add('richtig'); quizState.richtig++; }
+  else { btn.classList.add('falsch'); frage.querySelectorAll('.quiz-opt')[q.r].classList.add('richtig'); }
+  quizState.beantwortet++;
+  if (quizState.beantwortet >= 5) {
+    var fb = document.getElementById('s9-fb');
+    if (quizState.richtig === 5) {
+      fb.className = 'feedback ok';
+      fb.textContent = '5/5 — du beherrschst die Grundlagen!';
+      erledigt(8);
+    } else {
+      fb.className = 'feedback fail';
+      fb.textContent = quizState.richtig + '/5 richtig — alle 5 müssen stimmen. Geh die Schritte 4–8 nochmal durch.';
+      setTimeout(renderSchritt9, 3000);
+    }
+  }
+}
+
+/* ── Schritt 10 ── */
+function renderSchritt10() {
+  document.getElementById('schritt-inhalt').innerHTML =
+    '<div class="schritt-nummer">Schritt 10 · Abschluss</div>' +
+    '<h2 class="schritt-titel">Geschafft — 100 %!</h2>' +
+    '<div class="zertifikat">' +
+    '<div class="zertifikat-icon">🏆</div>' +
+    '<p style="font-size:14px;color:var(--text-zweig);margin-bottom:8px">Du hast den Lernpfad abgeschlossen.</p>' +
+    '<p style="font-size:13px;color:var(--akzent-hell)">Entscheidungsbäume & Gini Impurity — Grundlagen</p></div>' +
+    '<div class="link-grid">' +
+    '<a href="gini-impurity.html" class="link-karte"><span>📐</span><span>Gini-Rechner ausprobieren</span></a>' +
+    '<a href="entscheidungsbaum.html" class="link-karte"><span>🌳</span><span>Baum-Builder starten</span></a>' +
+    '<a href="index.html" class="link-karte" style="grid-column:1/-1"><span>🏠</span><span>Zur Startseite</span></a></div>';
+  erledigt(9);
+}
+
+laden();
+renderAktuellenSchritt();
+</script>
+</body>
+</html>

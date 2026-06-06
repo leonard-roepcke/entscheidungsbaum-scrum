@@ -10,12 +10,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Entscheidungsbäume & Gini Impurity</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
 </head>
 <style>
   :root {
+    --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-serif: Georgia, 'Times New Roman', serif;
     --hg-tief:        #0a0a0f;
     --hg-mittel:      #111118;
     --hg-hell:        #18181f;
@@ -41,36 +40,17 @@
     padding: 0;
   }
 
-  /* ── DYNAMISCHER HINTERGRUND ── */
   body {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-sans);
     background-color: var(--hg-tief);
     color: var(--text-haupt);
     min-height: 100vh;
     overflow-x: hidden;
-    position: relative;
-  }
-
-  /* Canvas-Hintergrund für pulsierende Grid-Animation */
-  #bg-canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.9;
-  }
-
-  /* Statischer Radial-Gradient bleibt als Basis-Atmosphäre */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse 80% 50% at 50% -10%,
-      rgba(139, 92, 246, 0.12), transparent);
-    pointer-events: none;
-    z-index: 0;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139, 92, 246, 0.12), transparent),
+      linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+    background-size: auto, 40px 40px, 40px 40px;
   }
 
   .seite-container {
@@ -156,6 +136,11 @@
     color: var(--akzent-hell);
     background: rgba(139, 92, 246, 0.1);
   }
+  .nav-link--aktiv {
+    color: var(--akzent-hell);
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.35);
+  }
   .nav-link-icon {
     font-size: 13px;
     opacity: 0.85;
@@ -197,7 +182,7 @@
     margin-bottom: 24px;
   }
   .hero-titel {
-    font-family: 'DM Serif Display', serif;
+    font-family: var(--font-serif);
     font-size: clamp(2.2rem, 5vw, 3.6rem);
     line-height: 1.15;
     color: var(--text-haupt);
@@ -294,7 +279,7 @@
     text-transform: uppercase;
   }
   .karte-titel {
-    font-family: 'DM Serif Display', serif;
+    font-family: var(--font-serif);
     font-size: 1.3rem;
     color: var(--text-haupt);
     line-height: 1.3;
@@ -419,16 +404,36 @@
     margin-left: 4px;
     letter-spacing: 0.05em;
   }
-  .video-wrapper {
-    width: 100%;
+  .video-wrapper--link {
     aspect-ratio: 16 / 9;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hg-hell);
   }
-  .video-wrapper iframe {
-    width: 100%;
-    height: 100%;
-    display: block;
-    border: none;
+  .video-link-karte {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-zweig);
+    padding: 24px;
+    transition: color 0.2s ease;
+  }
+  .video-link-karte:hover { color: var(--akzent-hell); }
+  .video-link-icon {
+    font-size: 2.5rem;
+    color: var(--akzent-lila);
+  }
+  .video-link-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-haupt);
+  }
+  .video-link-hinweis {
+    font-size: 11px;
+    color: var(--text-schwach);
   }
   .video-fuss {
     display: flex;
@@ -500,7 +505,7 @@
     margin-bottom: 4px;
   }
   .kapitel-titel {
-    font-family: 'DM Serif Display', serif;
+    font-family: var(--font-serif);
     font-size: clamp(1.5rem, 3vw, 2.2rem);
     color: var(--text-haupt);
     line-height: 1.2;
@@ -738,27 +743,6 @@
   .fortschritt-pill .pill-icon { font-size: 13px; }
   .fortschritt-trenner { color: var(--text-schwach); font-size: 10px; }
 
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--hg-karte);
-    border: 1px solid var(--rahmen-hell);
-    border-radius: var(--radius-mittel);
-    padding: 12px 20px;
-    font-size: 12px;
-    color: var(--text-haupt);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px var(--akzent-glow-s);
-    opacity: 0;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    pointer-events: none;
-    white-space: nowrap;
-    z-index: 1000;
-  }
-  .toast.sichtbar { opacity: 1; transform: translateX(-50%) translateY(0); }
-
   /* ── ANIMATIONEN ── */
   @keyframes einblenden {
     from { opacity: 0; }
@@ -784,9 +768,6 @@
   }
 </style>
 <body>
-  <!-- Dynamischer Hintergrund-Canvas -->
-  <canvas id="bg-canvas" aria-hidden="true"></canvas>
-
   <div class="seite-container">
     <!-- ══════════════════════════════════════
          NAVIGATION – cleaner redesign
@@ -800,6 +781,10 @@
 
       <!-- App-Links -->
       <div class="nav-links">
+        <a href="lernpfad.html" class="nav-link">
+          <span class="nav-link-icon">🎓</span>
+          <span>Lernpfad</span>
+        </a>
         <a href="gini-impurity.html" class="nav-link">
           <span class="nav-link-icon">📐</span>
           <span>Gini-Rechner</span>
@@ -830,6 +815,10 @@
 
     <!-- ── SCHNELLNAVIGATION ── -->
     <nav class="fortschritt-leiste" aria-label="Seiteninhalt">
+      <a href="lernpfad.html" class="fortschritt-pill">
+        <span class="pill-icon">🎓</span> Lernpfad (Start)
+      </a>
+      <span class="fortschritt-trenner">→</span>
       <a href="#kapitel-gini" class="fortschritt-pill">
         <span class="pill-icon">📐</span> Gini Impurity
       </a>
@@ -849,6 +838,26 @@
         <span class="abschnitt-label">Die Konzepte</span>
       </div>
       <div class="themen-grid">
+
+        <!-- KARTE 0: LERNPFAD -->
+        <article class="thema-karte" aria-labelledby="lernpfad-titel" style="grid-column: 1 / -1;">
+          <div class="karte-icon-bereich">
+            <div class="karte-icon" aria-hidden="true">🎓</div>
+            <div>
+              <div class="karte-nummer">Empfohlen für Einsteiger</div>
+              <h2 class="karte-titel" id="lernpfad-titel">Interaktiver Lernpfad</h2>
+            </div>
+          </div>
+          <p class="karte-text">
+            Noch kein Vorwissen? Der Lernpfad führt dich Schritt für Schritt von 0 % auf 100 % —
+            mit kleinen Übungen zu Klassifikation, Gini Impurity und Entscheidungsbäumen.
+          </p>
+          <div class="btn-gruppe">
+            <a href="lernpfad.html" class="btn btn-primaer" aria-label="Interaktiven Lernpfad starten">
+              <span>▶</span> Lernpfad starten
+            </a>
+          </div>
+        </article>
 
         <!-- KARTE 1: GINI IMPURITY -->
         <article class="thema-karte" aria-labelledby="gini-titel">
@@ -1205,14 +1214,13 @@
           </div>
           <span class="video-kopf-titel">StatQuest — Decision Trees · YouTube</span>
         </div>
-        <div class="video-wrapper">
-          <iframe
-            src="https://www.youtube.com/embed/I6169uhA_6c"
-            title="StatQuest: Decision Trees – Erklärvideo auf YouTube"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            loading="lazy"
-          ></iframe>
+        <div class="video-wrapper video-wrapper--link">
+          <a href="https://www.youtube.com/watch?v=I6169uhA_6c" target="_blank" rel="noopener noreferrer"
+             class="video-link-karte" aria-label="StatQuest Decision Trees auf YouTube öffnen">
+            <span class="video-link-icon">▶</span>
+            <span class="video-link-text">Video auf YouTube ansehen</span>
+            <span class="video-link-hinweis">(Internetverbindung nötig)</span>
+          </a>
         </div>
         <div class="video-fuss">
           <span class="video-info">StatQuest with Josh Starmer · Englisch · ~18 Minuten</span>
@@ -1230,112 +1238,9 @@
     </footer>
   </div><!-- Ende .seite-container -->
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 <script>
-  // ══════════════════════════════════════════════════════════
-  // DYNAMISCHER HINTERGRUND – pulsierendes Gitter
-  // Sehr dezent: feine Linien, langsame Farbwellen
-  // ══════════════════════════════════════════════════════════
-  (function() {
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-
-    // Gitter-Konfiguration
-    const GRID   = 40;   // px zwischen den Linien
-    const SPEED  = 0.0004; // Animationsgeschwindigkeit (sehr langsam)
-
-    // Farbpalette: lila → blau → cyan (sehr dezente Töne)
-    const FARBEN = [
-      [139, 92, 246],   // lila
-      [96, 130, 242],   // blau-lila
-      [56, 170, 230],   // blau-cyan
-    ];
-
-    let t = 0;
-    let raf;
-
-    function resize() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    // Interpoliert sanft zwischen den Farben basierend auf Zeit + Position
-    function getLineColor(x, y, t) {
-      // Wellenphase aus Position + Zeit
-      const phase = (x * 0.008 + y * 0.005 + t) % (Math.PI * 2);
-      const norm  = (Math.sin(phase) + 1) / 2; // 0..1
-
-      // Zwischen Farbe A und B interpolieren
-      const idx = norm * (FARBEN.length - 1);
-      const iA  = Math.floor(idx) % FARBEN.length;
-      const iB  = (iA + 1) % FARBEN.length;
-      const f   = idx - Math.floor(idx);
-
-      const r = FARBEN[iA][0] + (FARBEN[iB][0] - FARBEN[iA][0]) * f;
-      const g = FARBEN[iA][1] + (FARBEN[iB][1] - FARBEN[iA][1]) * f;
-      const b = FARBEN[iA][2] + (FARBEN[iB][2] - FARBEN[iA][2]) * f;
-
-      // Alpha sehr niedrig → unauffällig
-      const alpha = 0.03 + 0.025 * Math.sin(phase + x * 0.003);
-      return `rgba(${r|0},${g|0},${b|0},${alpha.toFixed(3)})`;
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const W = canvas.width;
-      const H = canvas.height;
-
-      // Vertikale Linien
-      for (let x = 0; x <= W; x += GRID) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, H);
-        ctx.strokeStyle = getLineColor(x, H / 2, t);
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      // Horizontale Linien
-      for (let y = 0; y <= H; y += GRID) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(W, y);
-        ctx.strokeStyle = getLineColor(W / 2, y, t + 1.0);
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      t += SPEED;
-      raf = requestAnimationFrame(draw);
-    }
-
-    resize();
-    window.addEventListener('resize', resize);
-    draw();
-
-    // Cleanup wenn Seite verlassen wird
-    window.addEventListener('pagehide', function() {
-      cancelAnimationFrame(raf);
-    });
-  })();
-
-  // ── TOAST ──
-  const toastElement = document.getElementById('toast');
-  let toastTimer = null;
-  function zeigeToast(nachricht) {
-    if (!toastElement) return;
-    toastElement.textContent = nachricht;
-    toastElement.classList.add('sichtbar');
-    if (toastTimer !== null) clearTimeout(toastTimer);
-    toastTimer = setTimeout(function() {
-      toastElement.classList.remove('sichtbar');
-      toastTimer = null;
-    }, 2800);
-  }
-
-  // ── SCROLL ──
+  // Scroll zu Theorie-Kapiteln
   function scrolleZuKapitel(kapitelId) {
     try {
       const zielElement = document.getElementById(kapitelId);

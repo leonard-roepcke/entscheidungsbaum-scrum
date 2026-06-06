@@ -3,325 +3,413 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Entscheidungsbaum · Selbsttest</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<title>Entscheidungsbaum · Baum-Builder</title>
 <style>
 :root {
-  --bg0:#09090f;--bg1:#101018;--bg2:#16161f;--bg3:#1c1c28;--bg4:#22222e;
-  --ac:#8b5cf6;--ac2:#a78bfa;--acd:#6d28d9;
-  --glow:rgba(139,92,246,.28);--glows:rgba(139,92,246,.11);
-  --t1:#eef0f6;--t2:#8b9ab5;--t3:#3d4a60;
-  --bdr:rgba(139,92,246,.18);--bdrh:rgba(139,92,246,.42);
-  --grn:#4ade80;--grnb:rgba(74,222,128,.09);--grnbr:rgba(74,222,128,.28);
-  --red:#f87171;--redb:rgba(248,113,113,.09);--redbr:rgba(248,113,113,.28);
-  --r1:16px;--r2:10px;--r3:6px;
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --hg-tief: #0a0a0f;
+  --hg-mittel: #111118;
+  --hg-hell: #18181f;
+  --hg-karte: #1c1c26;
+  --akzent-lila: #8b5cf6;
+  --akzent-hell: #a78bfa;
+  --akzent-dunkel: #6d28d9;
+  --akzent-glow-s: rgba(139, 92, 246, 0.15);
+  --text-haupt: #e2e8f0;
+  --text-zweig: #94a3b8;
+  --text-schwach: #475569;
+  --rahmen: rgba(139, 92, 246, 0.2);
+  --rahmen-hell: rgba(139, 92, 246, 0.4);
+  --grn: #4ade80;
+  --grnb: rgba(74, 222, 128, 0.09);
+  --grnbr: rgba(74, 222, 128, 0.28);
+  --red: #f87171;
+  --redb: rgba(248, 113, 113, 0.09);
+  --redbr: rgba(248, 113, 113, 0.28);
+  --r1: 16px;
+  --r2: 10px;
+  --r3: 6px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family:'JetBrains Mono',monospace;background:var(--bg0);color:var(--t1);
+  font-family:var(--font-sans);background:var(--hg-tief);color:var(--text-haupt);
   min-height:100vh;overflow-x:hidden;
   background-image:
-    radial-gradient(ellipse 70% 40% at 50% -5%,rgba(139,92,246,.09),transparent),
-    linear-gradient(rgba(139,92,246,.022) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(139,92,246,.022) 1px,transparent 1px);
-  background-size:auto,44px 44px,44px 44px;
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(139,92,246,.12),transparent),
+    linear-gradient(rgba(139,92,246,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(139,92,246,.03) 1px,transparent 1px);
+  background-size:auto,40px 40px,40px 40px;
 }
-.page{max-width:1200px;margin:0 auto;padding:36px 18px 100px}
-.nav{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:11px 18px;background:rgba(22,22,31,.88);
-  border:1px solid var(--bdr);border-radius:var(--r1);
-  backdrop-filter:blur(14px);margin-bottom:48px;animation:up .5s ease both;
-}
-.nav-links{display:flex;gap:20px;align-items:center}
-.nav-link{color:var(--t2);text-decoration:none;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;transition:color 0.2s}
-.nav-link:hover{color:var(--ac2)}
-.nav-link--aktiv{color:var(--ac);font-weight:700;border-bottom:1px solid var(--ac)}
-.nav-badge{font-size:10px;color:var(--t2);background:rgba(139,92,246,.08);border:1px solid var(--bdr);padding:4px 10px;border-radius:20px;letter-spacing:.07em;text-transform:uppercase}
-.hero{text-align:center;margin-bottom:52px;animation:up .6s ease .08s both}
-.chip{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);background:var(--glows);border:1px solid var(--bdr);padding:5px 13px;border-radius:20px;margin-bottom:18px}
-.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,4.5vw,3rem);line-height:1.15;margin-bottom:14px}
-.hero h1 em{font-style:italic;color:var(--ac2);text-shadow:0 0 48px rgba(167,139,250,.45)}
-.hero p{font-size:13px;line-height:1.8;color:var(--t2);max-width:560px;margin:0 auto;font-weight:300}
-.sep{display:flex;align-items:center;gap:12px;margin:32px 0 22px}
-.sep::before,.sep::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent)}
-.sep span{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ac)}
-.card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r1);overflow:hidden}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bdr);gap:12px;flex-wrap:wrap}
-.card-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2)}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--r2);font-family:inherit;font-size:11.5px;font-weight:500;cursor:pointer;border:none;transition:all .22s ease;white-space:nowrap}
-.btn-primary{background:linear-gradient(135deg,var(--acd),var(--ac));color:#fff}
-.btn-ghost{background:rgba(139,92,246,.07);color:var(--ac2);border:1px solid var(--bdr)}
-.btn-danger{background:rgba(248,113,113,.1);color:var(--red);border:1px solid var(--redbr)}
-.btn-sm{padding:5px 10px;font-size:10.5px}
-.table-scroll{overflow-x:auto}
+.seite-container{max-width:1200px;margin:0 auto;padding:48px 24px 80px}
+
+.nav-leiste{display:flex;align-items:center;gap:0;padding:0;background:rgba(18,18,26,.85);
+  border:1px solid rgba(139,92,246,.18);border-radius:14px;backdrop-filter:blur(20px);
+  margin-bottom:56px;overflow:hidden;height:52px}
+.nav-home{display:flex;align-items:center;justify-content:center;gap:7px;padding:0 18px;height:100%;
+  font-size:12px;font-weight:600;color:var(--akzent-hell);text-decoration:none;
+  border-right:1px solid rgba(139,92,246,.15);background:rgba(139,92,246,.07);white-space:nowrap;flex-shrink:0}
+.nav-home:hover{background:rgba(139,92,246,.15);color:#fff}
+.nav-links{display:flex;align-items:center;flex:1;padding:0 8px;gap:2px;height:100%}
+.nav-link{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;
+  font-size:11.5px;font-weight:500;color:var(--text-zweig);text-decoration:none;white-space:nowrap}
+.nav-link:hover{color:var(--akzent-hell);background:rgba(139,92,246,.1)}
+.nav-link--aktiv{color:var(--akzent-hell);background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.35)}
+.nav-badge{font-size:10.5px;color:var(--text-schwach);text-transform:uppercase;letter-spacing:.08em;
+  padding:0 18px;height:100%;display:flex;align-items:center;
+  border-left:1px solid rgba(139,92,246,.15);white-space:nowrap;flex-shrink:0}
+@media(max-width:600px){.nav-badge{display:none}.nav-link span:last-child{display:none}}
+
+.hero-bereich{text-align:center;margin-bottom:52px}
+.hero-label{display:inline-block;font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--akzent-lila);background:var(--akzent-glow-s);border:1px solid var(--rahmen);
+  padding:6px 14px;border-radius:20px;margin-bottom:20px}
+.hero-titel{font-family:var(--font-serif);font-size:clamp(1.8rem,4.5vw,3rem);line-height:1.15;margin-bottom:14px}
+.hero-titel em{font-style:italic;color:var(--akzent-hell)}
+.hero-beschreibung{font-size:13px;line-height:1.8;color:var(--text-zweig);max-width:620px;margin:0 auto;font-weight:300}
+
+.hinweis-banner{background:rgba(139,92,246,.07);border:1px solid var(--rahmen);border-radius:var(--r2);
+  padding:16px 20px;margin-bottom:32px;font-size:12px;color:var(--text-zweig);line-height:1.7}
+.hinweis-banner strong{color:var(--akzent-hell)}
+
+.abschnitt-trenner{display:flex;align-items:center;gap:14px;margin:32px 0 22px}
+.abschnitt-trenner::before,.abschnitt-trenner::after{content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,var(--rahmen),transparent)}
+.abschnitt-label{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--akzent-lila);white-space:nowrap}
+
+.karte{background:var(--hg-karte);border:1px solid var(--rahmen);border-radius:var(--r1);overflow:hidden;margin-bottom:24px}
+.karte-kopf{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--rahmen);gap:12px;flex-wrap:wrap}
+.karte-titel{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--akzent-hell)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--r2);
+  font-family:inherit;font-size:11.5px;font-weight:500;cursor:pointer;border:none;transition:all .22s ease;white-space:nowrap}
+.btn-primaer{background:linear-gradient(135deg,var(--akzent-dunkel),var(--akzent-lila));color:#fff}
+.btn-sekundaer{background:rgba(139,92,246,.07);color:var(--akzent-hell);border:1px solid var(--rahmen)}
+.btn-gefahr{background:var(--redb);color:var(--red);border:1px solid var(--redbr)}
+.btn-klein{padding:5px 10px;font-size:10.5px}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+
+.tabellen-scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th{padding:12px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--ac2);background:rgba(139,92,246,.05)}
-td{padding:10px 12px;color:var(--t2);border-bottom:1px solid var(--bg3)}
-.chip-v{padding:2px 8px;background:var(--bg3);border-radius:4px;border:1px solid var(--bdr);color:var(--t1)}
+th{padding:12px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--akzent-hell);background:rgba(139,92,246,.05)}
+td{padding:10px 12px;color:var(--text-zweig);border-bottom:1px solid var(--hg-hell)}
+.chip-v{padding:2px 8px;background:var(--hg-hell);border-radius:4px;border:1px solid var(--rahmen);color:var(--text-haupt)}
 .badge-ja{color:var(--grn);font-weight:bold}
 .badge-nein{color:var(--red);font-weight:bold}
 
-/* TREE */
-.tree-outer{overflow:auto;padding:24px;background:var(--bg1);position:relative}
+.split-tabelle tr.best-split td{background:rgba(139,92,246,.1);color:var(--text-haupt)}
+.split-tabelle .gain-wert{font-weight:700;color:var(--akzent-hell)}
+
+.tree-outer{overflow:auto;padding:24px;background:var(--hg-mittel);position:relative}
 .tree-inner{position:relative;margin:0 auto}
 .tree-inner svg{position:absolute;top:0;left:0;pointer-events:none;z-index:1;overflow:visible}
 
-/* Node boxes */
-.tn{
-  position:absolute;background:var(--bg3);border:1px solid var(--bdrh);
-  border-radius:var(--r2);padding:12px 10px;text-align:center;
-  transition:border-color .3s,box-shadow .3s;z-index:10;
-}
-.tn-root{border-color:var(--ac);box-shadow:0 0 15px var(--glows)}
-.tn-lbl{font-size:9px;font-weight:700;color:var(--ac);text-transform:uppercase;margin-bottom:6px;display:block;letter-spacing:.06em}
-.tn select{
-  width:100%;padding:5px;background:var(--bg1);border:1px solid var(--bdr);
-  color:var(--t1);font-family:inherit;font-size:11px;border-radius:4px;outline:none;cursor:pointer;
-}
-.tn select:focus{border-color:var(--ac)}
-.tn-ok{border-color:var(--grn)!important;box-shadow:0 0 16px rgba(74,222,128,0.18)!important}
-.tn-fail{border-color:var(--red)!important;box-shadow:0 0 16px rgba(248,113,113,0.18)!important}
-.tn-pruned{border-color:rgba(139,92,246,.4);opacity:.7}
+.tn{position:absolute;background:var(--hg-karte);border:1px solid var(--rahmen-hell);
+  border-radius:var(--r2);padding:12px 10px;text-align:center;z-index:10}
+.tn-root{border-color:var(--akzent-lila);box-shadow:0 0 15px var(--akzent-glow-s)}
+.tn-lbl{font-size:9px;font-weight:700;color:var(--akzent-lila);text-transform:uppercase;margin-bottom:6px;display:block}
+.tn select{width:100%;padding:5px;background:var(--hg-tief);border:1px solid var(--rahmen);
+  color:var(--text-haupt);font-family:inherit;font-size:11px;border-radius:4px;outline:none;cursor:pointer}
+.tn-ok{border-color:var(--grn)!important;box-shadow:0 0 16px rgba(74,222,128,.18)!important}
+.tn-fail{border-color:var(--red)!important;box-shadow:0 0 16px rgba(248,113,113,.18)!important}
 
-/* Leaf nodes */
-.ln{
-  position:absolute;border:1px solid var(--bdr);
-  border-radius:var(--r2);padding:10px;text-align:center;z-index:10;
-}
+.ln{position:absolute;border:1px solid var(--rahmen);border-radius:var(--r2);padding:10px;text-align:center;z-index:10}
 .ln-ja{background:var(--grnb);border-color:var(--grnbr)}
 .ln-nein{background:var(--redb);border-color:var(--redbr)}
-.ln-unknown{background:var(--bg3);border-color:var(--bdr)}
-.ln-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:block}
-.ln-lbl-ja{color:var(--grn)}
-.ln-lbl-nein{color:var(--red)}
-.ln-lbl-unknown{color:var(--ac)}
-.ln select{width:100%;padding:4px;background:var(--bg1);border:1px solid var(--bdr);color:var(--t1);font-family:inherit;font-size:11px;border-radius:4px;outline:none;cursor:pointer}
+.ln-unknown{background:var(--hg-karte)}
+.ln-lbl{font-size:9px;font-weight:700;text-transform:uppercase;margin-bottom:4px;display:block}
+.ln-lbl-ja{color:var(--grn)}.ln-lbl-nein{color:var(--red)}.ln-lbl-unknown{color:var(--akzent-lila)}
+.ln select{width:100%;padding:4px;background:var(--hg-tief);border:1px solid var(--rahmen);
+  color:var(--text-haupt);font-family:inherit;font-size:11px;border-radius:4px;cursor:pointer}
 
-/* Solution nodes */
-.sn{position:absolute;border:1px solid var(--bdr);border-radius:var(--r2);padding:10px;text-align:center;z-index:5;background:var(--bg3)}
-.sn-feat{font-size:13px;font-weight:bold;color:var(--t1)}
-.sn-meta{font-size:10px;color:var(--t2);margin-top:4px}
+.sn{position:absolute;border:1px solid var(--rahmen);border-radius:var(--r2);padding:10px;text-align:center;z-index:5;background:var(--hg-karte)}
+.sn-feat{font-size:13px;font-weight:bold;color:var(--text-haupt)}
+.sn-meta{font-size:10px;color:var(--text-zweig);margin-top:4px}
 .sn-leaf-ja{border-color:var(--grn);background:var(--grnb)}
 .sn-leaf-nein{border-color:var(--red);background:var(--redb)}
 
-.rbanner{padding:18px 20px;border-radius:var(--r1);margin:16px 20px 20px;border:1px solid var(--bdr)}
+.rbanner{padding:18px 20px;border-radius:var(--r1);margin:16px 20px 20px;border:1px solid var(--rahmen)}
 .rbanner.ok{background:var(--grnb);color:var(--grn);border-color:var(--grnbr)}
 .rbanner.fail{background:var(--redb);color:var(--red);border-color:var(--redbr)}
-@keyframes up{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+
+.seite-footer{text-align:center;padding-top:32px;border-top:1px solid rgba(139,92,246,.1)}
+.footer-text{font-size:11px;color:var(--text-schwach);letter-spacing:.08em;line-height:1.8}
 </style>
 </head>
 <body>
-<div class="page">
-  <nav class="nav">
-    <div class="nav-links" role="list">
-      <a href="index.html" class="nav-link" role="listitem">Startseite</a>
-      <a href="entscheidungsbaum.html" class="nav-link nav-link--aktiv" role="listitem" aria-current="page">🌳 Entscheidungsbäume</a>
-      <a href="gini-impurity.html" class="nav-link" role="listitem">📐 Gini Impurity</a>
+<div class="seite-container">
+  <nav class="nav-leiste" aria-label="Seitennavigation">
+    <a href="index.html" class="nav-home"><span>⌂</span><span>Home</span></a>
+    <div class="nav-links">
+      <a href="lernpfad.html" class="nav-link"><span>🎓</span><span>Lernpfad</span></a>
+      <a href="gini-impurity.html" class="nav-link"><span>📐</span><span>Gini-Rechner</span></a>
+      <a href="entscheidungsbaum.html" class="nav-link nav-link--aktiv" aria-current="page"><span>🌳</span><span>Baum-Builder</span></a>
     </div>
     <span class="nav-badge">Unterrichtsmaterial</span>
   </nav>
 
-  <header class="hero">
-    <div class="chip">ML Grundlagen</div>
-    <h1>Baue deinen <em>Entscheidungsbaum</em></h1>
-    <p>Analysiere die Trainingsdaten und wähle die Attribute so, dass die Gini-Impurity minimiert wird. Bei einem Ast kannst du auch direkt eine Klasse vergeben, um ihn abzuschneiden.</p>
+  <header class="hero-bereich">
+    <div class="hero-label">Maschinelles Lernen · Interaktiv</div>
+    <h1 class="hero-titel">Baue deinen <em>Entscheidungsbaum</em></h1>
+    <p class="hero-beschreibung">
+      Analysiere die Trainingsdaten und wähle Attribute so, dass die Gini-Impurity minimiert wird.
+      Die Split-Analyse zeigt dir, welches Merkmal der Algorithmus wählt — und warum.
+    </p>
   </header>
 
-  <!-- SCHRITT 1: TABELLE -->
+  <aside class="hinweis-banner">
+    <strong>Tipp:</strong> Wähle an jedem Knoten das Merkmal mit dem höchsten Gini Gain (siehe Split-Analyse).
+    Du kannst an einem Knoten auch direkt eine Klasse vergeben, um den Ast abzuschneiden (Pruning) —
+    das ist nur richtig, wenn kein Split die Unreinheit weiter senkt.
+  </aside>
+
   <section>
-    <div class="sep"><span>1. Datentabelle</span></div>
-    <div class="card">
-      <div class="card-head">
-        <div class="card-title">Trainingsdaten</div>
-        <button class="btn btn-ghost btn-sm" onclick="regenData()">↻ Neu generieren</button>
+    <div class="abschnitt-trenner"><span class="abschnitt-label">1. Datentabelle</span></div>
+    <div class="karte">
+      <div class="karte-kopf">
+        <div class="karte-titel">Trainingsdaten</div>
+        <button class="btn btn-sekundaer btn-klein" onclick="regenData(true)">↻ Neu generieren</button>
       </div>
-      <div class="table-scroll">
+      <div class="tabellen-scroll">
         <table id="tbl"><thead id="thead"></thead><tbody id="tbody"></tbody></table>
       </div>
     </div>
   </section>
 
-  <!-- SCHRITT 2: DER BAUM -->
   <section>
-    <div class="sep"><span>2. Dein Entscheidungsmodell</span></div>
-    <div class="card">
-      <div class="card-head">
-        <div class="card-title">Interaktiver Baum</div>
+    <div class="abschnitt-trenner"><span class="abschnitt-label">2. Split-Analyse (Gini Gain)</span></div>
+    <div class="karte">
+      <div class="karte-kopf"><div class="karte-titel">Welches Merkmal trennt am besten?</div></div>
+      <div class="tabellen-scroll">
+        <table class="split-tabelle" id="split-tbl">
+          <thead>
+            <tr>
+              <th>Attribut</th><th>Gini vor Split</th><th>Weighted Gini</th><th>Gini Gain</th>
+              <th>Linker Ast</th><th>Rechter Ast</th>
+            </tr>
+          </thead>
+          <tbody id="split-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="abschnitt-trenner"><span class="abschnitt-label">3. Dein Entscheidungsmodell</span></div>
+    <div class="karte">
+      <div class="karte-kopf">
+        <div class="karte-titel">Interaktiver Baum</div>
         <div style="display:flex;gap:8px">
-          <button class="btn btn-primary" onclick="checkTree()">✓ Prüfen</button>
-          <button class="btn btn-danger btn-sm" onclick="resetTree()">↺ Reset</button>
+          <button class="btn btn-primaer" onclick="checkTree()">✓ Prüfen</button>
+          <button class="btn btn-gefahr btn-klein" onclick="resetTree()">↺ Reset</button>
         </div>
       </div>
       <div class="tree-outer" id="student-outer">
-        <div class="tree-inner" id="student-inner">
-          <svg id="student-svg"></svg>
-        </div>
+        <div class="tree-inner" id="student-inner"><svg id="student-svg"></svg></div>
       </div>
       <div id="rbanner" style="display:none" class="rbanner">
         <strong id="rb-title"></strong><br><span id="rb-body"></span>
       </div>
     </div>
 
-    <!-- LÖSUNG -->
-    <div id="sol-wrap" style="display:none;margin-top:40px">
-      <div class="sep"><span>Die berechnete Lösung (Gini-optimal)</span></div>
-      <div class="card" style="background:var(--bg0)">
+    <div id="sol-wrap" style="display:none;margin-top:32px">
+      <div class="abschnitt-trenner"><span class="abschnitt-label">Berechnete Lösung (Gini-optimal)</span></div>
+      <div class="karte" style="background:var(--hg-tief)">
         <div class="tree-outer" id="sol-outer">
-          <div class="tree-inner" id="sol-inner">
-            <svg id="sol-svg"></svg>
-          </div>
+          <div class="tree-inner" id="sol-inner"><svg id="sol-svg"></svg></div>
         </div>
       </div>
     </div>
   </section>
+
+  <footer class="seite-footer">
+    <p class="footer-text">Maschinelles Lernen · Entscheidungsbäume · Didaktisches Unterrichtsmaterial</p>
+  </footer>
 </div>
 
 <script>
-// ─── KONFIGURATION ────────────────────────────────────────────────────────────
+/* Baum-Builder: CART-ähnlicher Algorithmus mit Gini Gain.
+   Validierung prüft pro Knoten die optimale Entscheidung (Split oder Blatt). */
 const ATTRS = [
-  { key:'farbe',     label:'Farbe',      values:[{val:'hell',label:'☀️ Hell'},{val:'dunkel',label:'🌑 Dunkel'}] },
-  { key:'form',      label:'Form',       values:[{val:'kreis',label:'⭕ Kreis'},{val:'viereck',label:'🟦 Viereck'}] },
-  { key:'buchstabe', label:'Buchstabe',  values:[{val:'A',label:'🔤 A'},{val:'B',label:'🔤 B'}] }
+  { key:'farbe',     label:'Farbe',     values:[{val:'hell',label:'☀️ Hell'},{val:'dunkel',label:'🌑 Dunkel'}] },
+  { key:'form',      label:'Form',      values:[{val:'kreis',label:'⭕ Kreis'},{val:'viereck',label:'🟦 Viereck'}] },
+  { key:'buchstabe', label:'Buchstabe', values:[{val:'A',label:'🔤 A'},{val:'B',label:'🔤 B'}] }
 ];
 
-// Layout-Konstanten
-const NW = 148;   // Node-Breite
-const NH_NODE = 68; // Node-Höhe (mit Select)
-const NH_LEAF = 58; // Leaf-Höhe
-const ROW_GAP = 90; // vertikaler Abstand zwischen Ebenen
+const MAX_DEPTH = 4;
+const MIN_SAMPLES_SPLIT = 2;
+const GINI_EPS = 1e-10;
+const NW = 148;
+const NH_NODE = 68;
+const NH_LEAF = 58;
+const ROW_GAP = 90;
+const H_PAD = 20;
 
 let rows = [];
 let solution = null;
-// Studentenbaum: Array von Knoten-Objekten (flach, per ID)
 let snodes = {};
 let sroot = null;
+let nodeCounter = 0;
+let rngSeed = 42;
 
-// ─── DATEN ───────────────────────────────────────────────────────────────────
-function regenData() {
-  try {
-    const mainA = ATTRS[Math.floor(Math.random() * ATTRS.length)];
-    const mainV = mainA.values[0].val;
-    rows = [];
-    for (let i = 0; i < 8; i++) {
-      const r = {};
-      ATTRS.forEach(a => r[a.key] = a.values[Math.floor(Math.random() * 2)].val);
-      r.ergebnis = (r[mainA.key] === mainV)
-        ? (Math.random() < 0.15 ? 'nein' : 'ja')
-        : (Math.random() < 0.15 ? 'ja' : 'nein');
-      rows.push(r);
-    }
-    renderTable();
-    rebuildAll();
-  } catch(e) { console.error('regenData:', e); }
-}
-
-function renderTable() {
-  try {
-    document.getElementById('thead').innerHTML =
-      `<tr><th>#</th>${ATTRS.map(a=>`<th>${a.label}</th>`).join('')}<th>Ergebnis</th></tr>`;
-    document.getElementById('tbody').innerHTML = rows.map((r,i) => `
-      <tr>
-        <td>${i+1}</td>
-        ${ATTRS.map(a=>`<td><span class="chip-v">${a.values.find(v=>v.val===r[a.key]).label}</span></td>`).join('')}
-        <td>${r.ergebnis==='ja'
-          ? '<span class="badge-ja">😊 Happy</span>'
-          : '<span class="badge-nein">😞 Not Happy</span>'}</td>
-      </tr>`).join('');
-  } catch(e) { console.error('renderTable:', e); }
-}
-
-// ─── GINI-ALGORITHMUS ────────────────────────────────────────────────────────
-/*
-  Gini-Impurity für eine Menge:
-    G = 1 - sum_k(p_k^2)
-  Für binäres Label (ja/nein):
-    G = 1 - p_ja^2 - p_nein^2
-    = 2 * p_ja * (1 - p_ja)
-*/
-function gini(data) {
-  if (!data || data.length === 0) return 0;
-  const n = data.length;
-  const nJa = data.filter(d => d.ergebnis === 'ja').length;
-  const pJa = nJa / n;
-  const pNein = 1 - pJa;
-  return 1 - pJa * pJa - pNein * pNein;
-}
-
-/*
-  Gewichteter Gini nach Split auf Attribut a:
-    WG = (|left|/|total|)*G(left) + (|right|/|total|)*G(right)
-*/
-function weightedGini(data, attrKey) {
-  const attr = ATTRS.find(a => a.key === attrKey);
-  const v0 = attr.values[0].val;
-  const left  = data.filter(d => d[attrKey] === v0);
-  const right = data.filter(d => d[attrKey] !== v0);
-  if (left.length === 0 || right.length === 0) return Infinity; // kein Split möglich
-  return (left.length / data.length) * gini(left)
-       + (right.length / data.length) * gini(right);
-}
-
-/*
-  Baut den optimalen Entscheidungsbaum rekursiv.
-  Blatt, wenn:
-  - Gini = 0 (100% rein)
-  - Keine Attribute mehr verfügbar
-  Sonst: bestes Attribut (min gewichteter Gini) wählen.
-*/
-function buildTree(data, usedAttrs, depth) {
-  const g = gini(data);
-
-  // Abbruch: 100% rein
-  if (g === 0) {
-    const label = data[0].ergebnis;
-    return { type:'leaf', label, gv:0, n:data.length };
-  }
-
-  // Abbruch: alle Attribute verbraucht
-  const available = ATTRS.filter(a => !usedAttrs.has(a.key));
-  if (available.length === 0) {
-    const nJa = data.filter(d => d.ergebnis === 'ja').length;
-    const label = nJa >= data.length / 2 ? 'ja' : 'nein';
-    return { type:'leaf', label, gv:g, n:data.length, impure:true };
-  }
-
-  // Bestes Attribut suchen
-  let best = null, minWG = Infinity;
-  for (const a of available) {
-    const wg = weightedGini(data, a.key);
-    if (wg < minWG) { minWG = wg; best = a; }
-  }
-
-  // Falls kein sinnvoller Split (alle Splits liefern Infinity)
-  if (!best || minWG === Infinity) {
-    const nJa = data.filter(d => d.ergebnis === 'ja').length;
-    const label = nJa >= data.length / 2 ? 'ja' : 'nein';
-    return { type:'leaf', label, gv:g, n:data.length };
-  }
-
-  const v0 = best.values[0].val;
-  const leftData  = data.filter(d => d[best.key] === v0);
-  const rightData = data.filter(d => d[best.key] !== v0);
-  const nextUsed = new Set(usedAttrs);
-  nextUsed.add(best.key);
-
-  return {
-    type:'node', attr:best, gv:g, wg:minWG, n:data.length,
-    left:  buildTree(leftData,  nextUsed, depth + 1),
-    right: buildTree(rightData, nextUsed, depth + 1)
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
 }
 
-// ─── LAYOUT-BERECHNUNG ───────────────────────────────────────────────────────
-/*
-  Berechnet für jeden Knoten Position (_x, _y) und Breite (_w).
-  Bottom-up: Blatt-Breite = NW + 20px Abstand.
-  Eltern-Breite = Summe der Kinder-Breiten.
-*/
-const H_PAD = 20; // horizontaler Mindestabstand zwischen Knoten
+function initSeed() {
+  var m = location.search.match(/[?&]seed=(\d+)/);
+  rngSeed = m ? parseInt(m[1], 10) : Date.now() % 100000;
+}
+
+function regenData(inkrement) {
+  if (inkrement) rngSeed = (rngSeed + 1) % 100000;
+  var rand = mulberry32(rngSeed);
+  var mainA = ATTRS[Math.floor(rand() * ATTRS.length)];
+  var mainV = mainA.values[0].val;
+  var n = 10 + Math.floor(rand() * 3);
+  rows = [];
+  for (var i = 0; i < n; i++) {
+    var r = {};
+    ATTRS.forEach(function(a) { r[a.key] = a.values[Math.floor(rand() * 2)].val; });
+    r.ergebnis = (r[mainA.key] === mainV)
+      ? (rand() < 0.12 ? 'nein' : 'ja')
+      : (rand() < 0.12 ? 'ja' : 'nein');
+    rows.push(r);
+  }
+  renderTable();
+  renderSplitAnalysis();
+  rebuildAll();
+}
+
+function renderTable() {
+  document.getElementById('thead').innerHTML =
+    '<tr><th>#</th>' + ATTRS.map(function(a){ return '<th>' + a.label + '</th>'; }).join('') + '<th>Ergebnis</th></tr>';
+  document.getElementById('tbody').innerHTML = rows.map(function(r, i) {
+    return '<tr><td>' + (i+1) + '</td>' +
+      ATTRS.map(function(a) {
+        var v = a.values.find(function(x){ return x.val === r[a.key]; });
+        return '<td><span class="chip-v">' + v.label + '</span></td>';
+      }).join('') +
+      '<td>' + (r.ergebnis === 'ja' ? '<span class="badge-ja">😊 Happy</span>' : '<span class="badge-nein">😞 Not Happy</span>') + '</td></tr>';
+  }).join('');
+}
+
+function gini(data) {
+  if (!data || data.length === 0) return 0;
+  var n = data.length;
+  var nJa = data.filter(function(d){ return d.ergebnis === 'ja'; }).length;
+  var pJa = nJa / n;
+  var pNein = 1 - pJa;
+  return 1 - pJa * pJa - pNein * pNein;
+}
+
+function splitData(data, attrKey) {
+  var attr = ATTRS.find(function(a){ return a.key === attrKey; });
+  var v0 = attr.values[0].val;
+  return {
+    left: data.filter(function(d){ return d[attrKey] === v0; }),
+    right: data.filter(function(d){ return d[attrKey] !== v0; })
+  };
+}
+
+function weightedGini(data, attrKey) {
+  var parts = splitData(data, attrKey);
+  if (parts.left.length === 0 || parts.right.length === 0) return Infinity;
+  return (parts.left.length / data.length) * gini(parts.left)
+       + (parts.right.length / data.length) * gini(parts.right);
+}
+
+function giniGain(data, attrKey) {
+  var wg = weightedGini(data, attrKey);
+  if (wg === Infinity) return -Infinity;
+  return gini(data) - wg;
+}
+
+function majorityLabel(data) {
+  var nJa = data.filter(function(d){ return d.ergebnis === 'ja'; }).length;
+  return nJa >= data.length / 2 ? 'ja' : 'nein';
+}
+
+function bestSplitKeys(data) {
+  var maxGain = -Infinity;
+  var keys = [];
+  for (var i = 0; i < ATTRS.length; i++) {
+    var gain = giniGain(data, ATTRS[i].key);
+    if (gain > maxGain + 1e-9) {
+      maxGain = gain;
+      keys = [ATTRS[i].key];
+    } else if (Math.abs(gain - maxGain) < 1e-9 && gain > -Infinity) {
+      keys.push(ATTRS[i].key);
+    }
+  }
+  return { keys: keys, maxGain: maxGain };
+}
+
+function optimalDecision(data, depth) {
+  var g = gini(data);
+  if (g < GINI_EPS) {
+    return { action: 'leaf', label: data[0].ergebnis };
+  }
+  if (depth >= MAX_DEPTH || data.length < MIN_SAMPLES_SPLIT) {
+    return { action: 'leaf', label: majorityLabel(data) };
+  }
+  var best = bestSplitKeys(data);
+  if (best.maxGain <= 0) {
+    return { action: 'leaf', label: majorityLabel(data) };
+  }
+  return { action: 'split', keys: best.keys, gain: best.maxGain };
+}
+
+function buildTree(data, depth) {
+  var g = gini(data);
+  var decision = optimalDecision(data, depth);
+
+  if (decision.action === 'leaf') {
+    return {
+      type: 'leaf',
+      label: decision.label,
+      gv: g < GINI_EPS ? 0 : g,
+      n: data.length,
+      impure: g >= GINI_EPS
+    };
+  }
+
+  var attr = ATTRS.find(function(a) { return a.key === decision.keys[0]; });
+  var parts = splitData(data, attr.key);
+  return {
+    type: 'node', attr: attr, gv: g, wg: weightedGini(data, attr.key),
+    gain: decision.gain, n: data.length,
+    left: buildTree(parts.left, depth + 1),
+    right: buildTree(parts.right, depth + 1)
+  };
+}
+
+function renderSplitAnalysis() {
+  var parentG = gini(rows);
+  var analyses = ATTRS.map(function(a) {
+    var parts = splitData(rows, a.key);
+    var wg = weightedGini(rows, a.key);
+    var gain = giniGain(rows, a.key);
+    return { attr:a, parentG:parentG, wg:wg, gain:gain, left:parts.left, right:parts.right };
+  }).filter(function(x){ return x.wg !== Infinity; });
+
+  var bestGain = analyses.length ? Math.max.apply(null, analyses.map(function(x){ return x.gain; })) : -1;
+
+  document.getElementById('split-tbody').innerHTML = analyses.map(function(x) {
+    var isBest = Math.abs(x.gain - bestGain) < 1e-9 && bestGain > 0;
+    return '<tr class="' + (isBest ? 'best-split' : '') + '">' +
+      '<td>' + x.attr.label + (isBest ? ' ★' : '') + '</td>' +
+      '<td>' + x.parentG.toFixed(3) + '</td>' +
+      '<td>' + x.wg.toFixed(3) + '</td>' +
+      '<td class="gain-wert">' + (x.gain === -Infinity ? '—' : x.gain.toFixed(3)) + '</td>' +
+      '<td>' + x.left.length + ' Zeilen (Gini ' + gini(x.left).toFixed(3) + ')</td>' +
+      '<td>' + x.right.length + ' Zeilen (Gini ' + gini(x.right).toFixed(3) + ')</td></tr>';
+  }).join('');
+}
 
 function computeLayout(node, depth) {
   node._depth = depth;
@@ -329,7 +417,7 @@ function computeLayout(node, depth) {
     node._subtreeW = NW + H_PAD;
     return;
   }
-  computeLayout(node.left,  depth + 1);
+  computeLayout(node.left, depth + 1);
   computeLayout(node.right, depth + 1);
   node._subtreeW = node.left._subtreeW + node.right._subtreeW;
 }
@@ -338,41 +426,28 @@ function assignXY(node, xCenter, yTop) {
   node._x = xCenter - NW / 2;
   node._y = yTop;
   if (node.type === 'leaf' || node.pruned) return;
-  const leftCenter  = xCenter - node.right._subtreeW / 2;
-  const rightCenter = xCenter + node.left._subtreeW  / 2;
-  assignXY(node.left,  leftCenter,  yTop + NH_NODE + ROW_GAP);
-  assignXY(node.right, rightCenter, yTop + NH_NODE + ROW_GAP);
+  assignXY(node.left, xCenter - node.right._subtreeW / 2, yTop + NH_NODE + ROW_GAP);
+  assignXY(node.right, xCenter + node.left._subtreeW / 2, yTop + NH_NODE + ROW_GAP);
 }
 
 function treeSize(node) {
-  // Gibt { width, height } des gesamten Baums zurück
-  let maxY = 0, minX = Infinity, maxX = -Infinity;
+  var maxY = 0, minX = Infinity, maxX = -Infinity;
   function walk(n) {
-    const left  = n._x;
-    const right = n._x + NW;
-    const bottom = n._y + (n.type === 'leaf' || n.pruned ? NH_LEAF : NH_NODE);
-    if (left  < minX) minX = left;
-    if (right > maxX) maxX = right;
+    if (n._x < minX) minX = n._x;
+    if (n._x + NW > maxX) maxX = n._x + NW;
+    var bottom = n._y + (n.type === 'leaf' || n.pruned ? NH_LEAF : NH_NODE);
     if (bottom > maxY) maxY = bottom;
     if (n.type !== 'leaf' && !n.pruned) { walk(n.left); walk(n.right); }
   }
   walk(node);
-  return { width: maxX - minX, height: maxY, minX };
+  return { width: maxX - minX, height: maxY, minX:minX };
 }
 
-// ─── STUDENTEN-BAUM: STRUKTUR ─────────────────────────────────────────────────
-/*
-  Baut einen vollständigen Binärbaum der Tiefe = ATTRS.length.
-  Jeder Knoten kann:
-  - Ein Attribut wählen (dann werden Kinder angezeigt)
-  - Direkt eine Klasse (ja/nein) vergeben → Ast wird abgeschnitten (pruned)
-*/
-let nodeCounter = 0;
 function makeStudentNode(depth) {
-  const id = 'sn_' + (nodeCounter++);
-  const node = { id, depth, type:'node', merkmal:null, answer:null, pruned:false };
+  var id = 'sn_' + (nodeCounter++);
+  var node = { id:id, depth:depth, type:'node', merkmal:null, answer:null, pruned:false };
   if (depth < ATTRS.length) {
-    node.left  = makeStudentNode(depth + 1);
+    node.left = makeStudentNode(depth + 1);
     node.right = makeStudentNode(depth + 1);
   } else {
     node.type = 'leaf';
@@ -389,203 +464,156 @@ function buildStudentTree() {
 
 function registerNodes(n) {
   snodes[n.id] = n;
-  if (n.type === 'node' && n.left) {
-    registerNodes(n.left);
-    registerNodes(n.right);
-  }
+  if (n.type === 'node' && n.left) { registerNodes(n.left); registerNodes(n.right); }
 }
 
-// ─── STUDENTEN-BAUM: RENDER ───────────────────────────────────────────────────
+function getStudentDataAtNode(nodeId) {
+  var path = [];
+  var cur = snodes[nodeId];
+  while (cur) {
+    path.unshift(cur);
+    cur = findParent(sroot, cur.id);
+  }
+  var data = rows.slice();
+  for (var i = 0; i < path.length - 1; i++) {
+    var p = path[i];
+    if (!p.merkmal) break;
+    var attr = ATTRS.find(function(a){ return a.key === p.merkmal; });
+    var child = path[i + 1];
+    var v0 = attr.values[0].val;
+    var isLeft = child === p.left;
+    data = data.filter(function(d) {
+      return isLeft ? d[p.merkmal] === v0 : d[p.merkmal] !== v0;
+    });
+  }
+  return data;
+}
+
+function findParent(root, id) {
+  if (!root || root.type === 'leaf') return null;
+  if (root.left && root.left.id === id) return root;
+  if (root.right && root.right.id === id) return root;
+  return findParent(root.left, id) || findParent(root.right, id);
+}
+
 function renderStudentTree() {
-  try {
-    const inner = document.getElementById('student-inner');
-    const svg   = document.getElementById('student-svg');
-
-    // Alten DOM leeren
-    inner.querySelectorAll('.tn,.ln').forEach(el => el.remove());
-    svg.innerHTML = '';
-
-    // Layout berechnen
-    markPruned(sroot);
-    computeLayout(sroot, 0);
-    const totalW = Math.max(sroot._subtreeW, NW + 40);
-    assignXY(sroot, totalW / 2, 20);
-
-    const sz = treeSize(sroot);
-    const W  = Math.max(sz.width + 40, 300);
-    const offsetX = -sz.minX + 20; // Verschiebung damit alle Knoten sichtbar
-
-    inner.style.width  = (W) + 'px';
-    inner.style.height = (sz.height + 30) + 'px';
-    svg.setAttribute('width',  W);
-    svg.setAttribute('height', sz.height + 30);
-
-    drawStudentNodeDOM(sroot, null, inner, svg, offsetX);
-  } catch(e) { console.error('renderStudentTree:', e); }
-}
-
-function markPruned(n) {
-  if (!n) return;
-  // Ein Knoten ist "pruned", wenn sein parent eine direkte Antwort gegeben hat.
-  // Das wird beim Rendern über parent.pruned gesetzt.
-  if (n.type === 'node') {
-    markPruned(n.left);
-    markPruned(n.right);
-  }
+  var inner = document.getElementById('student-inner');
+  var svg = document.getElementById('student-svg');
+  inner.querySelectorAll('.tn,.ln').forEach(function(el){ el.remove(); });
+  svg.innerHTML = '';
+  computeLayout(sroot, 0);
+  var totalW = Math.max(sroot._subtreeW, NW + 40);
+  assignXY(sroot, totalW / 2, 20);
+  var sz = treeSize(sroot);
+  var W = Math.max(sz.width + 40, 300);
+  var offsetX = -sz.minX + 20;
+  inner.style.width = W + 'px';
+  inner.style.height = (sz.height + 30) + 'px';
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', sz.height + 30);
+  drawStudentNodeDOM(sroot, null, inner, svg, offsetX);
 }
 
 function drawStudentNodeDOM(node, parent, container, svg, ox) {
-  const x = node._x + ox;
-  const y = node._y;
-
-  // Linie zum Eltern
+  var x = node._x + ox;
+  var y = node._y;
   if (parent) {
-    const px = parent._x + ox + NW / 2;
-    const py = parent._y + NH_NODE;
-    const cx = x + NW / 2;
-    const cy = y;
-    drawLine(svg, px, py, cx, cy, edgeLabel(node, parent));
+    drawLine(svg, parent._x + ox + NW/2, parent._y + NH_NODE, x + NW/2, y, edgeLabel(node, parent));
   }
-
-  if (node.pruned) {
-    // Wird nicht gerendert (abgeschnitten durch Elternknoten)
-    return;
-  }
+  if (node.pruned) return;
 
   if (node.type === 'leaf') {
-    // Blatt am untersten Level → nur Klassen-Select
     renderLeafNode(node, x, y, container);
     return;
   }
 
-  // Interner Knoten
-  const div = document.createElement('div');
+  var div = document.createElement('div');
   div.className = 'tn' + (node.depth === 0 ? ' tn-root' : '');
   div.id = 'dom_' + node.id;
-  div.style.left   = x + 'px';
-  div.style.top    = y + 'px';
-  div.style.width  = NW + 'px';
-
-  // Auswahlmöglichkeit: Attribut ODER direkte Klasse
-  const attrOptions = ATTRS.map(a =>
-    `<option value="attr:${a.key}" ${node.merkmal === a.key ? 'selected' : ''}>${a.label}</option>`
-  ).join('');
-
-  div.innerHTML = `
-    <span class="tn-lbl">Aufteilen oder Klasse?</span>
-    <select onchange="onStudentNodeChange('${node.id}', this.value)">
-      <option value="">-- ? --</option>
-      <optgroup label="Attribut wählen">${attrOptions}</optgroup>
-      <optgroup label="Direkte Klasse">
-        <option value="class:ja"  ${node.answer==='ja'  && node.pruned===false && node.merkmal===null ? 'selected':''}>😊 Happy</option>
-        <option value="class:nein"${node.answer==='nein'&& node.pruned===false && node.merkmal===null ? 'selected':''}>😞 Not Happy</option>
-      </optgroup>
-    </select>`;
+  div.style.cssText = 'left:' + x + 'px;top:' + y + 'px;width:' + NW + 'px';
+  var attrOptions = ATTRS.map(function(a) {
+    return '<option value="attr:' + a.key + '"' + (node.merkmal === a.key ? ' selected' : '') + '>' + a.label + '</option>';
+  }).join('');
+  div.innerHTML = '<span class="tn-lbl">Aufteilen oder Klasse?</span>' +
+    '<select onchange="onStudentNodeChange(\'' + node.id + '\', this.value)">' +
+    '<option value="">-- ? --</option><optgroup label="Attribut">' + attrOptions + '</optgroup>' +
+    '<optgroup label="Direkte Klasse">' +
+    '<option value="class:ja"' + (node.answer==='ja'&&!node.merkmal?' selected':'') + '>😊 Happy</option>' +
+    '<option value="class:nein"' + (node.answer==='nein'&&!node.merkmal?' selected':'') + '>😞 Not Happy</option></optgroup></select>';
   container.appendChild(div);
 
-  // Nur Kinder rendern wenn Attribut gewählt und nicht direkte Klasse
   if (node.merkmal && !node.answer) {
-    drawStudentNodeDOM(node.left,  node, container, svg, ox);
+    drawStudentNodeDOM(node.left, node, container, svg, ox);
     drawStudentNodeDOM(node.right, node, container, svg, ox);
   }
 }
 
 function renderLeafNode(node, x, y, container) {
-  const div = document.createElement('div');
-  const cls = node.answer === 'ja' ? 'ln-ja' : node.answer === 'nein' ? 'ln-nein' : 'ln-unknown';
-  const lblCls = node.answer === 'ja' ? 'ln-lbl-ja' : node.answer === 'nein' ? 'ln-lbl-nein' : 'ln-lbl-unknown';
-  div.className = `ln ${cls}`;
+  var div = document.createElement('div');
+  div.className = 'ln ' + (node.answer === 'ja' ? 'ln-ja' : node.answer === 'nein' ? 'ln-nein' : 'ln-unknown');
   div.id = 'dom_' + node.id;
-  div.style.left  = x + 'px';
-  div.style.top   = y + 'px';
-  div.style.width = NW + 'px';
-  div.innerHTML = `
-    <span class="ln-lbl ${lblCls}">Klasse</span>
-    <select onchange="onStudentLeafChange('${node.id}', this.value)">
-      <option value="">-- ? --</option>
-      <option value="ja"  ${node.answer==='ja'  ?'selected':''}>😊 Happy</option>
-      <option value="nein"${node.answer==='nein'?'selected':''}>😞 Not Happy</option>
-    </select>`;
+  div.style.cssText = 'left:' + x + 'px;top:' + y + 'px;width:' + NW + 'px';
+  div.innerHTML = '<span class="ln-lbl">Klasse</span><select onchange="onStudentLeafChange(\'' + node.id + '\', this.value)">' +
+    '<option value="">-- ? --</option><option value="ja"' + (node.answer==='ja'?' selected':'') + '>😊 Happy</option>' +
+    '<option value="nein"' + (node.answer==='nein'?' selected':'') + '>😞 Not Happy</option></select>';
   container.appendChild(div);
 }
 
 function edgeLabel(node, parent) {
   if (!parent || !parent.merkmal) return '?';
-  const a = ATTRS.find(a => a.key === parent.merkmal);
-  if (!a) return '?';
+  var a = ATTRS.find(function(x){ return x.key === parent.merkmal; });
   return node === parent.left ? a.values[0].label : a.values[1].label;
 }
 
 function drawLine(svg, x1, y1, x2, y2, txt) {
-  const ns = 'http://www.w3.org/2000/svg';
-  const l = document.createElementNS(ns, 'line');
-  l.setAttribute('x1', x1); l.setAttribute('y1', y1);
-  l.setAttribute('x2', x2); l.setAttribute('y2', y2);
-  l.setAttribute('stroke', 'rgba(139,92,246,0.35)');
-  l.setAttribute('stroke-width', '1.5');
+  var ns = 'http://www.w3.org/2000/svg';
+  var l = document.createElementNS(ns, 'line');
+  l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2);
+  l.setAttribute('stroke', 'rgba(139,92,246,0.35)'); l.setAttribute('stroke-width', '1.5');
   svg.appendChild(l);
   if (txt && txt !== '?') {
-    const t = document.createElementNS(ns, 'text');
-    const mx = (x1 + x2) / 2;
-    const my = (y1 + y2) / 2;
-    t.setAttribute('x', mx + 8);
-    t.setAttribute('y', my);
-    t.setAttribute('fill', 'var(--ac2)');
-    t.setAttribute('font-size', '10');
-    t.setAttribute('font-weight', 'bold');
-    t.setAttribute('font-family', "'JetBrains Mono', monospace");
-    t.setAttribute('dominant-baseline', 'central');
+    var t = document.createElementNS(ns, 'text');
+    t.setAttribute('x', (x1+x2)/2 + 8); t.setAttribute('y', (y1+y2)/2);
+    t.setAttribute('fill', '#a78bfa'); t.setAttribute('font-size', '10');
+    t.setAttribute('font-weight', 'bold'); t.setAttribute('dominant-baseline', 'central');
     t.textContent = txt;
     svg.appendChild(t);
   }
 }
 
-// ─── EVENTS ───────────────────────────────────────────────────────────────────
 function onStudentNodeChange(nodeId, value) {
-  try {
-    const node = snodes[nodeId];
-    if (!node) return;
-    if (value.startsWith('attr:')) {
-      node.merkmal = value.replace('attr:', '');
-      node.answer = null;
-      setPrunedChildren(node, false);
-    } else if (value.startsWith('class:')) {
-      node.answer = value.replace('class:', '');
-      node.merkmal = null;
-      setPrunedChildren(node, true);
-    } else {
-      node.merkmal = null;
-      node.answer = null;
-      setPrunedChildren(node, false);
-    }
-    renderStudentTree();
-    document.getElementById('rbanner').style.display = 'none';
-  } catch(e) { console.error('onStudentNodeChange:', e); }
+  var node = snodes[nodeId];
+  if (!node) return;
+  if (value.indexOf('attr:') === 0) {
+    node.merkmal = value.replace('attr:', '');
+    node.answer = null;
+    setPrunedChildren(node, false);
+  } else if (value.indexOf('class:') === 0) {
+    node.answer = value.replace('class:', '');
+    node.merkmal = null;
+    setPrunedChildren(node, true);
+  } else {
+    node.merkmal = null; node.answer = null;
+    setPrunedChildren(node, false);
+  }
+  renderStudentTree();
+  document.getElementById('rbanner').style.display = 'none';
 }
 
 function onStudentLeafChange(nodeId, value) {
-  try {
-    const node = snodes[nodeId];
-    if (!node) return;
-    node.answer = value || null;
-    rerenderLeafStyle(node);
-    document.getElementById('rbanner').style.display = 'none';
-  } catch(e) { console.error('onStudentLeafChange:', e); }
-}
-
-function rerenderLeafStyle(node) {
-  const el = document.getElementById('dom_' + node.id);
-  if (!el) return;
-  el.className = 'ln ' + (node.answer === 'ja' ? 'ln-ja' : node.answer === 'nein' ? 'ln-nein' : 'ln-unknown');
-  const lbl = el.querySelector('.ln-lbl');
-  if (lbl) lbl.className = 'ln-lbl ' + (node.answer === 'ja' ? 'ln-lbl-ja' : node.answer === 'nein' ? 'ln-lbl-nein' : 'ln-lbl-unknown');
+  var node = snodes[nodeId];
+  if (!node) return;
+  node.answer = value || null;
+  var el = document.getElementById('dom_' + node.id);
+  if (el) {
+    el.className = 'ln ' + (node.answer === 'ja' ? 'ln-ja' : node.answer === 'nein' ? 'ln-nein' : 'ln-unknown');
+  }
+  document.getElementById('rbanner').style.display = 'none';
 }
 
 function setPrunedChildren(node, pruned) {
   if (!node.left) return;
-  node.left.pruned  = pruned;
-  node.right.pruned = pruned;
-  setPrunedAll(node.left,  pruned);
+  setPrunedAll(node.left, pruned);
   setPrunedAll(node.right, pruned);
 }
 
@@ -594,149 +622,134 @@ function setPrunedAll(node, pruned) {
   if (node.left) { setPrunedAll(node.left, pruned); setPrunedAll(node.right, pruned); }
 }
 
-// ─── PRÜFEN ───────────────────────────────────────────────────────────────────
 function checkTree() {
-  try {
-    document.querySelectorAll('.tn,.ln').forEach(el => el.classList.remove('tn-ok','tn-fail'));
-    const result = validateNode(sroot, solution);
-    const allOk = result.allOk;
-
-    const rb = document.getElementById('rbanner');
-    rb.style.display = 'block';
-    rb.className = 'rbanner ' + (allOk ? 'ok' : 'fail');
-    document.getElementById('rb-title').textContent = allOk ? '🎉 Hervorragend!' : '❌ Da stimmt was nicht...';
-    document.getElementById('rb-body').textContent  = allOk
-      ? 'Dein Baum ist Gini-optimal!'
-      : 'Vergleiche mit der berechneten Lösung unten.';
-
-    renderSolutionTree();
-    document.getElementById('sol-wrap').style.display = 'block';
-  } catch(e) { console.error('checkTree:', e); }
+  document.querySelectorAll('.tn,.ln').forEach(function(el){ el.classList.remove('tn-ok','tn-fail'); });
+  var result = validateStudentNode(sroot, rows, 0);
+  var rb = document.getElementById('rbanner');
+  rb.style.display = 'block';
+  rb.className = 'rbanner ' + (result.allOk ? 'ok' : 'fail');
+  document.getElementById('rb-title').textContent = result.allOk ? '🎉 Hervorragend!' : '❌ Da stimmt was nicht...';
+  document.getElementById('rb-body').textContent = result.allOk
+    ? 'Dein Baum ist Gini-optimal!'
+    : (result.hint || 'Vergleiche mit der berechneten Lösung unten.');
+  renderSolutionTree();
+  document.getElementById('sol-wrap').style.display = 'block';
 }
 
-function validateNode(s, sol) {
-  const el = document.getElementById('dom_' + s.id);
+function validateStudentNode(s, data, depth) {
+  var el = document.getElementById('dom_' + s.id);
   if (!el) return { allOk: true };
 
-  el.classList.remove('tn-ok','tn-fail');
+  el.classList.remove('tn-ok', 'tn-fail');
+  var opt = optimalDecision(data, depth);
 
-  // Wenn Nutzer direkte Klasse vergeben hat (pruning)
   if (s.answer && !s.merkmal) {
-    const ok = sol.type === 'leaf' && s.answer === sol.label;
-    // Auch ok, wenn nicht 100% rein aber Mehrheitsklasse stimmt
-    const majorityOk = sol.type === 'leaf' ? s.answer === sol.label : false;
-    el.classList.add(ok || majorityOk ? 'tn-ok' : 'tn-fail');
-    return { allOk: ok || majorityOk };
-  }
-
-  if (sol.type === 'leaf') {
-    // Lösung ist Blatt → Student sollte auch Klasse geben
-    if (s.type === 'leaf') {
-      const ok = s.answer === sol.label;
-      el.classList.add(ok ? 'tn-ok' : 'tn-fail');
-      return { allOk: ok };
-    } else {
-      // Student hat Knoten, Lösung Blatt → falsch
+    if (opt.action !== 'leaf') {
       el.classList.add('tn-fail');
-      return { allOk: false };
+      return { allOk: false, hint: 'An diesem Knoten wäre ein Split mit positivem Gini Gain besser als direktes Pruning.' };
     }
+    var pruneOk = s.answer === opt.label;
+    el.classList.add(pruneOk ? 'tn-ok' : 'tn-fail');
+    return { allOk: pruneOk, hint: pruneOk ? '' : 'Die gewählte Klasse passt nicht zur optimalen Mehrheitsentscheidung.' };
   }
 
-  // Lösung ist Knoten
-  if (s.type === 'leaf' || !s.merkmal) {
+  if (s.type === 'leaf') {
+    if (!s.answer) {
+      el.classList.add('tn-fail');
+      return { allOk: false, hint: 'Alle Blätter brauchen eine Klassenzuordnung.' };
+    }
+    if (opt.action === 'split') {
+      el.classList.add('tn-fail');
+      return { allOk: false, hint: 'Hier wäre weiteres Aufteilen optimal — kein Blatt.' };
+    }
+    var leafOk = s.answer === opt.label;
+    el.classList.add(leafOk ? 'tn-ok' : 'tn-fail');
+    return { allOk: leafOk, hint: leafOk ? '' : 'Die Blatt-Klasse stimmt nicht mit der optimalen Lösung überein.' };
+  }
+
+  if (!s.merkmal) {
     el.classList.add('tn-fail');
-    return { allOk: false };
+    return { allOk: false, hint: 'Jeder innere Knoten braucht ein Merkmal oder eine direkte Klassenzuordnung.' };
   }
 
-  const attrOk = s.merkmal === sol.attr.key;
-  el.classList.add(attrOk ? 'tn-ok' : 'tn-fail');
-  if (!attrOk) return { allOk: false };
+  if (opt.action === 'leaf') {
+    el.classList.add('tn-fail');
+    return { allOk: false, hint: 'Die Daten sind hier schon optimal als Blatt — kein Split nötig.' };
+  }
 
-  const leftResult  = validateNode(s.left,  sol.left);
-  const rightResult = validateNode(s.right, sol.right);
-  return { allOk: leftResult.allOk && rightResult.allOk };
+  var attrOk = opt.keys.indexOf(s.merkmal) !== -1;
+  el.classList.add(attrOk ? 'tn-ok' : 'tn-fail');
+  if (!attrOk) {
+    return { allOk: false, hint: 'Dieses Merkmal hat nicht den höchsten Gini Gain für diese Datenmenge.' };
+  }
+
+  var parts = splitData(data, s.merkmal);
+  var leftR = validateStudentNode(s.left, parts.left, depth + 1);
+  if (!leftR.allOk) return leftR;
+  return validateStudentNode(s.right, parts.right, depth + 1);
 }
 
-// ─── LÖSUNGS-BAUM RENDERN ────────────────────────────────────────────────────
 function renderSolutionTree() {
-  try {
-    const inner = document.getElementById('sol-inner');
-    const svg   = document.getElementById('sol-svg');
-    inner.querySelectorAll('.sn').forEach(el => el.remove());
-    svg.innerHTML = '';
-
-    computeLayout(solution, 0);
-    const totalW = Math.max(solution._subtreeW, NW + 40);
-    assignXY(solution, totalW / 2, 20);
-    const sz = treeSize(solution);
-    const W  = Math.max(sz.width + 40, 300);
-    const offsetX = -sz.minX + 20;
-
-    inner.style.width  = W + 'px';
-    inner.style.height = (sz.height + 30) + 'px';
-    svg.setAttribute('width',  W);
-    svg.setAttribute('height', sz.height + 30);
-
-    drawSolNode(solution, null, inner, svg, offsetX);
-  } catch(e) { console.error('renderSolutionTree:', e); }
+  var inner = document.getElementById('sol-inner');
+  var svg = document.getElementById('sol-svg');
+  inner.querySelectorAll('.sn').forEach(function(el){ el.remove(); });
+  svg.innerHTML = '';
+  computeLayout(solution, 0);
+  var totalW = Math.max(solution._subtreeW, NW + 40);
+  assignXY(solution, totalW / 2, 20);
+  var sz = treeSize(solution);
+  var offsetX = -sz.minX + 20;
+  inner.style.width = Math.max(sz.width + 40, 300) + 'px';
+  inner.style.height = (sz.height + 30) + 'px';
+  svg.setAttribute('width', inner.style.width);
+  svg.setAttribute('height', sz.height + 30);
+  drawSolNode(solution, null, inner, svg, offsetX);
 }
 
 function drawSolNode(node, parent, container, svg, ox) {
-  const x = node._x + ox;
-  const y = node._y;
-
+  var x = node._x + ox;
+  var y = node._y;
   if (parent) {
-    const px = parent._x + ox + NW / 2;
-    const py = parent._y + NH_NODE;
-    const cx = x + NW / 2;
-    const cy = y;
-    const label = node === parent.left ? parent.attr.values[0].label : parent.attr.values[1].label;
-    drawLine(svg, px, py, cx, cy, label);
+    var lbl = node === parent.left ? parent.attr.values[0].label : parent.attr.values[1].label;
+    drawLine(svg, parent._x + ox + NW/2, parent._y + NH_NODE, x + NW/2, y, lbl);
   }
-
-  const div = document.createElement('div');
-  div.style.left  = x + 'px';
-  div.style.top   = y + 'px';
-  div.style.width = NW + 'px';
-
+  var div = document.createElement('div');
+  div.style.cssText = 'left:' + x + 'px;top:' + y + 'px;width:' + NW + 'px';
   if (node.type === 'leaf') {
-    div.className = `sn ${node.label === 'ja' ? 'sn-leaf-ja' : 'sn-leaf-nein'}`;
-    const impureNote = node.impure ? `<div class="sn-meta" style="color:var(--red)">Gini: ${node.gv.toFixed(3)} (unrein)</div>` : '';
-    div.innerHTML = `<strong>${node.label === 'ja' ? '😊 Happy' : '😞 Not Happy'}</strong><div class="sn-meta">n = ${node.n}</div>${impureNote}`;
+    div.className = 'sn ' + (node.label === 'ja' ? 'sn-leaf-ja' : 'sn-leaf-nein');
+    var impureNote = node.impure ? '<div class="sn-meta" style="color:var(--red)">Gini: ' + node.gv.toFixed(3) + ' (Mehrheit)</div>' : '';
+    div.innerHTML = '<strong>' + (node.label === 'ja' ? '😊 Happy' : '😞 Not Happy') + '</strong>' +
+      '<div class="sn-meta">n = ' + node.n + '</div>' + impureNote;
   } else {
     div.className = 'sn';
-    div.innerHTML = `<div class="sn-feat">${node.attr.label}</div>
-      <div class="sn-meta">Gini: ${node.gv.toFixed(3)}</div>
-      <div class="sn-meta">WG nach Split: ${node.wg.toFixed(3)}</div>`;
+    div.innerHTML = '<div class="sn-feat">' + node.attr.label + '</div>' +
+      '<div class="sn-meta">Gini: ' + node.gv.toFixed(3) + '</div>' +
+      '<div class="sn-meta">Gini Gain: ' + (node.gain != null ? node.gain.toFixed(3) : '—') + '</div>';
   }
   container.appendChild(div);
-
   if (node.type === 'node') {
-    drawSolNode(node.left,  node, container, svg, ox);
+    drawSolNode(node.left, node, container, svg, ox);
     drawSolNode(node.right, node, container, svg, ox);
   }
 }
 
-// ─── ALLGEMEIN ────────────────────────────────────────────────────────────────
 function rebuildAll() {
-  try {
-    solution = buildTree(rows, new Set(), 0);
-    buildStudentTree();
-    renderStudentTree();
-    document.getElementById('rbanner').style.display  = 'none';
-    document.getElementById('sol-wrap').style.display = 'none';
-  } catch(e) { console.error('rebuildAll:', e); }
+  solution = buildTree(rows, 0);
+  buildStudentTree();
+  renderStudentTree();
+  document.getElementById('rbanner').style.display = 'none';
+  document.getElementById('sol-wrap').style.display = 'none';
 }
 
 function resetTree() {
   buildStudentTree();
   renderStudentTree();
-  document.getElementById('rbanner').style.display  = 'none';
+  document.getElementById('rbanner').style.display = 'none';
   document.getElementById('sol-wrap').style.display = 'none';
 }
 
-// Start
-regenData();
+initSeed();
+regenData(false);
 </script>
 </body>
 </html>
