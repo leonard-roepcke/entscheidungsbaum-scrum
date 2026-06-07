@@ -775,3 +775,15 @@ regenData(false);
 </script>
 </body>
 </html>
+
+
+
+
+Kontext / Regeln für zukünftige Änderungen:
+- Split-Analyse (Gini Impurity pro Knoten) und Lösungsbaum gemeinsam in #sol-wrap — erst nach „Prüfen“ sichtbar.
+- Split-Analyse rekursiv über den Lösungsbaum: collectSplitSections() + renderSolutionSplitAnalysis() in checkTree().
+- Pro innerem Knoten eine eigene Tabelle (#split-sections) mit Ebene, Pfad, n, Gini und Merkmalsvergleich.
+- Bester Split = niedrigster gewichteter Gini (★); gewähltes Merkmal der Lösung mit „→ gewählt“ markieren.
+- Kein Gini Gain — nur Gini Impurity.
+- Im Lösungsbaum: Gini Impurity nur an Blattknoten, nicht an inneren Knoten.
+- Seitenstruktur: 1. Datentabelle · 2. Interaktiver Baum · (nach Prüfen) Split-Analyse pro Ebene + Lösung.
