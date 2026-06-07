@@ -2063,3 +2063,10 @@
 </script>
 
 </html>
+
+
+
+
+Kontext / Regeln für zukünftige Änderungen (Stand: Gini-Impurity-only):
+- Kein Gini Gain erwähnen — nur „Unreinheit am stärksten reduziert“.
+- Keine Information Gain / Gini Gain Begriffe in didaktischen Texten.

@@ -31,5 +31,5 @@ Der Lernpfad speichert den Fortschritt lokal im Browser (`localStorage`).
 ## Entscheidungsbaum-Seite
 
 - URL-Parameter `?seed=42` für reproduzierbare Datensätze
-- Split-Analyse-Tabelle zeigt Gini Gain pro Merkmal
-- Algorithmus: CART-ähnlich mit Gini Gain, max. Tiefe 4, Mindest-Split-Größe 2
+- Split-Analyse-Tabelle zeigt Gini Impurity pro Merkmal (niedrigster gewichteter Gini = bester Split)
+- Algorithmus: CART-ähnlich mit Gini Impurity, max. Tiefe 4, Mindest-Split-Größe 2

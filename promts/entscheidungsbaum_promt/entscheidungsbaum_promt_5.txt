@@ -747,3 +747,13 @@ regenData(false);
 </script>
 </body>
 </html>
+
+
+
+
+Kontext / Regeln für zukünftige Änderungen (Stand: Gini-Impurity-only):
+- Kein Gini Gain im gesamten Projekt — nur Gini Impurity verwenden.
+- Bester Split = niedrigster gewichteter Gini nach dem Split (nicht maximierter Gain).
+- Im Lösungsbaum: Gini Impurity nur an Blattknoten anzeigen, nicht an inneren Knoten.
+- Split-Analyse: Spalten Attribut | Gini vor Split | Gew. Gini nach Split | Linker Ast | Rechter Ast.
+- Lernpfad und gini-impurity.html folgen derselben Terminologie.

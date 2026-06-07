@@ -746,3 +746,10 @@ renderAktuellenSchritt();
 </script>
 </body>
 </html>
+
+
+
+
+Kontext / Regeln für zukünftige Änderungen (Stand: Gini-Impurity-only):
+- Kein Gini Gain — Schritt 7/8 erklären den niedrigsten gewichteten Gini.
+- Quiz: Entscheidungsbaum minimiert Gini Impurity beim Splitten.
