@@ -746,3 +746,12 @@ regenData(false);
 </script>
 </body>
 </html>
+
+
+
+
+Kontext / Regeln für zukünftige Änderungen:
+- Split-Analyse (vorberechnete Gini Impuritys) und Lösungsbaum gemeinsam in #sol-wrap — erst nach „Prüfen“ sichtbar.
+- Kein Gini Gain — nur Gini Impurity; bester Split = niedrigster gewichteter Gini.
+- Im Lösungsbaum: Gini Impurity nur an Blattknoten, nicht an inneren Knoten.
+- Seitenstruktur: 1. Datentabelle · 2. Interaktiver Baum · (nach Prüfen) Split-Analyse + Lösung.
