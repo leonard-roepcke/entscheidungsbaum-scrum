@@ -1853,7 +1853,7 @@ orientiere dich dort an der Code bzw. Kommentar struktur. Design und generelle A
      und gib der Seite ein komplett anderes Aussehen.
   
   2. Neues Thema hinzufügen: Kopiere eine .thema-karte und erstelle
-     einen Eintrag über "Information Gain" oder "Random Forests".
+     einen Eintrag über "Random Forests" oder vertiefende Gini-Impurity-Beispiele.
   
   3. Dark/Light-Mode-Umschalter: Füge einen Button hinzu, der
      per JavaScript die Farbvariablen zwischen Dark und Light wechselt.
