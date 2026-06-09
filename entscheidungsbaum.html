@@ -106,7 +106,8 @@ body{
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{padding:12px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--akzent-hell);background:rgba(139,92,246,.05)}
 td{padding:10px 12px;color:var(--text-zweig);border-bottom:1px solid var(--hg-hell)}
-.chip-v{padding:2px 8px;background:var(--hg-hell);border-radius:4px;border:1px solid var(--rahmen);color:var(--text-haupt)}
+.chip-v{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;background:var(--hg-hell);border-radius:4px;border:1px solid var(--rahmen);color:var(--text-haupt)}
+.wert-chip-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,.18);box-shadow:0 0 4px rgba(0,0,0,.35)}
 .badge-ja{color:var(--grn);font-weight:bold}
 .badge-nein{color:var(--red);font-weight:bold}
 
@@ -261,7 +262,7 @@ td{padding:10px 12px;color:var(--text-zweig);border-bottom:1px solid var(--hg-he
 /* Baum-Builder: CART-ähnlicher Algorithmus mit Gini Impurity.
    Validierung prüft pro Knoten die optimale Entscheidung (Split oder Blatt). */
 const ATTRS = [
-  { key:'farbe',     label:'Farbe',     values:[{val:'gruen',label:'🟢 Grün'},{val:'orange',label:'🟠 Orange'}] },
+  { key:'farbe',     label:'Farbe',     values:[{val:'gruen',label:'Grün',farbe:'#4ade80'},{val:'orange',label:'Orange',farbe:'#fb923c'}] },
   { key:'form',      label:'Form',      values:[{val:'kreis',label:'⭕ Kreis'},{val:'viereck',label:'🟦 Viereck'}] },
   { key:'buchstabe', label:'Buchstabe', values:[{val:'A',label:'🔤 A'},{val:'B',label:'🔤 B'}] }
 ];
@@ -300,6 +301,13 @@ function mulberry32(a) {
 
 function rowKey(r) {
   return ATTRS.map(function(a) { return r[a.key]; }).join('|') + '|' + r.ergebnis;
+}
+
+function formatValueChip(valueDef) {
+  var dot = valueDef.farbe
+    ? '<span class="wert-chip-dot" style="background:' + valueDef.farbe + '"></span>'
+    : '';
+  return '<span class="chip-v">' + dot + valueDef.label + '</span>';
 }
 
 function clampDataSize(n) {
@@ -409,7 +417,7 @@ function renderTable() {
     return '<tr><td>' + (i+1) + '</td>' +
       ATTRS.map(function(a) {
         var v = a.values.find(function(x){ return x.val === r[a.key]; });
-        return '<td><span class="chip-v">' + v.label + '</span></td>';
+        return '<td>' + formatValueChip(v) + '</td>';
       }).join('') +
       '<td>' + (r.ergebnis === 'ja' ? '<span class="badge-ja">😊 Happy</span>' : '<span class="badge-nein">😞 Not Happy</span>') + '</td></tr>';
   }).join('') : '';
@@ -537,9 +545,9 @@ function collectSplitSections(node, data, depth, pathParts, sections) {
   });
   var parts = splitData(data, node.attr.key);
   collectSplitSections(node.left, parts.left, depth + 1,
-    pathParts.concat([node.attr.label + ' = ' + node.attr.values[0].label]), sections);
+    pathParts.concat([node.attr.label + ' = ' + formatValueChip(node.attr.values[0])]), sections);
   collectSplitSections(node.right, parts.right, depth + 1,
-    pathParts.concat([node.attr.label + ' = ' + node.attr.values[1].label]), sections);
+    pathParts.concat([node.attr.label + ' = ' + formatValueChip(node.attr.values[1])]), sections);
 }
 
 function renderSolutionSplitAnalysis() {
@@ -705,25 +713,39 @@ function renderLeafNode(node, x, y, container) {
 }
 
 function edgeLabel(node, parent) {
-  if (!parent || !parent.merkmal) return '?';
+  if (!parent || !parent.merkmal) return null;
   var a = ATTRS.find(function(x){ return x.key === parent.merkmal; });
-  return node === parent.left ? a.values[0].label : a.values[1].label;
+  return node === parent.left ? a.values[0] : a.values[1];
 }
 
-function drawLine(svg, x1, y1, x2, y2, txt) {
+function drawLine(svg, x1, y1, x2, y2, valueDef) {
   var ns = 'http://www.w3.org/2000/svg';
   var l = document.createElementNS(ns, 'line');
   l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2);
   l.setAttribute('stroke', 'rgba(139,92,246,0.35)'); l.setAttribute('stroke-width', '1.5');
   svg.appendChild(l);
-  if (txt && txt !== '?') {
-    var t = document.createElementNS(ns, 'text');
-    t.setAttribute('x', (x1+x2)/2 + 8); t.setAttribute('y', (y1+y2)/2);
-    t.setAttribute('fill', '#a78bfa'); t.setAttribute('font-size', '10');
-    t.setAttribute('font-weight', 'bold'); t.setAttribute('dominant-baseline', 'central');
-    t.textContent = txt;
-    svg.appendChild(t);
+  if (!valueDef) return;
+  var label = typeof valueDef === 'string' ? valueDef : valueDef.label;
+  if (!label || label === '?') return;
+  var tx = (x1 + x2) / 2 + 8;
+  var ty = (y1 + y2) / 2;
+  if (valueDef.farbe) {
+    var c = document.createElementNS(ns, 'circle');
+    c.setAttribute('cx', tx);
+    c.setAttribute('cy', ty);
+    c.setAttribute('r', 4);
+    c.setAttribute('fill', valueDef.farbe);
+    c.setAttribute('stroke', 'rgba(255,255,255,0.2)');
+    c.setAttribute('stroke-width', '0.75');
+    svg.appendChild(c);
+    tx += 10;
   }
+  var t = document.createElementNS(ns, 'text');
+  t.setAttribute('x', tx); t.setAttribute('y', ty);
+  t.setAttribute('fill', '#a78bfa'); t.setAttribute('font-size', '10');
+  t.setAttribute('font-weight', 'bold'); t.setAttribute('dominant-baseline', 'central');
+  t.textContent = label;
+  svg.appendChild(t);
 }
 
 function onStudentNodeChange(nodeId, value) {
@@ -856,7 +878,7 @@ function drawSolNode(node, parent, container, svg, ox) {
   var x = node._x + ox;
   var y = node._y;
   if (parent) {
-    var lbl = node === parent.left ? parent.attr.values[0].label : parent.attr.values[1].label;
+    var lbl = node === parent.left ? parent.attr.values[0] : parent.attr.values[1];
     drawLine(svg, parent._x + ox + NW/2, parent._y + NH_NODE, x + NW/2, y, lbl);
   }
   var div = document.createElement('div');
