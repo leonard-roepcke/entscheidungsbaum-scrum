@@ -200,7 +200,7 @@ td{padding:10px 12px;color:var(--text-zweig);border-bottom:1px solid var(--hg-he
           </div>
           <div class="daten-feld">
             <span class="daten-feld-lbl">Seed</span>
-            <input id="data-seed" class="daten-input" type="number" min="0" step="1" value="42" aria-label="Seed"/>
+            <input id="data-seed" class="daten-input" type="number" min="0" step="1" value="36" aria-label="Seed"/>
           </div>
           <button class="btn btn-primaer btn-klein" onclick="generateDataClick()">▶ Generieren</button>
           <button class="btn btn-sekundaer btn-klein" onclick="randomGenerateClick()">🎲 Zufällig</button>
@@ -326,9 +326,6 @@ function readDataControls() {
 }
 
 function initDataControls() {
-  var m = location.search.match(/[?&]seed=(\d+)/);
-  if (m) document.getElementById('data-seed').value = m[1];
-
   document.querySelectorAll('.btn-vorschlag').forEach(function(btn, i) {
     var preset = PRESET_DATASETS[i];
     if (!preset) return;
@@ -337,6 +334,18 @@ function initDataControls() {
 
   document.getElementById('data-size').addEventListener('change', updatePresetHighlight);
   document.getElementById('data-seed').addEventListener('input', updatePresetHighlight);
+}
+
+function initDefaultData() {
+  var m = location.search.match(/[?&]seed=(\d+)/);
+  if (m) {
+    document.getElementById('data-seed').value = m[1];
+    var cfg = readDataControls();
+    generateWithControls(cfg.size, cfg.seed);
+    return;
+  }
+  var preset = PRESET_DATASETS[0];
+  generateWithControls(preset.size, preset.seed);
 }
 
 function generateRows(seed, n) {
@@ -918,10 +927,7 @@ function resetTree() {
 }
 
 initDataControls();
-updatePresetHighlight();
-renderTable();
-buildStudentTree();
-renderStudentTree();
+initDefaultData();
 </script>
 </body>
 </html>
