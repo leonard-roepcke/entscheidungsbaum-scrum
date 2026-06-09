@@ -652,6 +652,53 @@
        Neue Klassen hinzufügen: Dupliziere eine .klasse-zeile
        im HTML und weise eine neue Farbe zu!
   ────────────────────────────────────────────────────────────────── */
+  .klassen-anzahl-auswahl {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .klassen-anzahl-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-schwach);
+  }
+
+  .klassen-anzahl-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .klassen-anzahl-btn {
+    flex: 1;
+    min-width: 72px;
+    padding: 8px 14px;
+    border: 1px solid var(--rahmen);
+    border-radius: var(--radius-klein);
+    background: var(--hg-hell);
+    color: var(--text-zweig);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+
+  .klassen-anzahl-btn:hover {
+    border-color: var(--rahmen-hell);
+    color: var(--text-haupt);
+    background: rgba(139, 92, 246, 0.08);
+  }
+
+  .klassen-anzahl-btn--aktiv {
+    border-color: var(--rahmen-hell);
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--akzent-hell);
+  }
+
   .klassen-grid {
     display: flex;
     flex-direction: column;
@@ -664,6 +711,14 @@
     grid-template-columns: 24px 90px 1fr 40px;
     align-items: center;
     gap: 12px;
+  }
+
+  .klasse-zeile--ausgeblendet {
+    display: none;
+  }
+
+  .verteilung-legende-eintrag--ausgeblendet {
+    display: none;
   }
 
   /* Kleines farbiges Quadrat als Klassen-Indikator */
@@ -1647,7 +1702,8 @@
         <div class="hinweis-icon" aria-hidden="true">💡</div>
         <p class="hinweis-text">
           <strong>So funktioniert der Rechner:</strong>
-          Bewege die Schieberegler, um die Anzahl der Elemente in jeder Klasse
+          Wähle zuerst, wie viele Klassen du vergleichen willst (2 bis 4).
+          Bewege dann die Schieberegler, um die Anzahl der Elemente in jeder Klasse
           zu ändern. Der Gini-Wert, der Balken und der vollständige Rechenweg
           aktualisieren sich sofort.
         </p>
@@ -1692,10 +1748,22 @@
              Füge eine neue .klasse-zeile mit id="slider-D" hinzu
              und erweitere das JavaScript entsprechend.
         -->
+        <div class="klassen-anzahl-auswahl" role="group" aria-label="Anzahl der Klassen">
+          <span class="klassen-anzahl-label">Anzahl Klassen</span>
+          <div class="klassen-anzahl-buttons">
+            <button type="button" class="klassen-anzahl-btn klassen-anzahl-btn--aktiv"
+                    data-anzahl="2" onclick="setzeKlassenAnzahl(2)">2 Klassen</button>
+            <button type="button" class="klassen-anzahl-btn"
+                    data-anzahl="3" onclick="setzeKlassenAnzahl(3)">3 Klassen</button>
+            <button type="button" class="klassen-anzahl-btn"
+                    data-anzahl="4" onclick="setzeKlassenAnzahl(4)">4 Klassen</button>
+          </div>
+        </div>
+
         <div class="klassen-grid" id="klassen-grid">
 
           <!-- KLASSE A: Äpfel -->
-          <div class="klasse-zeile">
+          <div class="klasse-zeile" id="zeile-A">
             <div class="klasse-dot"
                  style="background:#a78bfa; --dot-farbe:rgba(167,139,250,0.4);"></div>
             <span class="klasse-name">🍎 Äpfel</span>
@@ -1711,7 +1779,7 @@
           </div>
 
           <!-- KLASSE B: Birnen -->
-          <div class="klasse-zeile">
+          <div class="klasse-zeile" id="zeile-B">
             <div class="klasse-dot"
                  style="background:#fb923c; --dot-farbe:rgba(251,146,60,0.4);"></div>
             <span class="klasse-name">🍐 Birnen</span>
@@ -1727,7 +1795,7 @@
           </div>
 
           <!-- KLASSE C: Kirschen -->
-          <div class="klasse-zeile">
+          <div class="klasse-zeile klasse-zeile--ausgeblendet" id="zeile-C">
             <div class="klasse-dot"
                  style="background:#4ade80; --dot-farbe:rgba(74,222,128,0.4);"></div>
             <span class="klasse-name">🍒 Kirschen</span>
@@ -1740,6 +1808,22 @@
               oninput="aktualisiereRechner()"
             />
             <span class="klasse-zahl" id="zahl-C">0</span>
+          </div>
+
+          <!-- KLASSE D: Trauben -->
+          <div class="klasse-zeile klasse-zeile--ausgeblendet" id="zeile-D">
+            <div class="klasse-dot"
+                 style="background:#60a5fa; --dot-farbe:rgba(96,165,250,0.4);"></div>
+            <span class="klasse-name">🍇 Trauben</span>
+            <input
+              type="range"
+              class="klasse-slider"
+              id="slider-D"
+              min="0" max="20" value="0"
+              aria-label="Anzahl Trauben"
+              oninput="aktualisiereRechner()"
+            />
+            <span class="klasse-zahl" id="zahl-D">0</span>
           </div>
 
         </div><!-- Ende .klassen-grid -->
@@ -1765,20 +1849,28 @@
                  style="background:#fb923c;"></div>
             <div class="verteilung-segment" id="seg-C"
                  style="background:#4ade80;"></div>
+            <div class="verteilung-segment" id="seg-D"
+                 style="background:#60a5fa;"></div>
           </div>
           <!-- Legende unter dem Balken -->
           <div class="verteilung-legende" style="margin-top: 8px;">
-            <div class="verteilung-legende-eintrag">
+            <div class="verteilung-legende-eintrag" id="legende-eintrag-A">
               <div class="legende-quadrat" style="background:#a78bfa;"></div>
               <span id="legende-A">Äpfel: 6</span>
             </div>
-            <div class="verteilung-legende-eintrag">
+            <div class="verteilung-legende-eintrag" id="legende-eintrag-B">
               <div class="legende-quadrat" style="background:#fb923c;"></div>
               <span id="legende-B">Birnen: 4</span>
             </div>
-            <div class="verteilung-legende-eintrag">
+            <div class="verteilung-legende-eintrag verteilung-legende-eintrag--ausgeblendet"
+                 id="legende-eintrag-C">
               <div class="legende-quadrat" style="background:#4ade80;"></div>
               <span id="legende-C">Kirschen: 0</span>
+            </div>
+            <div class="verteilung-legende-eintrag verteilung-legende-eintrag--ausgeblendet"
+                 id="legende-eintrag-D">
+              <div class="legende-quadrat" style="background:#60a5fa;"></div>
+              <span id="legende-D">Trauben: 0</span>
             </div>
           </div>
         </div>
@@ -1894,7 +1986,41 @@
     { id: 'A', name: 'Äpfel',    farbe: '#a78bfa' },
     { id: 'B', name: 'Birnen',   farbe: '#fb923c' },
     { id: 'C', name: 'Kirschen', farbe: '#4ade80' },
+    { id: 'D', name: 'Trauben',  farbe: '#60a5fa' },
   ];
+
+  var klassenAnzahl = 2;
+
+  function setzeKlassenAnzahl(anzahl) {
+    klassenAnzahl = anzahl;
+
+    var buttons = document.querySelectorAll('.klassen-anzahl-btn');
+    for (var i = 0; i < buttons.length; i++) {
+      var btn = buttons[i];
+      var istAktiv = parseInt(btn.getAttribute('data-anzahl'), 10) === anzahl;
+      btn.classList.toggle('klassen-anzahl-btn--aktiv', istAktiv);
+    }
+
+    for (var j = 0; j < KLASSEN.length; j++) {
+      var klasse = KLASSEN[j];
+      var istSichtbar = j < anzahl;
+      document.getElementById('zeile-' + klasse.id)
+        .classList.toggle('klasse-zeile--ausgeblendet', !istSichtbar);
+      document.getElementById('legende-eintrag-' + klasse.id)
+        .classList.toggle('verteilung-legende-eintrag--ausgeblendet', !istSichtbar);
+
+      if (!istSichtbar) {
+        var slider = document.getElementById('slider-' + klasse.id);
+        slider.value = 0;
+      }
+    }
+
+    aktualisiereRechner();
+  }
+
+  function aktiveKlassen() {
+    return KLASSEN.slice(0, klassenAnzahl);
+  }
 
 
   /* Gini = 1 − Σ (pᵢ)² — pᵢ = Anteil der Klasse i */
@@ -1957,6 +2083,7 @@
 
   /* Liest Slider, berechnet Gini, aktualisiert Balken + Rechenweg */
   function aktualisiereRechner() {
+    var sichtbareKlassen = aktiveKlassen();
     var werte = [];
     var gesamtAnzahl = 0;
 
@@ -1966,8 +2093,11 @@
       var zahl = parseInt(slider.value, 10);
       document.getElementById('zahl-' + klasse.id).textContent = zahl;
       document.getElementById('legende-' + klasse.id).textContent = klasse.name + ': ' + zahl;
-      werte.push(zahl);
-      gesamtAnzahl += zahl;
+
+      if (i < klassenAnzahl) {
+        werte.push(zahl);
+        gesamtAnzahl += zahl;
+      }
     }
 
     var giniWert = berechneGini(werte);
@@ -1975,8 +2105,12 @@
 
     for (var j = 0; j < KLASSEN.length; j++) {
       var seg = document.getElementById('seg-' + KLASSEN[j].id);
+      if (j >= klassenAnzahl) {
+        seg.style.width = '0%';
+        continue;
+      }
       var breite = gesamtAnzahl === 0
-        ? (100 / KLASSEN.length).toFixed(1) + '%'
+        ? (100 / sichtbareKlassen.length).toFixed(1) + '%'
         : ((werte[j] / gesamtAnzahl) * 100).toFixed(1) + '%';
       seg.style.width = breite;
     }
@@ -2012,7 +2146,9 @@
     var quadrate = [];
     var summeQuadrate = 0;
 
-    for (var i = 0; i < KLASSEN.length; i++) {
+    var sichtbareKlassen = aktiveKlassen();
+
+    for (var i = 0; i < sichtbareKlassen.length; i++) {
       var anteil = gesamt > 0 ? werte[i] / gesamt : 0;
       var quadrat = anteil * anteil;
       anteile.push(anteil);
@@ -2020,14 +2156,14 @@
       summeQuadrate += quadrat;
 
       zeilen.push(erstelleRechnungsZeile(
-        'p(' + KLASSEN[i].name + ')',
+        'p(' + sichtbareKlassen[i].name + ')',
         werte[i] + ' ÷ ' + gesamt + ' = ' + anteil.toFixed(4).replace('.', ','),
         false
       ));
     }
 
     zeilen.push('<div style="height:4px;"></div>');
-    for (var j = 0; j < KLASSEN.length; j++) {
+    for (var j = 0; j < sichtbareKlassen.length; j++) {
       var anteilStr = anteile[j].toFixed(4).replace('.', ',');
       var quadratStr = quadrate[j].toFixed(4).replace('.', ',');
       zeilen.push(erstelleRechnungsZeile(
@@ -2057,7 +2193,7 @@
 
 
   document.addEventListener('DOMContentLoaded', function() {
-    aktualisiereRechner();
+    setzeKlassenAnzahl(2);
   });
 
 </script>
