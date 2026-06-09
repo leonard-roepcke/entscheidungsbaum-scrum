@@ -97,6 +97,10 @@ body{
 .daten-input:focus,.daten-select:focus{border-color:var(--rahmen-hell)}
 .daten-input{width:96px}
 .daten-leer{padding:32px 20px;text-align:center;font-size:12px;color:var(--text-schwach)}
+.daten-vorschlaege{display:flex;align-items:center;gap:6px}
+.daten-vorschlaege-lbl{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-zweig);margin-right:2px}
+.btn-vorschlag{min-width:32px;justify-content:center;padding:6px 10px}
+.btn-vorschlag--aktiv{background:rgba(139,92,246,.18);border-color:var(--rahmen-hell);color:#fff}
 
 .tabellen-scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
@@ -199,6 +203,12 @@ td{padding:10px 12px;color:var(--text-zweig);border-bottom:1px solid var(--hg-he
           </div>
           <button class="btn btn-primaer btn-klein" onclick="generateDataClick()">▶ Generieren</button>
           <button class="btn btn-sekundaer btn-klein" onclick="randomGenerateClick()">🎲 Zufällig</button>
+          <div class="daten-vorschlaege" aria-label="Vorschläge">
+            <span class="daten-vorschlaege-lbl">Vorschläge</span>
+            <button class="btn btn-sekundaer btn-klein btn-vorschlag" onclick="applyPresetClick(0)">1</button>
+            <button class="btn btn-sekundaer btn-klein btn-vorschlag" onclick="applyPresetClick(1)">2</button>
+            <button class="btn btn-sekundaer btn-klein btn-vorschlag" onclick="applyPresetClick(2)">3</button>
+          </div>
         </div>
       </div>
       <div class="tabellen-scroll">
@@ -273,6 +283,11 @@ let nodeCounter = 0;
 const MIN_DATA_SIZE = 8;
 const MAX_DATA_SIZE = 12;
 const MAX_ROW_DUPLICATES = 2;
+const PRESET_DATASETS = [
+  { seed: 36, size: 10, label: 'Einfach' },
+  { seed: 394, size: 10, label: 'Mittel' },
+  { seed: 5515, size: 10, label: 'Komplex' }
+];
 
 function mulberry32(a) {
   return function() {
@@ -305,6 +320,15 @@ function readDataControls() {
 function initDataControls() {
   var m = location.search.match(/[?&]seed=(\d+)/);
   if (m) document.getElementById('data-seed').value = m[1];
+
+  document.querySelectorAll('.btn-vorschlag').forEach(function(btn, i) {
+    var preset = PRESET_DATASETS[i];
+    if (!preset) return;
+    btn.title = preset.label + ' · Seed ' + preset.seed + ' · ' + preset.size + ' Einträge · reine Entscheidungen';
+  });
+
+  document.getElementById('data-size').addEventListener('change', updatePresetHighlight);
+  document.getElementById('data-seed').addEventListener('input', updatePresetHighlight);
 }
 
 function generateRows(seed, n) {
@@ -335,21 +359,44 @@ function generateRows(seed, n) {
   return generated;
 }
 
-function generateDataClick() {
-  var cfg = readDataControls();
-  rows = generateRows(cfg.seed, cfg.size);
+function setDataControls(size, seed) {
+  document.getElementById('data-size').value = String(clampDataSize(size));
+  document.getElementById('data-seed').value = String(Math.max(0, seed));
+}
+
+function updatePresetHighlight() {
+  var size = parseInt(document.getElementById('data-size').value, 10);
+  var seed = parseInt(document.getElementById('data-seed').value, 10);
+  document.querySelectorAll('.btn-vorschlag').forEach(function(btn, i) {
+    var preset = PRESET_DATASETS[i];
+    var aktiv = preset && preset.seed === seed && preset.size === size;
+    btn.classList.toggle('btn-vorschlag--aktiv', aktiv);
+  });
+}
+
+function generateWithControls(size, seed) {
+  setDataControls(size, seed);
+  rows = generateRows(seed, clampDataSize(size));
   renderTable();
   rebuildAll();
+  updatePresetHighlight();
+}
+
+function generateDataClick() {
+  var cfg = readDataControls();
+  generateWithControls(cfg.size, cfg.seed);
 }
 
 function randomGenerateClick() {
   var size = MIN_DATA_SIZE + Math.floor(Math.random() * (MAX_DATA_SIZE - MIN_DATA_SIZE + 1));
   var seed = Math.floor(Math.random() * 100000);
-  document.getElementById('data-size').value = String(size);
-  document.getElementById('data-seed').value = String(seed);
-  rows = generateRows(seed, size);
-  renderTable();
-  rebuildAll();
+  generateWithControls(size, seed);
+}
+
+function applyPresetClick(index) {
+  var preset = PRESET_DATASETS[index];
+  if (!preset) return;
+  generateWithControls(preset.size, preset.seed);
 }
 
 function renderTable() {
@@ -849,6 +896,7 @@ function resetTree() {
 }
 
 initDataControls();
+updatePresetHighlight();
 renderTable();
 buildStudentTree();
 renderStudentTree();
