@@ -88,6 +88,16 @@ body{
 .btn-klein{padding:5px 10px;font-size:10.5px}
 .btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
 
+.daten-steuerung{flex-wrap:wrap}
+.daten-controls{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.daten-feld{display:flex;flex-direction:column;gap:4px}
+.daten-feld-lbl{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-zweig)}
+.daten-input,.daten-select{padding:6px 10px;background:var(--hg-tief);border:1px solid var(--rahmen);
+  border-radius:var(--r3);color:var(--text-haupt);font-family:inherit;font-size:12px;outline:none;min-width:72px}
+.daten-input:focus,.daten-select:focus{border-color:var(--rahmen-hell)}
+.daten-input{width:96px}
+.daten-leer{padding:32px 20px;text-align:center;font-size:12px;color:var(--text-schwach)}
+
 .tabellen-scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{padding:12px;text-align:left;font-size:10px;text-transform:uppercase;color:var(--akzent-hell);background:rgba(139,92,246,.05)}
@@ -170,12 +180,30 @@ td{padding:10px 12px;color:var(--text-zweig);border-bottom:1px solid var(--hg-he
   <section>
     <div class="abschnitt-trenner"><span class="abschnitt-label">1. Datentabelle</span></div>
     <div class="karte">
-      <div class="karte-kopf">
+      <div class="karte-kopf daten-steuerung">
         <div class="karte-titel">Trainingsdaten</div>
-        <button class="btn btn-sekundaer btn-klein" onclick="regenData(true)">↻ Neu generieren</button>
+        <div class="daten-controls">
+          <div class="daten-feld">
+            <span class="daten-feld-lbl">Größe</span>
+            <select id="data-size" class="daten-select" aria-label="Datensatzgröße">
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10" selected>10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div class="daten-feld">
+            <span class="daten-feld-lbl">Seed</span>
+            <input id="data-seed" class="daten-input" type="number" min="0" step="1" value="42" aria-label="Seed"/>
+          </div>
+          <button class="btn btn-primaer btn-klein" onclick="generateDataClick()">▶ Generieren</button>
+          <button class="btn btn-sekundaer btn-klein" onclick="randomGenerateClick()">🎲 Zufällig</button>
+        </div>
       </div>
       <div class="tabellen-scroll">
         <table id="tbl"><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+        <div id="tbl-empty" class="daten-leer">Wähle Größe und Seed, dann auf „Generieren“ klicken.</div>
       </div>
     </div>
   </section>
@@ -242,7 +270,9 @@ let solution = null;
 let snodes = {};
 let sroot = null;
 let nodeCounter = 0;
-let rngSeed = 42;
+const MIN_DATA_SIZE = 8;
+const MAX_DATA_SIZE = 12;
+const MAX_ROW_DUPLICATES = 2;
 
 function mulberry32(a) {
   return function() {
@@ -253,41 +283,89 @@ function mulberry32(a) {
   };
 }
 
-function initSeed() {
-  var m = location.search.match(/[?&]seed=(\d+)/);
-  rngSeed = m ? parseInt(m[1], 10) : Date.now() % 100000;
+function rowKey(r) {
+  return ATTRS.map(function(a) { return r[a.key]; }).join('|') + '|' + r.ergebnis;
 }
 
-function regenData(inkrement) {
-  if (inkrement) rngSeed = (rngSeed + 1) % 100000;
-  var rand = mulberry32(rngSeed);
+function clampDataSize(n) {
+  return Math.max(MIN_DATA_SIZE, Math.min(MAX_DATA_SIZE, n));
+}
+
+function readDataControls() {
+  var sizeEl = document.getElementById('data-size');
+  var seedEl = document.getElementById('data-seed');
+  var size = clampDataSize(parseInt(sizeEl.value, 10) || MIN_DATA_SIZE);
+  var seed = parseInt(seedEl.value, 10);
+  if (!isFinite(seed) || seed < 0) seed = 0;
+  sizeEl.value = String(size);
+  seedEl.value = String(seed);
+  return { size: size, seed: seed };
+}
+
+function initDataControls() {
+  var m = location.search.match(/[?&]seed=(\d+)/);
+  if (m) document.getElementById('data-seed').value = m[1];
+}
+
+function generateRows(seed, n) {
+  var rand = mulberry32(seed);
   var mainA = ATTRS[Math.floor(rand() * ATTRS.length)];
   var mainV = mainA.values[0].val;
-  var n = 10 + Math.floor(rand() * 3);
-  rows = [];
+  var counts = {};
+  var generated = [];
+
   for (var i = 0; i < n; i++) {
-    var r = {};
-    ATTRS.forEach(function(a) { r[a.key] = a.values[Math.floor(rand() * 2)].val; });
-    r.ergebnis = (r[mainA.key] === mainV)
-      ? (rand() < 0.12 ? 'nein' : 'ja')
-      : (rand() < 0.12 ? 'ja' : 'nein');
-    rows.push(r);
+    var r = null;
+    for (var attempt = 0; attempt < 200; attempt++) {
+      var candidate = {};
+      ATTRS.forEach(function(a) { candidate[a.key] = a.values[Math.floor(rand() * 2)].val; });
+      candidate.ergebnis = (candidate[mainA.key] === mainV)
+        ? (rand() < 0.12 ? 'nein' : 'ja')
+        : (rand() < 0.12 ? 'ja' : 'nein');
+      var key = rowKey(candidate);
+      if ((counts[key] || 0) < MAX_ROW_DUPLICATES) {
+        r = candidate;
+        counts[key] = (counts[key] || 0) + 1;
+        break;
+      }
+    }
+    if (!r) break;
+    generated.push(r);
   }
+  return generated;
+}
+
+function generateDataClick() {
+  var cfg = readDataControls();
+  rows = generateRows(cfg.seed, cfg.size);
+  renderTable();
+  rebuildAll();
+}
+
+function randomGenerateClick() {
+  var size = MIN_DATA_SIZE + Math.floor(Math.random() * (MAX_DATA_SIZE - MIN_DATA_SIZE + 1));
+  var seed = Math.floor(Math.random() * 100000);
+  document.getElementById('data-size').value = String(size);
+  document.getElementById('data-seed').value = String(seed);
+  rows = generateRows(seed, size);
   renderTable();
   rebuildAll();
 }
 
 function renderTable() {
-  document.getElementById('thead').innerHTML =
-    '<tr><th>#</th>' + ATTRS.map(function(a){ return '<th>' + a.label + '</th>'; }).join('') + '<th>Ergebnis</th></tr>';
-  document.getElementById('tbody').innerHTML = rows.map(function(r, i) {
+  var hasRows = rows.length > 0;
+  document.getElementById('tbl-empty').style.display = hasRows ? 'none' : 'block';
+  document.getElementById('thead').innerHTML = hasRows
+    ? '<tr><th>#</th>' + ATTRS.map(function(a){ return '<th>' + a.label + '</th>'; }).join('') + '<th>Ergebnis</th></tr>'
+    : '';
+  document.getElementById('tbody').innerHTML = hasRows ? rows.map(function(r, i) {
     return '<tr><td>' + (i+1) + '</td>' +
       ATTRS.map(function(a) {
         var v = a.values.find(function(x){ return x.val === r[a.key]; });
         return '<td><span class="chip-v">' + v.label + '</span></td>';
       }).join('') +
       '<td>' + (r.ergebnis === 'ja' ? '<span class="badge-ja">😊 Happy</span>' : '<span class="badge-nein">😞 Not Happy</span>') + '</td></tr>';
-  }).join('');
+  }).join('') : '';
 }
 
 function gini(data) {
@@ -770,8 +848,10 @@ function resetTree() {
   document.getElementById('sol-wrap').style.display = 'none';
 }
 
-initSeed();
-regenData(false);
+initDataControls();
+renderTable();
+buildStudentTree();
+renderStudentTree();
 </script>
 </body>
 </html>
